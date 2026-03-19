@@ -16,10 +16,10 @@ import com.glodblock.github.extendedae.client.gui.GuiAssemblerMatrix;
 import java.util.List;
 import java.lang.reflect.Constructor;
 
-@Mixin(targets = "com.glodblock.github.extendedae.client.gui.GuiAssemblerMatrix$PatternInfo")
+@Mixin(targets = "com.glodblock.github.extendedae.client.gui.GuiAssemblerMatrix$PatternInfo", remap = false)
 public abstract class GuiAssemblerMatrixPatternInfoMixin {
 
-    @Shadow
+    @Shadow(remap = false)
     @Final
     private List<Object> internalRows;
 
@@ -41,7 +41,7 @@ public abstract class GuiAssemblerMatrixPatternInfoMixin {
         }
     }
 
-    @Inject(method = "<init>", at = @At("RETURN"))
+    @Inject(method = "<init>", at = @At("RETURN"), remap = false)
     private void extendedae_plus$rebuildRows(long id, CallbackInfo ci) {
         int invSize = TileAssemblerMatrixPattern.INV_SIZE;//样板核心槽位数变量
         try {

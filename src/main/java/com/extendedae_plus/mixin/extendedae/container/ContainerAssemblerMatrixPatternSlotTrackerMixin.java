@@ -12,19 +12,19 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import com.glodblock.github.extendedae.container.ContainerAssemblerMatrix;
 
-@Mixin(targets = "com.glodblock.github.extendedae.container.ContainerAssemblerMatrix$PatternSlotTracker")
+@Mixin(targets = "com.glodblock.github.extendedae.container.ContainerAssemblerMatrix$PatternSlotTracker", remap = false)
 public abstract class ContainerAssemblerMatrixPatternSlotTrackerMixin {
 
-    @Shadow
+    @Shadow(remap = false)
     @Final
     private InternalInventory server;
 
-    @Shadow
+    @Shadow(remap = false)
     @Final
     @Mutable
     private InternalInventory client;
 
-    @Inject(method = "<init>", at = @At("TAIL"))
+    @Inject(method = "<init>", at = @At("TAIL"), remap = false)
     private void extendedae_plus$resizeClientInventory(TileAssemblerMatrixPattern host, CallbackInfo ci) {
         this.client = new AppEngInternalInventory(this.server.size());
     }
