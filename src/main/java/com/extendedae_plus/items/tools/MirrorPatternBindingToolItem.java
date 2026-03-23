@@ -55,7 +55,7 @@ public class MirrorPatternBindingToolItem extends Item {
                     } else {
                         player.displayClientMessage(
                                 Component.translatable(
-                                        "extendedae_plus.message.mirror_binding_tool.only_normal_provider"),
+                                        "extendedae_plus.message.mirror_binding_tool.unsupported_provider"),
                                 true);
                     }
                 }

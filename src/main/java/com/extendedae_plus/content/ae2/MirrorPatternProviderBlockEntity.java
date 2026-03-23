@@ -10,6 +10,7 @@ import appeng.helpers.patternprovider.PatternProviderLogic;
 import appeng.util.CustomNameUtil;
 import appeng.util.SettingsFrom;
 import appeng.util.inv.AppEngInternalInventory;
+import com.extendedae_plus.config.ModConfig;
 import com.extendedae_plus.init.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
@@ -34,6 +35,8 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
     private static final String TAG_MASTER_DIMENSION = "dimension";
     private static final String TAG_MASTER_POS = "pos";
     private static final int SYNC_INTERVAL = 2;
+    private static final int AE2_PATTERN_SLOTS = 9;
+    private static final int EXTENDED_PATTERN_PROVIDER_BASE_SLOTS = 36;
     private static final InternalInventory DISABLED_PATTERN_INVENTORY = new AppEngInternalInventory(0);
 
     @Nullable
@@ -58,7 +61,7 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
 
     @Override
     protected PatternProviderLogic createLogic() {
-        return new MirrorLogic(this.getMainNode(), this);
+        return new MirrorLogic(this.getMainNode(), this, getMirrorPatternSlotCapacity());
     }
 
     public static void serverTick(Level level, BlockPos pos, BlockState state,
@@ -146,7 +149,8 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
         if (masterLevel != null && masterLevel.hasChunkAt(master.pos())) {
             var blockEntity = masterLevel.getBlockEntity(master.pos());
             if (isValidMaster(blockEntity)) {
-                return this.syncFromMaster((PatternProviderBlockEntity) blockEntity);
+                this.syncFromMaster((PatternProviderBlockEntity) blockEntity);
+                return true;
             }
             return false;
         }
@@ -311,15 +315,15 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
 
     private boolean syncMirroredPatterns(PatternProviderBlockEntity master) {
         var mirrorInventory = this.getPatternInventory();
-        var masterInventory = asPatternInventory(master.getLogic().getPatternInv());
+        var desiredInventory = this.createDesiredPatternInventory(master);
 
-        if (this.hasSamePatterns(masterInventory, mirrorInventory)) {
+        if (this.hasSamePatterns(desiredInventory, mirrorInventory)) {
             return false;
         }
 
         this.clearInventory(mirrorInventory);
-        for (int slot = 0; slot < masterInventory.size(); slot++) {
-            mirrorInventory.setItemDirect(slot, masterInventory.getStackInSlot(slot).copy());
+        for (int slot = 0; slot < desiredInventory.size(); slot++) {
+            mirrorInventory.setItemDirect(slot, desiredInventory.getStackInSlot(slot).copy());
         }
         this.getLogic().updatePatterns();
         return true;
@@ -364,6 +368,18 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
         return ((MirrorLogic) this.getLogic()).getActualPatternInventory();
     }
 
+    private AppEngInternalInventory createDesiredPatternInventory(PatternProviderBlockEntity master) {
+        var desiredInventory = new AppEngInternalInventory(this.getPatternInventory().size());
+        var masterInventory = asPatternInventory(master.getLogic().getPatternInv());
+        var copySlotCount = Math.min(masterInventory.size(), desiredInventory.size());
+
+        for (int slot = 0; slot < copySlotCount; slot++) {
+            desiredInventory.setItemDirect(slot, masterInventory.getStackInSlot(slot).copy());
+        }
+
+        return desiredInventory;
+    }
+
     private ItemStack[] copyInventoryContents(AppEngInternalInventory inventory) {
         var contents = new ItemStack[inventory.size()];
         for (int slot = 0; slot < inventory.size(); slot++) {
@@ -397,6 +413,16 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
         return (AppEngInternalInventory) inventory;
     }
 
+    private static int getMirrorPatternSlotCapacity() {
+        int pageMultiplier = 1;
+        if (ModConfig.INSTANCE != null) {
+            pageMultiplier = ModConfig.INSTANCE.pageMultiplier;
+        }
+
+        pageMultiplier = Math.max(1, Math.min(64, pageMultiplier));
+        return Math.max(AE2_PATTERN_SLOTS, EXTENDED_PATTERN_PROVIDER_BASE_SLOTS * pageMultiplier);
+    }
+
     private static boolean sameStack(ItemStack left, ItemStack right) {
         if (left.isEmpty() && right.isEmpty()) {
             return true;
@@ -406,8 +432,8 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
     }
 
     public static boolean isSupportedMaster(@Nullable BlockEntity blockEntity) {
-        return blockEntity != null
-                && blockEntity.getClass() == PatternProviderBlockEntity.class
+        return blockEntity instanceof PatternProviderBlockEntity
+                && !(blockEntity instanceof MirrorPatternProviderBlockEntity)
                 && !blockEntity.isRemoved();
     }
 
@@ -416,8 +442,9 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
     }
 
     private static final class MirrorLogic extends PatternProviderLogic {
-        private MirrorLogic(IManagedGridNode mainNode, MirrorPatternProviderBlockEntity mirrorHost) {
-            super(mainNode, mirrorHost);
+        private MirrorLogic(IManagedGridNode mainNode, MirrorPatternProviderBlockEntity mirrorHost,
+                int patternInventorySize) {
+            super(mainNode, mirrorHost, patternInventorySize);
         }
 
         @Override
