@@ -10,6 +10,7 @@ import com.extendedae_plus.items.InfinityBigIntegerCellItem;
 import com.extendedae_plus.items.materials.ChannelCardItem;
 import com.extendedae_plus.items.materials.EntitySpeedCardItem;
 import com.extendedae_plus.items.materials.VirtualCraftingCardItem;
+import com.extendedae_plus.items.tools.MirrorPatternBindingToolItem;
 import com.extendedae_plus.util.ModCheckUtils;
 import net.minecraft.world.item.BlockItem;
 import net.minecraft.world.item.Item;
@@ -83,6 +84,16 @@ public final class ModItems {
     public static final RegistryObject<Item> CRAFTING_ACCELERATOR_1024x = ITEMS.register(
             "1024x_crafting_accelerator",
             () -> new BlockItem(ModBlocks.CRAFTING_ACCELERATOR_1024x.get(), new Item.Properties())
+    );
+
+    public static final RegistryObject<Item> MIRROR_PATTERN_PROVIDER = ITEMS.register(
+            "mirror_pattern_provider",
+            () -> new BlockItem(ModBlocks.MIRROR_PATTERN_PROVIDER.get(), new Item.Properties())
+    );
+
+    public static final RegistryObject<MirrorPatternBindingToolItem> MIRROR_PATTERN_BINDING_TOOL = ITEMS.register(
+            "mirror_pattern_binding_tool",
+            () -> new MirrorPatternBindingToolItem(new Item.Properties())
     );
 
     public static final RegistryObject<EntitySpeedTickerPartItem> ENTITY_TICKER_PART_ITEM = ITEMS.register(

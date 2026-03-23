@@ -1,6 +1,7 @@
 package com.extendedae_plus.init;
 
 import com.extendedae_plus.ExtendedAEPlus;
+import com.extendedae_plus.content.ae2.MirrorPatternProviderBlockEntity;
 import com.extendedae_plus.content.matrix.CrafterCorePlusBlockEntity;
 import com.extendedae_plus.content.matrix.PatternCorePlusBlockEntity;
 import com.extendedae_plus.content.matrix.SpeedCorePlusBlockEntity;
@@ -58,4 +59,9 @@ public final class ModBlockEntities {
             BLOCK_ENTITY_TYPES.register("assembler_matrix_upload_core",
                     () -> BlockEntityType.Builder.of(UploadCoreBlockEntity::new,
                             ModBlocks.ASSEMBLER_MATRIX_UPLOAD_CORE.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<MirrorPatternProviderBlockEntity>> MIRROR_PATTERN_PROVIDER_BE =
+            BLOCK_ENTITY_TYPES.register("mirror_pattern_provider",
+                    () -> BlockEntityType.Builder.of(MirrorPatternProviderBlockEntity::new,
+                            ModBlocks.MIRROR_PATTERN_PROVIDER.get()).build(null));
 }

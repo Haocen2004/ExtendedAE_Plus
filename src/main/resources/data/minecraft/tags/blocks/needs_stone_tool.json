@@ -1,6 +1,7 @@
 {
   "replace": false,
   "values": [
+    "extendedae_plus:mirror_pattern_provider",
     "extendedae_plus:wireless_transceiver",
     "extendedae_plus:assembler_matrix_upload_core",
     "extendedae_plus:assembler_matrix_speed_plus",

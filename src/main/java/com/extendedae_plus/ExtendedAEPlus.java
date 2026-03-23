@@ -1,11 +1,13 @@
 package com.extendedae_plus;
 
 import appeng.api.storage.StorageCells;
+import appeng.block.AEBaseEntityBlock;
 import appeng.menu.locator.MenuLocators;
 import com.extendedae_plus.api.storage.InfinityBigIntegerCellHandler;
 import com.extendedae_plus.client.ClientRegistrar;
 import com.extendedae_plus.client.ModKeybindings;
 import com.extendedae_plus.config.ModConfig;
+import com.extendedae_plus.content.ae2.MirrorPatternProviderBlockEntity;
 import com.extendedae_plus.content.matrix.CrafterCorePlusBlockEntity;
 import com.extendedae_plus.content.matrix.PatternCorePlusBlockEntity;
 import com.extendedae_plus.init.*;
@@ -104,6 +106,17 @@ public class ExtendedAEPlus {
                     ModBlockEntities.ASSEMBLER_MATRIX_PATTERN_PLUS_BE.get(),
                     null,
                     null
+            );
+
+            ((AEBaseEntityBlock) ModBlocks.MIRROR_PATTERN_PROVIDER.get()).setBlockEntity(
+                    MirrorPatternProviderBlockEntity.class,
+                    ModBlockEntities.MIRROR_PATTERN_PROVIDER_BE.get(),
+                    null,
+                    (level, pos, state, blockEntity) -> MirrorPatternProviderBlockEntity.serverTick(
+                            level,
+                            pos,
+                            state,
+                            (MirrorPatternProviderBlockEntity) blockEntity)
             );
 
         });

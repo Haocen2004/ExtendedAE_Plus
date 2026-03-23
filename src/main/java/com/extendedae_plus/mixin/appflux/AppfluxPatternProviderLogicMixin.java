@@ -6,6 +6,7 @@ import appeng.api.upgrades.UpgradeInventories;
 import appeng.helpers.patternprovider.PatternProviderLogic;
 import appeng.helpers.patternprovider.PatternProviderLogicHost;
 import com.extendedae_plus.compat.UpgradeSlotCompat;
+import com.extendedae_plus.content.ae2.MirrorPatternProviderBlockEntity;
 import com.extendedae_plus.util.Logger;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,6 +14,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Method;
 
 /**
  * 当appflux存在时，修改PatternProviderLogic的升级槽数量为2个
@@ -28,26 +30,37 @@ public class AppfluxPatternProviderLogicMixin {
             at = @At("TAIL"))
     private void eap$modifyAppfluxUpgradeSlots(IManagedGridNode mainNode, PatternProviderLogicHost host, int patternInventorySize, CallbackInfo ci) {
         try {
+            if (host instanceof MirrorPatternProviderBlockEntity) {
+                return;
+            }
 
             // 只有当appflux存在且不启用我们的升级槽时才修改数量
             if (!UpgradeSlotCompat.shouldEnableUpgradeSlots() && UpgradeSlotCompat.shouldEnableChannelCard()) {
 
                 // 使用反射找到appflux的升级槽字段并替换
                 try {
-                    Field upgradesField = this.getClass().getDeclaredField("af_$upgrades");
+                    Field upgradesField = PatternProviderLogic.class.getDeclaredField("af_$upgrades");
                     upgradesField.setAccessible(true);
                     IUpgradeInventory currentUpgrades = (IUpgradeInventory) upgradesField.get(this);
+                    Method onUpgradesChanged = null;
+                    try {
+                        onUpgradesChanged = PatternProviderLogic.class.getDeclaredMethod("af_$onUpgradesChanged");
+                        onUpgradesChanged.setAccessible(true);
+                    } catch (NoSuchMethodException ignored) {
+                    }
                     
                     if (currentUpgrades != null) {
 
                         // 创建新的2槽升级槽
+                        Method finalOnUpgradesChanged = onUpgradesChanged;
                         IUpgradeInventory newUpgrades = UpgradeInventories.forMachine(
                             host.getTerminalIcon().getItem(), 
                             2, 
                             () -> {
                                 try {
-                                    // 调用appflux的升级变更方法
-                                    this.getClass().getDeclaredMethod("af_$onUpgradesChanged").invoke(this);
+                                    if (finalOnUpgradesChanged != null) {
+                                        finalOnUpgradesChanged.invoke(this);
+                                    }
                                 } catch (Exception e) {
                                     Logger.EAP$LOGGER.error("调用appflux升级变更方法失败", e);
                                 }
@@ -64,6 +77,8 @@ public class AppfluxPatternProviderLogicMixin {
                         // 替换升级槽
                         upgradesField.set(this, newUpgrades);
                     }
+                } catch (NoSuchFieldException e) {
+                    Logger.EAP$LOGGER.debug("未找到appflux升级槽字段，跳过升级槽兼容调整");
                 } catch (Exception e) {
                     Logger.EAP$LOGGER.error("反射修改appflux升级槽失败", e);
                 }

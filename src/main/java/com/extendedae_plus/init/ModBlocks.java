@@ -4,6 +4,7 @@ import appeng.block.crafting.CraftingUnitBlock;
 import appeng.blockentity.crafting.CraftingBlockEntity;
 import appeng.core.definitions.AEBlockEntities;
 import com.extendedae_plus.ExtendedAEPlus;
+import com.extendedae_plus.content.ae2.MirrorPatternProviderBlock;
 import com.extendedae_plus.content.crafting.EPlusCraftingUnitType;
 import com.extendedae_plus.content.matrix.CrafterCorePlusBlock;
 import com.extendedae_plus.content.matrix.PatternCorePlusBlock;
@@ -125,5 +126,10 @@ public final class ModBlocks {
                 b.setBlockEntity(CraftingBlockEntity.class, AEBlockEntities.CRAFTING_UNIT, null, null);
                 return b;
             }
+    );
+
+    public static final RegistryObject<MirrorPatternProviderBlock> MIRROR_PATTERN_PROVIDER = BLOCKS.register(
+            "mirror_pattern_provider",
+            MirrorPatternProviderBlock::new
     );
 }

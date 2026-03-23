@@ -124,6 +124,28 @@ public class CraftingRecipes extends RecipeProvider {
                 .define('B', EPPItemAndBlock.ASSEMBLER_MATRIX_WALL)
                 .unlockedBy("has_quantum_ring", has(AEBlocks.QUANTUM_RING))
                 .save(consumer);
+
+        //镜像样板供应器
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.MIRROR_PATTERN_PROVIDER.get())
+                .pattern("AAA")
+                .pattern("ABA")
+                .pattern("AAA")
+                .unlockedBy("has_mirror_pattern_provider",has(ModItems.MIRROR_PATTERN_PROVIDER.get()))
+                .define('A',Items.GLASS)
+                .define('B',AEBlocks.PATTERN_PROVIDER)
+                .save(consumer);
+
+        //镜像样板绑定工具
+        ShapedRecipeBuilder.shaped(RecipeCategory.MISC, ModItems.MIRROR_PATTERN_BINDING_TOOL.get())
+                .pattern("  A")
+                .pattern("BCD")
+                .pattern("BBB")
+                .unlockedBy("has_mirror_pattern_binding_tool",has(ModItems.MIRROR_PATTERN_BINDING_TOOL.get()))
+                .define('A', AEItems.WIRELESS_RECEIVER)
+                .define('B', Items.IRON_INGOT)
+                .define('C', Items.REDSTONE)
+                .define('D', AEItems.CALCULATION_PROCESSOR)
+                .save(consumer);
     }
 
     private void addCraftingAccelerators(Consumer<FinishedRecipe> consumer) {
