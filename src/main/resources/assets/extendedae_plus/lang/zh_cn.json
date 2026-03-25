@@ -124,6 +124,8 @@
   "extendedae_plus.screen.upload.select_provider_first": "请先点击左侧按钮选择一个样板供应器",
   "extendedae_plus.screen.upload.invalid_pattern": "无效样板",
   "extendedae_plus.screen.upload.no_network_support": "未找到 ExtendedAE 网络支持（可能未安装或版本不兼容）",
+  "extendedae_plus.screen.upload.auto_upload_success": "已自动上传到唯一匹配的样板供应器：%s",
+  "extendedae_plus.screen.upload.auto_upload_failed": "自动上传到样板供应器失败：%s",
 
   "extendedae_plus.screen.open_provider_ui": "打开该供应器目标容器的界面",
   "extendedae_plus.button.choose_provider":"上传样板",

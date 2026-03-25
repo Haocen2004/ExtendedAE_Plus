@@ -78,6 +78,10 @@ public class ProviderSelectScreen extends Screen {
     // 缓存 Component JSON 解析
     private static final Map<String, String> componentCache = new HashMap<>();
     private String lastLanguage = ""; // 当前语言版本
+    private boolean autoUploadRequestedFromProcessingName = false;
+    private boolean autoUploadAttempted = false;
+    private int lastExactMatchCount = 0;
+    private boolean lastFilterUsedFallback = false;
 
     public ProviderSelectScreen(Screen parent, List<Long> ids, List<String> names, List<Integer> emptySlots) {
         super(Component.translatable("extendedae_plus.screen.choose_provider.title"));
@@ -90,6 +94,7 @@ public class ProviderSelectScreen extends Screen {
             String recent = RecipeTypeNameConfig.lastProcessingName;
             if (recent != null && !recent.isBlank()) {
                 this.query = recent;
+                this.autoUploadRequestedFromProcessingName = true;
                 // 用后即清空，避免污染下次
                 RecipeTypeNameConfig.lastProcessingName = null;
             }
@@ -200,6 +205,7 @@ public class ProviderSelectScreen extends Screen {
         this.addRenderableWidget(delByCn);
 
         refreshButtons(); // 初始化完成后刷新按钮状态
+        tryAutoUploadIfUniqueMatch();
     }
 
     private void changePage(int delta) {
@@ -273,9 +279,14 @@ public class ProviderSelectScreen extends Screen {
     }
 
     private void onChoose(int idx) {
+        onChoose(idx, false);
+    }
+
+    private void onChoose(int idx, boolean showStatusMessage) {
         if (idx < 0 || idx >= fIds.size()) return;
         long providerId = fIds.get(idx);
-        ModNetwork.CHANNEL.sendToServer(new UploadEncodedPatternToProviderC2SPacket(providerId));
+        String providerName = fNames.get(idx);
+        ModNetwork.CHANNEL.sendToServer(new UploadEncodedPatternToProviderC2SPacket(providerId, showStatusMessage, providerName));
         this.onClose();
     }
 
@@ -323,6 +334,8 @@ public class ProviderSelectScreen extends Screen {
         fNames.clear();
         fTotalSlots.clear();
         fCount.clear();
+        lastExactMatchCount = 0;
+        lastFilterUsedFallback = false;
         String q = query == null ? "" : query.trim();
         String qLower = q.toLowerCase(Locale.ROOT);
 
@@ -333,10 +346,12 @@ public class ProviderSelectScreen extends Screen {
                 fNames.add(name);
                 fTotalSlots.add(gTotalSlots.get(i));
                 fCount.add(gCount.get(i));
+                lastExactMatchCount++;
             }
         }
         // 若查询不为空但没有任何匹配，则回退为显示全部，避免“空列表”误导用户
         if (!q.isEmpty() && fIds.isEmpty()) {
+            lastFilterUsedFallback = true;
             for (int i = 0; i < gIds.size(); i++) {
                 fIds.add(gIds.get(i));
                 fNames.add(gNames.get(i));
@@ -383,6 +398,17 @@ public class ProviderSelectScreen extends Screen {
         fTotalSlots.addAll(sortedSlots);
         fCount.clear();
         fCount.addAll(sortedCount);
+    }
+
+    private void tryAutoUploadIfUniqueMatch() {
+        if (!autoUploadRequestedFromProcessingName || autoUploadAttempted) {
+            return;
+        }
+        autoUploadAttempted = true;
+        if (query == null || query.isBlank() || lastFilterUsedFallback || lastExactMatchCount != 1 || fIds.size() != 1) {
+            return;
+        }
+        onChoose(0, true);
     }
 
     // 优先使用 JEC 的拼音匹配，否则回退到大小写不敏感子串匹配

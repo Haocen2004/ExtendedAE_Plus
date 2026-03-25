@@ -125,6 +125,8 @@
   "extendedae_plus.screen.upload.select_provider_first":"Please click the button on the left to select a pattern provider first",
   "extendedae_plus.screen.upload.invalid_pattern": "Invalid Pattern",
   "extendedae_plus.screen.upload.no_network_support": "ExtendedAE network support not found (may be missing or incompatible version)",
+  "extendedae_plus.screen.upload.auto_upload_success": "Automatically uploaded to the only matching pattern provider: %s",
+  "extendedae_plus.screen.upload.auto_upload_failed": "Automatic upload to the pattern provider failed: %s",
 
   "extendedae_plus.screen.open_provider_ui": "Open the target container UI of this provider",
   "extendedae_plus.button.choose_provider": "Upload Pattern",

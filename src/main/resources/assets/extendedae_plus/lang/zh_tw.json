@@ -123,6 +123,8 @@
   "extendedae_plus.screen.upload.select_provider_first": "請先點選左側按鈕選擇一個樣板供應器",
   "extendedae_plus.screen.upload.invalid_pattern": "無效樣板",
   "extendedae_plus.screen.upload.no_network_support": "未找到 ExtendedAE 網路支援（可能未安裝或版本不相容）",
+  "extendedae_plus.screen.upload.auto_upload_success": "已自動上傳到唯一匹配的樣板供應器：%s",
+  "extendedae_plus.screen.upload.auto_upload_failed": "自動上傳到樣板供應器失敗：%s",
 
   "extendedae_plus.screen.open_provider_ui": "開啟該供應器目標容器的介面",
   "extendedae_plus.button.choose_provider": "上傳樣板",
