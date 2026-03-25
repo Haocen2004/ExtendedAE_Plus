@@ -99,7 +99,7 @@ dependencies {
     modRuntimeOnly "curse.maven:advancedae-1084104:6939473"
 
     modCompileOnly "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
-    modRuntimeOnly "mezz.jei:jei-${minecraft_version}-forge:15.20.0.112"
+    modRuntimeOnly "mezz.jei:jei-${minecraft_version}-forge:15.20.0.129"
     modImplementation "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
     modImplementation "curse.maven:jade-324717:${jade_version}"
 

@@ -19,6 +19,7 @@ import org.spongepowered.asm.mixin.Pseudo;
 import javax.annotation.Nullable;
 import java.lang.reflect.Field;
 import java.lang.reflect.Method;
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
@@ -54,6 +55,49 @@ public final class JeiBookmarkBridge {
             return bookmarkList.getElements().stream().map(IElement::getTypedIngredient).toList();
         }
         return Collections.emptyList();
+    }
+
+    public static Optional<ITypedIngredient<?>> getIngredientUnderMouse() {
+        return getIngredientUnderMouse(MouseUtil.getX(), MouseUtil.getY());
+    }
+
+    public static Optional<ITypedIngredient<?>> getIngredientUnderMouse(double mouseX, double mouseY) {
+        IJeiRuntime rt = getRuntime();
+        if (rt == null) {
+            return Optional.empty();
+        }
+
+        Optional<ITypedIngredient<?>> ingredient = getTypedIngredientFromClickableSource(rt.getIngredientListOverlay(), mouseX, mouseY);
+        if (ingredient.isPresent()) {
+            return ingredient;
+        }
+
+        IBookmarkOverlay bookmarkOverlay = rt.getBookmarkOverlay();
+        ingredient = getTypedIngredientFromClickableSource(bookmarkOverlay, mouseX, mouseY);
+        if (ingredient.isPresent()) {
+            return ingredient;
+        }
+
+        if (rt.getIngredientListOverlay() != null) {
+            var hovered = rt.getIngredientListOverlay().getIngredientUnderMouse();
+            if (hovered.isPresent()) {
+                return hovered.map(i -> (ITypedIngredient<?>) i);
+            }
+        }
+
+        if (bookmarkOverlay != null) {
+            var hovered = bookmarkOverlay.getIngredientUnderMouse();
+            if (hovered.isPresent()) {
+                return hovered.map(i -> (ITypedIngredient<?>) i);
+            }
+        }
+
+        Optional<Object> bookmark = getBookmarkUnderMouse(bookmarkOverlay, mouseX, mouseY);
+        if (bookmark.isPresent()) {
+            return getTypedIngredientFromBookmark(bookmark.get());
+        }
+
+        return Optional.empty();
     }
 
     public static void addBookmark(ItemStack stack) {
@@ -167,62 +211,19 @@ public final class JeiBookmarkBridge {
      * @return 配方书签对象（RecipeBookmark<?, ?>），如果不是配方书签则返回空
      */
     public static Optional<?> getRecipeBookmarkUnderMouse() {
-        IJeiRuntime rt = getRuntime();
-        if (rt == null) return Optional.empty();
-        
-        IBookmarkOverlay bookmarkOverlay = rt.getBookmarkOverlay();
-        if (!(bookmarkOverlay instanceof BookmarkOverlayAccessor accessor)) {
-            return Optional.empty();
+        Optional<?> bookmark = getBookmarkUnderMouse();
+        if (bookmark.isPresent() && isRecipeBookmark(bookmark.get())) {
+            return bookmark;
         }
-
-        // 优先路径：直接从鼠标下 clickable 元素提取 bookmark（避免 typedIngredient equals 误判）
-        try {
-            var overlayObj = (Object) bookmarkOverlay;
-            var streamObj = overlayObj.getClass()
-                .getMethod("getIngredientUnderMouse", double.class, double.class)
-                .invoke(overlayObj, MouseUtil.getX(), MouseUtil.getY());
-            if (streamObj instanceof java.util.stream.Stream<?> stream) {
-                Object clickable = stream.findFirst().orElse(null);
-                if (clickable != null) {
-                    Object element = clickable.getClass().getMethod("getElement").invoke(clickable);
-                    if (element != null) {
-                        Object bookmarkOpt = element.getClass().getMethod("getBookmark").invoke(element);
-                        if (bookmarkOpt instanceof Optional<?> b && b.isPresent()) {
-                            Object bookmark = b.get();
-                            if (bookmark != null && "RecipeBookmark".equals(bookmark.getClass().getSimpleName())) {
-                                return Optional.of(bookmark);
-                            }
-                        }
-                    }
-                }
-            }
-        } catch (Throwable ignored) {
-        }
-        
-        // 获取鼠标下的元素
-        Optional<ITypedIngredient<?>> ingredientOpt = bookmarkOverlay.getIngredientUnderMouse();
-        if (ingredientOpt.isEmpty()) {
-            return Optional.empty();
-        }
-        
-        // 遍历书签列表，查找匹配的配方书签
-        BookmarkList bookmarkList = accessor.eap$getBookmarkList();
-        for (IElement<?> element : bookmarkList.getElements()) {
-            // 检查元素的 TypedIngredient 是否匹配
-            if (element.getTypedIngredient().equals(ingredientOpt.get())) {
-                // 检查是否有关联的书签
-                Optional<?> bookmarkOpt = element.getBookmark();
-                if (bookmarkOpt.isPresent()) {
-                    Object bookmark = bookmarkOpt.get();
-                    // 判断是否为 RecipeBookmark（而非 IngredientBookmark）
-                    if (bookmark.getClass().getSimpleName().equals("RecipeBookmark")) {
-                        return Optional.of(bookmark);
-                    }
-                }
-            }
-        }
-        
         return Optional.empty();
+    }
+
+    public static Optional<?> getBookmarkUnderMouse() {
+        IJeiRuntime rt = getRuntime();
+        if (rt == null) {
+            return Optional.empty();
+        }
+        return getBookmarkUnderMouse(rt.getBookmarkOverlay(), MouseUtil.getX(), MouseUtil.getY());
     }
 
     /**
@@ -241,6 +242,192 @@ public final class JeiBookmarkBridge {
                 IngredientBookmark<ItemStack> bookmark = IngredientBookmark.create(typed, rt.getIngredientManager());
                 list.remove(bookmark);
             });
+        }
+    }
+
+    private static Optional<Object> getClickableIngredientUnderMouse(Object owner, double mouseX, double mouseY) {
+        if (owner == null) {
+            return Optional.empty();
+        }
+        try {
+            Object streamObj = owner.getClass()
+                .getMethod("getIngredientUnderMouse", double.class, double.class)
+                .invoke(owner, mouseX, mouseY);
+            if (streamObj instanceof java.util.stream.Stream<?> stream) {
+                return Optional.ofNullable(stream.findFirst().orElse(null));
+            }
+        } catch (Throwable ignored) {
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<ITypedIngredient<?>> getTypedIngredientFromClickableSource(Object owner, double mouseX, double mouseY) {
+        return getClickableIngredientUnderMouse(owner, mouseX, mouseY)
+            .flatMap(JeiBookmarkBridge::getElementFromClickable)
+            .flatMap(JeiBookmarkBridge::getTypedIngredientFromElement);
+    }
+
+    private static Optional<Object> getBookmarkUnderMouse(IBookmarkOverlay overlay, double mouseX, double mouseY) {
+        if (overlay == null) {
+            return Optional.empty();
+        }
+
+        Optional<Object> bookmark = getClickableIngredientUnderMouse(overlay, mouseX, mouseY)
+            .flatMap(JeiBookmarkBridge::getElementFromClickable)
+            .flatMap(JeiBookmarkBridge::getBookmarkFromElement);
+        if (bookmark.isPresent()) {
+            return bookmark;
+        }
+
+        Optional<ITypedIngredient<?>> hoveredIngredient = getTypedIngredientFromClickableSource(overlay, mouseX, mouseY);
+        if (hoveredIngredient.isEmpty()) {
+            hoveredIngredient = overlay.getIngredientUnderMouse();
+        }
+        if (hoveredIngredient.isEmpty()) {
+            return Optional.empty();
+        }
+
+        return findBookmarkByTypedIngredient(overlay, hoveredIngredient.get());
+    }
+
+    private static Optional<Object> getElementFromClickable(Object clickable) {
+        if (clickable == null) {
+            return Optional.empty();
+        }
+        try {
+            return Optional.ofNullable(clickable.getClass().getMethod("getElement").invoke(clickable));
+        } catch (Throwable ignored) {
+            return Optional.empty();
+        }
+    }
+
+    private static Optional<Object> getBookmarkFromElement(Object element) {
+        if (element == null) {
+            return Optional.empty();
+        }
+        try {
+            Object bookmarkOpt = element.getClass().getMethod("getBookmark").invoke(element);
+            if (bookmarkOpt instanceof Optional<?> optional && optional.isPresent()) {
+                return Optional.ofNullable(optional.get());
+            }
+        } catch (Throwable ignored) {
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<ITypedIngredient<?>> getTypedIngredientFromElement(Object element) {
+        if (element == null) {
+            return Optional.empty();
+        }
+        try {
+            Object typed = element.getClass().getMethod("getTypedIngredient").invoke(element);
+            if (typed instanceof ITypedIngredient<?> typedIngredient) {
+                return Optional.of(typedIngredient);
+            }
+        } catch (Throwable ignored) {
+        }
+        return Optional.empty();
+    }
+
+    private static Optional<ITypedIngredient<?>> getTypedIngredientFromBookmark(Object bookmark) {
+        if (bookmark == null) {
+            return Optional.empty();
+        }
+        try {
+            Object typed = bookmark.getClass().getMethod("getDisplayIngredient").invoke(bookmark);
+            if (typed instanceof ITypedIngredient<?> typedIngredient) {
+                return Optional.of(typedIngredient);
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            Object typed = bookmark.getClass().getMethod("getIngredient").invoke(bookmark);
+            if (typed instanceof ITypedIngredient<?> typedIngredient) {
+                return Optional.of(typedIngredient);
+            }
+        } catch (Throwable ignored) {
+        }
+        try {
+            Object element = bookmark.getClass().getMethod("getElement").invoke(bookmark);
+            return getTypedIngredientFromElement(element);
+        } catch (Throwable ignored) {
+            return Optional.empty();
+        }
+    }
+
+    private static Optional<Object> findBookmarkByTypedIngredient(IBookmarkOverlay overlay, ITypedIngredient<?> hoveredIngredient) {
+        if (overlay == null || hoveredIngredient == null) {
+            return Optional.empty();
+        }
+        Object firstMatch = null;
+        for (Object bookmark : getBookmarksFromOverlay(overlay)) {
+            Optional<ITypedIngredient<?>> typedIngredient = getTypedIngredientFromBookmark(bookmark);
+            if (typedIngredient.isPresent() && hoveredIngredient.equals(typedIngredient.get())) {
+                if (isRecipeBookmark(bookmark)) {
+                    return Optional.of(bookmark);
+                }
+                if (firstMatch == null) {
+                    firstMatch = bookmark;
+                }
+            }
+        }
+        return Optional.ofNullable(firstMatch);
+    }
+
+    private static List<Object> getBookmarksFromOverlay(IBookmarkOverlay overlay) {
+        if (overlay == null) {
+            return List.of();
+        }
+
+        List<Object> bookmarks = new ArrayList<>();
+        Object bookmarkList = readFieldValue(overlay, "bookmarkList");
+        Object bookmarkValues = readFieldValue(bookmarkList, "bookmarksList");
+        addBookmarks(bookmarks, bookmarkValues);
+
+        Object lookupHistoryOverlay = readFieldValue(overlay, "lookupHistoryOverlay");
+        Object lookupHistory = readFieldValue(lookupHistoryOverlay, "lookupHistory");
+        Object historyValues = readFieldValue(lookupHistory, "elements");
+        addBookmarks(bookmarks, historyValues);
+        return bookmarks;
+    }
+
+    private static void addBookmarks(List<Object> target, Object source) {
+        if (!(source instanceof List<?> list)) {
+            return;
+        }
+        for (Object value : list) {
+            if (value != null) {
+                target.add(value);
+            }
+        }
+    }
+
+    private static Object readFieldValue(Object owner, String fieldName) {
+        if (owner == null) {
+            return null;
+        }
+        try {
+            Field field = owner.getClass().getDeclaredField(fieldName);
+            field.setAccessible(true);
+            return field.get(owner);
+        } catch (Throwable ignored) {
+            return null;
+        }
+    }
+
+    private static boolean isRecipeBookmark(Object bookmark) {
+        if (bookmark == null) {
+            return false;
+        }
+        if ("RecipeBookmark".equals(bookmark.getClass().getSimpleName())) {
+            return true;
+        }
+        try {
+            bookmark.getClass().getMethod("getRecipeCategory");
+            bookmark.getClass().getMethod("getRecipe");
+            return true;
+        } catch (Throwable ignored) {
+            return false;
         }
     }
 }

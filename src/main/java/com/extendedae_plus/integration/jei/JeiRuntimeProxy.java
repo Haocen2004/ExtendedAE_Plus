@@ -35,6 +35,14 @@ public final class JeiRuntimeProxy {
     }
 
     public static Optional<ITypedIngredient<?>> getIngredientUnderMouse() {
+        try {
+            Class<?> mouseUtil = Class.forName("mezz.jei.gui.input.MouseUtil");
+            double mouseX = ((Number) mouseUtil.getMethod("getX").invoke(null)).doubleValue();
+            double mouseY = ((Number) mouseUtil.getMethod("getY").invoke(null)).doubleValue();
+            return getIngredientUnderMouse(mouseX, mouseY);
+        } catch (Throwable ignored) {
+        }
+
         IJeiRuntime rt = RUNTIME;
         if (rt == null) return Optional.empty();
 
@@ -55,6 +63,17 @@ public final class JeiRuntimeProxy {
      * 在 JEI 配方界面区域内，基于屏幕坐标查询鼠标下的配料（优先物品，其次流体）。
      */
     public static Optional<ITypedIngredient<?>> getIngredientUnderMouse(double mouseX, double mouseY) {
+        try {
+            Class<?> bridge = Class.forName("com.extendedae_plus.integration.jei.JeiBookmarkBridge");
+            var method = bridge.getMethod("getIngredientUnderMouse", double.class, double.class);
+            @SuppressWarnings("unchecked")
+            Optional<ITypedIngredient<?>> result = (Optional<ITypedIngredient<?>>) method.invoke(null, mouseX, mouseY);
+            if (result != null && result.isPresent()) {
+                return result;
+            }
+        } catch (Throwable ignored) {
+        }
+
         IJeiRuntime rt = RUNTIME;
         if (rt == null || rt.getRecipesGui() == null) return Optional.empty();
 
@@ -176,6 +195,18 @@ public final class JeiRuntimeProxy {
         try {
             Class<?> bridge = Class.forName("com.extendedae_plus.integration.jei.JeiBookmarkBridge");
             var m = bridge.getMethod("getRecipeBookmarkUnderMouse");
+            @SuppressWarnings("unchecked")
+            Optional<?> result = (Optional<?>) m.invoke(null);
+            return result == null ? Optional.empty() : result;
+        } catch (Throwable ignored) {
+            return Optional.empty();
+        }
+    }
+
+    public static Optional<?> getBookmarkUnderMouse() {
+        try {
+            Class<?> bridge = Class.forName("com.extendedae_plus.integration.jei.JeiBookmarkBridge");
+            var m = bridge.getMethod("getBookmarkUnderMouse");
             @SuppressWarnings("unchecked")
             Optional<?> result = (Optional<?>) m.invoke(null);
             return result == null ? Optional.empty() : result;
