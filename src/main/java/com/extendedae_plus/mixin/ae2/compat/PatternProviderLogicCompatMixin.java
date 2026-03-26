@@ -33,12 +33,11 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.lang.reflect.Field;
 import java.util.List;
 
 /**
  * PatternProviderLogic的兼容性Mixin
- * 优先级设置为1500，在appflux之后应用
+ * 优先级设置为500，在appflux之前应用
  * 根据appflux是否存在来决定是否实现IUpgradeableObject接口
  */
 @Mixin(value = PatternProviderLogic.class, priority = 500, remap = false)
@@ -76,9 +75,6 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
 
     @Unique
     private boolean eap$compatVirtualCraftingEnabled = false;
-
-    @Unique
-    private static Field eap$compatAppfluxUpgradesField;
 
     @Shadow
     public abstract IGrid getGrid();
@@ -159,13 +155,11 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
         }
     }
     
-    // 监听appflux的升级变化 - 通过注入到appflux的af_$onUpgradesChanged方法
-    @Inject(method = "af_$onUpgradesChanged", at = @At("TAIL"), remap = false, require = 0)
-    private void eap$onAppfluxUpgradesChanged(CallbackInfo ci) {
+    @Unique
+    private void eap$compatOnExternalUpgradesChanged() {
         try {
             eap$compatSyncVirtualCraftingState();
             if (UpgradeSlotCompat.shouldEnableChannelCard()) {
-                // 升级变更，重置并尝试初始化频道卡
                 eap$compatLastChannel = -1;
                 eap$compatHasInitialized = false;
                 eap$compatInitializeChannelLink();
@@ -175,25 +169,34 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
         }
     }
 
+    // 监听 appflux 1.21.1 当前源码中的升级变化回调
+    @Inject(method = "af_onUpgradesChanged", at = @At("TAIL"), remap = false, require = 0)
+    private void eap$onAppfluxUpgradesChanged(CallbackInfo ci) {
+        eap$compatOnExternalUpgradesChanged();
+    }
+
+    // 兼容旧命名，避免不同 appflux 版本导致注入失效
+    @Inject(method = "af_$onUpgradesChanged", at = @At("TAIL"), remap = false, require = 0)
+    private void eap$onLegacyAppfluxUpgradesChanged(CallbackInfo ci) {
+        eap$compatOnExternalUpgradesChanged();
+    }
+
     @Inject(method = "<init>(Lappeng/api/networking/IManagedGridNode;Lappeng/helpers/patternprovider/PatternProviderLogicHost;I)V",
             at = @At("TAIL"))
     private void eap$compatInitUpgrades(IManagedGridNode mainNode, PatternProviderLogicHost host, int patternInventorySize, CallbackInfo ci) {
         try {
 
-            boolean upgradeSlots = UpgradeSlotCompat.shouldEnableUpgradeSlots();
+            boolean upgradeSlots = UpgradeSlotCompat.shouldManageLocalUpgradeInventory();
             boolean channelCard = UpgradeSlotCompat.shouldEnableChannelCard();
-            
 
             if (upgradeSlots) {
-                // 只有在升级槽功能启用时才创建升级槽
                 this.eap$compatUpgrades = UpgradeInventories.forMachine(
-                    host.getTerminalIcon().getItem(), 
-                    2, 
-                    this::eap$compatOnUpgradesChanged
+                        host.getTerminalIcon().getItem(),
+                        UpgradeSlotCompat.getPatternProviderLocalUpgradeSlots(),
+                        this::eap$compatOnUpgradesChanged
                 );
-            } else if (channelCard) {
-                // 如果装了appflux，我们不创建自己的升级槽，而是监听appflux的升级槽
-            } else {
+            } else if (!channelCard) {
+                this.eap$compatUpgrades = UpgradeInventories.empty();
             }
         } catch (Exception e) {
             Logger.EAP$LOGGER.error("兼容性升级初始化失败", e);
@@ -203,7 +206,7 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
     @Inject(method = "writeToNBT", at = @At("TAIL"))
     private void eap$compatSaveUpgrades(CompoundTag tag, CallbackInfo ci) {
         try {
-            if (UpgradeSlotCompat.shouldEnableUpgradeSlots() || UpgradeSlotCompat.shouldEnableChannelCard()) {
+            if (UpgradeSlotCompat.shouldManageLocalUpgradeInventory()) {
                 this.eap$compatUpgrades.writeToNBT(tag, "compat_upgrades");
             }
         } catch (Exception e) {
@@ -214,15 +217,16 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
     @Inject(method = "readFromNBT", at = @At("TAIL"))
     private void eap$compatLoadUpgrades(CompoundTag tag, CallbackInfo ci) {
         try {
-            if (UpgradeSlotCompat.shouldEnableUpgradeSlots() || UpgradeSlotCompat.shouldEnableChannelCard()) {
+            if (UpgradeSlotCompat.shouldManageLocalUpgradeInventory()) {
                 this.eap$compatUpgrades.readFromNBT(tag, "compat_upgrades");
-                if (UpgradeSlotCompat.shouldEnableChannelCard()) {
-                    eap$compatLastChannel = -1;
-                    eap$compatHasInitialized = false;
-                    eap$compatInitializeChannelLink();
-                }
-                eap$compatSyncVirtualCraftingState();
             }
+
+            if (UpgradeSlotCompat.shouldEnableChannelCard()) {
+                eap$compatLastChannel = -1;
+                eap$compatHasInitialized = false;
+                eap$compatInitializeChannelLink();
+            }
+            eap$compatSyncVirtualCraftingState();
         } catch (Exception e) {
             Logger.EAP$LOGGER.error("兼容性升级加载失败", e);
         }
@@ -231,7 +235,7 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
     @Inject(method = "addDrops", at = @At("TAIL"))
     private void eap$compatDropUpgrades(List<ItemStack> drops, CallbackInfo ci) {
         try {
-            if (UpgradeSlotCompat.shouldEnableUpgradeSlots() || UpgradeSlotCompat.shouldEnableChannelCard()) {
+            if (UpgradeSlotCompat.shouldManageLocalUpgradeInventory()) {
                 for (var stack : this.eap$compatUpgrades) {
                     if (!stack.isEmpty()) {
                         drops.add(stack);
@@ -246,8 +250,10 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
     @Inject(method = "clearContent", at = @At("TAIL"))
     private void eap$compatClearUpgrades(CallbackInfo ci) {
         try {
-            if (UpgradeSlotCompat.shouldEnableUpgradeSlots() || UpgradeSlotCompat.shouldEnableChannelCard()) {
+            if (UpgradeSlotCompat.shouldManageLocalUpgradeInventory()) {
                 this.eap$compatUpgrades.clear();
+            }
+            if (UpgradeSlotCompat.shouldEnableChannelCard()) {
                 eap$compatVirtualCraftingEnabled = false;
             }
         } catch (Exception e) {
@@ -257,7 +263,7 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
 
     @Override
     public IUpgradeInventory getUpgrades() {
-        if (UpgradeSlotCompat.shouldEnableUpgradeSlots()) {
+        if (UpgradeSlotCompat.shouldManageLocalUpgradeInventory()) {
             return this.eap$compatUpgrades != null ? this.eap$compatUpgrades : UpgradeInventories.empty();
         } else {
             return eap$compatGetEffectiveUpgradeInventory();
@@ -396,29 +402,17 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
 
     @Unique
     private IUpgradeInventory eap$compatGetEffectiveUpgradeInventory() {
-        if (UpgradeSlotCompat.shouldEnableUpgradeSlots()) {
+        if (UpgradeSlotCompat.shouldManageLocalUpgradeInventory()) {
             return this.eap$compatUpgrades;
         }
 
-        if (!UpgradeSlotCompat.shouldEnableChannelCard()) {
+        if (!UpgradeSlotCompat.shouldListenToAppfluxUpgrades()) {
             return null;
         }
 
-        if (this.eap$compatUpgrades != null && this.eap$compatUpgrades != UpgradeInventories.empty()) {
-            return this.eap$compatUpgrades;
-        }
-
-        try {
-            if (eap$compatAppfluxUpgradesField == null) {
-                eap$compatAppfluxUpgradesField = PatternProviderLogic.class.getDeclaredField("af_$upgrades");
-                eap$compatAppfluxUpgradesField.setAccessible(true);
-            }
-            Object value = eap$compatAppfluxUpgradesField.get(this);
-            if (value instanceof IUpgradeInventory inventory) {
-                return inventory;
-            }
-        } catch (Exception e) {
-            Logger.EAP$LOGGER.error("获取appflux升级槽失败", e);
+        IUpgradeInventory inventory = UpgradeSlotCompat.getPatternProviderAppfluxUpgrades(this);
+        if (inventory != null) {
+            return inventory;
         }
 
         return UpgradeInventories.empty();

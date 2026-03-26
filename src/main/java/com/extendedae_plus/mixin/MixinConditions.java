@@ -36,6 +36,11 @@ public class MixinConditions implements IMixinConfigPlugin {
                 return ModCheckUtils.isLoaded(ModCheckUtils.MODID_AAE);
             }
 
+            // === AppFlux 兼容 ===
+            if (mixinClassName.startsWith("com.extendedae_plus.mixin.appflux")) {
+                return ModCheckUtils.isLoaded(ModCheckUtils.MODID_APPFLUX);
+            }
+
             // === GuideME 版本兼容 ===
             if (mixinClassName.startsWith("com.extendedae_plus.mixin.guideme.")) {
                 return ModCheckUtils.isLoadedAndLowerThan(ModCheckUtils.MODID_GUIDEME, "20.1.14");
