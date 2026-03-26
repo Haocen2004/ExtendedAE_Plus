@@ -1,5 +1,23 @@
 # Changelog
 
+## [1.5.3]
+
+### Added / 新增
+- 增加镜像样板供应器，可通过镜像绑定工具实现与样板供应器/扩展样板供应器的连接
+  - Added the Mirror Pattern Provider, which can be linked to Pattern Providers and Extended Pattern Providers using the Mirror Binding Tool.
+
+### Changed / 变更
+- 上传处理样板时，若供应器检索结果仅有一个目标，则自动上传该样板到该供应器
+  - When uploading processing patterns, if provider lookup returns only one target, the pattern is uploaded automatically to that provider.
+- JEI 书签相关操作适配新版 JEI 历史记录区域中的书签
+  - Updated JEI bookmark-related actions to support bookmarks shown in the new JEI history area.
+- 更换部分物品的模型材质
+  - Updated models and textures for several items.
+- 优化 AppFlux 升级槽兼容的实现方案
+  - Optimized the AppFlux upgrade-slot compatibility implementation.
+- 优化频道卡的连接处理逻辑
+  - Optimized the Channel Card connection handling logic.
+
 ## [1.5.2]
 
 ### Added / 新增
