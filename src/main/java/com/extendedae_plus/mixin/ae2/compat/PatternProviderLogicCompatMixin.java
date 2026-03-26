@@ -9,6 +9,7 @@ import appeng.api.stacks.KeyCounter;
 import appeng.api.upgrades.IUpgradeInventory;
 import appeng.api.upgrades.IUpgradeableObject;
 import appeng.api.upgrades.UpgradeInventories;
+import appeng.blockentity.AEBaseBlockEntity;
 import appeng.helpers.patternprovider.PatternProviderLogic;
 import appeng.helpers.patternprovider.PatternProviderLogicHost;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
@@ -18,10 +19,10 @@ import com.extendedae_plus.api.bridge.IInterfaceWirelessLinkBridge;
 import com.extendedae_plus.compat.PatternProviderLogicVirtualCompatBridge;
 import com.extendedae_plus.compat.UpgradeSlotCompat;
 import com.extendedae_plus.init.ModItems;
-import com.extendedae_plus.items.materials.ChannelCardItem;
 import com.extendedae_plus.mixin.ae2.accessor.CraftingCpuLogicAccessor;
 import com.extendedae_plus.mixin.ae2.accessor.ExecutingCraftingJobAccessor;
 import com.extendedae_plus.util.Logger;
+import com.extendedae_plus.util.wireless.ChannelCardLinkHelper;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.item.ItemStack;
 import org.spongepowered.asm.mixin.Final;
@@ -34,6 +35,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
+import java.util.UUID;
 
 /**
  * PatternProviderLogic的兼容性Mixin
@@ -51,6 +53,9 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
 
     @Unique
     private long eap$compatLastChannel = -1;
+
+    @Unique
+    private UUID eap$compatLastOwner;
 
     @Unique
     private boolean eap$compatClientConnected = false;
@@ -82,10 +87,11 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
     @Unique
     private void eap$compatOnUpgradesChanged() {
         try {
-            this.host.saveChanges();
+            this.eap$compatNotifyHostChanged();
             eap$compatSyncVirtualCraftingState();
             if (UpgradeSlotCompat.shouldEnableChannelCard()) {
                 eap$compatLastChannel = -1;
+                eap$compatLastOwner = null;
                 eap$compatHasInitialized = false;
                 eap$compatInitializeChannelLink();
             }
@@ -161,6 +167,7 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
             eap$compatSyncVirtualCraftingState();
             if (UpgradeSlotCompat.shouldEnableChannelCard()) {
                 eap$compatLastChannel = -1;
+                eap$compatLastOwner = null;
                 eap$compatHasInitialized = false;
                 eap$compatInitializeChannelLink();
             }
@@ -169,7 +176,7 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
         }
     }
 
-    // 监听 appflux 1.21.1 当前源码中的升级变化回调
+    // 兼容较新的 appflux 升级变化回调命名
     @Inject(method = "af_onUpgradesChanged", at = @At("TAIL"), remap = false, require = 0)
     private void eap$onAppfluxUpgradesChanged(CallbackInfo ci) {
         eap$compatOnExternalUpgradesChanged();
@@ -223,6 +230,7 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
 
             if (UpgradeSlotCompat.shouldEnableChannelCard()) {
                 eap$compatLastChannel = -1;
+                eap$compatLastOwner = null;
                 eap$compatHasInitialized = false;
                 eap$compatInitializeChannelLink();
             }
@@ -298,7 +306,11 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
         
         try {
             if (eap$compatLink != null) {
+                boolean wasConnected = eap$compatLink.isConnected();
                 eap$compatLink.updateStatus();
+                if (wasConnected != eap$compatLink.isConnected()) {
+                    this.eap$compatNotifyHostChanged();
+                }
             }
         } catch (Exception e) {
             Logger.EAP$LOGGER.error("兼容性无线链接更新失败", e);
@@ -335,32 +347,33 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
 
             long channel = 0L;
             boolean found = false;
+            UUID ownerUUID = null;
             
             // 获取升级槽 - 如果装了appflux则从appflux获取，否则从我们自己的获取
             IUpgradeInventory upgrades = eap$compatGetEffectiveUpgradeInventory();
-            
-            if (upgrades != null) {
-                for (ItemStack stack : upgrades) {
-                    if (!stack.isEmpty() && stack.getItem() == ModItems.CHANNEL_CARD.get()) {
-                        channel = ChannelCardItem.getChannel(stack);
-                        java.util.UUID ownerUUID = ChannelCardItem.getOwnerUUID(stack);
-                        if (ownerUUID != null) {
-                            // 保存ownerUUID到局部变量，后面设置到link
-                            channel |= ((long) ownerUUID.hashCode() << 32);  // 临时存储
-                        }
-                        found = true;
-                        break;
-                    }
-                }
+
+            var boundChannel = ChannelCardLinkHelper.findBoundChannel(upgrades, this::eap$getFallbackOwner);
+            if (boundChannel != null) {
+                channel = boundChannel.channel();
+                ownerUUID = boundChannel.owner();
+                found = true;
             }
 
             if (!found) {
                 // 无频道卡：断开并视为初始化完成
-                if (eap$compatLink != null) {
-                    eap$compatLink.setFrequency(0L);
-                    eap$compatLink.updateStatus();
-                }
+                ChannelCardLinkHelper.disconnect(eap$compatLink);
                 eap$compatHasInitialized = true;
+                eap$compatLastChannel = 0L;
+                eap$compatLastOwner = null;
+                this.eap$compatNotifyHostChanged();
+                return;
+            }
+
+            if (eap$compatLink != null
+                    && ChannelCardLinkHelper.sameTarget(eap$compatLastChannel, eap$compatLastOwner, boundChannel)) {
+                if (eap$compatLink.isConnected()) {
+                    eap$compatHasInitialized = true;
+                }
                 return;
             }
 
@@ -369,20 +382,12 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
                 eap$compatLink = new WirelessSlaveLink(endpoint);
             }
 
-            // 从频道卡重新读取ownerUUID并设置
-            java.util.UUID cardOwner = null;
-            if (upgrades != null) {
-                for (ItemStack stack : upgrades) {
-                    if (!stack.isEmpty() && stack.getItem() == ModItems.CHANNEL_CARD.get()) {
-                        cardOwner = ChannelCardItem.getOwnerUUID(stack);
-                        channel = ChannelCardItem.getChannel(stack);  // 重新读取正确的频率
-                        break;
-                    }
-                }
-            }
-            eap$compatLink.setPlacerId(cardOwner);
+            eap$compatLink.setPlacerId(ownerUUID);
             eap$compatLink.setFrequency(channel);
             eap$compatLink.updateStatus();
+            eap$compatLastChannel = channel;
+            eap$compatLastOwner = ownerUUID;
+            this.eap$compatNotifyHostChanged();
 
             if (eap$compatLink.isConnected()) {
                 eap$compatHasInitialized = true;
@@ -416,6 +421,26 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
         }
 
         return UpgradeInventories.empty();
+    }
+
+    @Override
+    public boolean eap$shouldKeepTicking() {
+        if (!UpgradeSlotCompat.shouldEnableChannelCard()) {
+            return false;
+        }
+
+        try {
+            if (host.getBlockEntity() == null || host.getBlockEntity().getLevel() == null
+                    || host.getBlockEntity().getLevel().isClientSide) {
+                return false;
+            }
+            return ChannelCardLinkHelper.shouldKeepTicking(
+                    eap$compatGetEffectiveUpgradeInventory(),
+                    eap$compatLink,
+                    eap$compatHasInitialized);
+        } catch (Throwable ignored) {
+        }
+        return false;
     }
 
     @Override
@@ -500,6 +525,7 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
         
         try {
             eap$compatLastChannel = -1;
+            eap$compatLastOwner = null;
             eap$compatHasInitialized = false;
             eap$compatDelayedInitTicks = 10;
             try {
@@ -509,6 +535,29 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
             } catch (Throwable ignored) {}
         } catch (Exception e) {
             Logger.EAP$LOGGER.error("兼容性主节点状态变更处理失败", e);
+        }
+    }
+
+    @Unique
+    private UUID eap$getFallbackOwner() {
+        if (this.mainNode != null && this.mainNode.getNode() != null) {
+            return this.mainNode.getNode().getOwningPlayerProfileId();
+        }
+        return null;
+    }
+
+    @Unique
+    private void eap$compatNotifyHostChanged() {
+        try {
+            this.host.saveChanges();
+        } catch (Throwable ignored) {
+        }
+
+        try {
+            if (this.host.getBlockEntity() instanceof AEBaseBlockEntity blockEntity) {
+                blockEntity.markForUpdate();
+            }
+        } catch (Throwable ignored) {
         }
     }
 }

@@ -6,9 +6,8 @@ import appeng.helpers.InterfaceLogicHost;
 import com.extendedae_plus.ae.wireless.WirelessSlaveLink;
 import com.extendedae_plus.ae.wireless.endpoint.InterfaceNodeEndpointImpl;
 import com.extendedae_plus.api.bridge.IInterfaceWirelessLinkBridge;
-import com.extendedae_plus.init.ModItems;
-import com.extendedae_plus.items.materials.ChannelCardItem;
-import net.minecraft.world.item.ItemStack;
+import com.extendedae_plus.util.wireless.ChannelCardLinkHelper;
+import java.util.UUID;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -32,6 +31,9 @@ public abstract class InterfaceLogicChannelCardMixin implements IInterfaceWirele
     
     @Unique
     private long eap$lastChannel = -1;
+
+    @Unique
+    private UUID eap$lastOwner;
     
     @Unique
     private boolean eap$clientConnected = false;
@@ -46,6 +48,7 @@ public abstract class InterfaceLogicChannelCardMixin implements IInterfaceWirele
     private void eap$onUpgradesChangedTail(CallbackInfo ci) {
         // 升级变更时重置标志并尝试初始化
         eap$lastChannel = -1;
+        eap$lastOwner = null;
         eap$hasInitialized = false;
         eap$initializeChannelLink();
     }
@@ -54,6 +57,7 @@ public abstract class InterfaceLogicChannelCardMixin implements IInterfaceWirele
     private void eap$afterGridChanged(CallbackInfo ci) {
         // 网格状态变化时重置标志并设置延迟初始化
         eap$lastChannel = -1;
+        eap$lastOwner = null;
         eap$hasInitialized = false;
         eap$delayedInitTicks = 10; // 适当增加延迟tick，等待网格完成引导
         // 尝试唤醒设备，确保后续还能继续tick
@@ -71,6 +75,7 @@ public abstract class InterfaceLogicChannelCardMixin implements IInterfaceWirele
     private void eap$afterReadNBT(net.minecraft.nbt.CompoundTag tag, CallbackInfo ci) {
         // 从 NBT加载时重置标志
         eap$lastChannel = -1;
+        eap$lastOwner = null;
         eap$hasInitialized = false;
         // 直接尝试初始化
         eap$initializeChannelLink();
@@ -101,25 +106,22 @@ public abstract class InterfaceLogicChannelCardMixin implements IInterfaceWirele
         }
 
         try {
-            long channel = 0L;
-            java.util.UUID ownerUUID = null;
-            boolean found = false;
-            for (ItemStack stack : getUpgrades()) {
-                if (!stack.isEmpty() && stack.getItem() == ModItems.CHANNEL_CARD.get()) {
-                    channel = ChannelCardItem.getChannel(stack);
-                    ownerUUID = ChannelCardItem.getOwnerUUID(stack);
-                    found = true;
-                    break;
-                }
-            }
+            var boundChannel = ChannelCardLinkHelper.findBoundChannel(getUpgrades(), this::eap$getFallbackOwner);
+            long channel = boundChannel != null ? boundChannel.channel() : 0L;
+            boolean found = boundChannel != null;
+            UUID ownerUUID = boundChannel != null ? boundChannel.owner() : null;
 
             if (!found) {
                 // 无频道卡：断开并视为初始化完成
-                if (eap$link != null) {
-                    eap$link.setFrequency(0L);
-                    eap$link.updateStatus();
-                }
+                ChannelCardLinkHelper.disconnect(eap$link);
                 eap$hasInitialized = true;
+                eap$lastChannel = 0L;
+                eap$lastOwner = null;
+                return;
+            }
+
+            if (eap$link != null && ChannelCardLinkHelper.sameTarget(eap$lastChannel, eap$lastOwner, boundChannel)) {
+                eap$hasInitialized = eap$link.isConnected();
                 return;
             }
 
@@ -128,10 +130,11 @@ public abstract class InterfaceLogicChannelCardMixin implements IInterfaceWirele
                 eap$link = new WirelessSlaveLink(endpoint);
             }
 
-            // 设置频道卡的所有者UUID（如果有的话）
             eap$link.setPlacerId(ownerUUID);
             eap$link.setFrequency(channel);
             eap$link.updateStatus();
+            eap$lastChannel = channel;
+            eap$lastOwner = ownerUUID;
             
             if (eap$link.isConnected()) {
                 eap$hasInitialized = true; // 设置初始化完成标志
@@ -174,6 +177,11 @@ public abstract class InterfaceLogicChannelCardMixin implements IInterfaceWirele
     @Override
     public void eap$setClientWirelessState(boolean connected) {
         eap$clientConnected = connected;
+    }
+
+    @Override
+    public boolean eap$shouldKeepTicking() {
+        return ChannelCardLinkHelper.shouldKeepTicking(this.getUpgrades(), eap$link, eap$hasInitialized);
     }
     
     @Override
@@ -219,6 +227,12 @@ public abstract class InterfaceLogicChannelCardMixin implements IInterfaceWirele
             }
         }
     }
-    
-    // eap$initializeChannelLink方法已在上面实现
+
+    @Unique
+    private UUID eap$getFallbackOwner() {
+        if (mainNode != null && mainNode.getNode() != null) {
+            return mainNode.getNode().getOwningPlayerProfileId();
+        }
+        return null;
+    }
 }

@@ -8,10 +8,10 @@ import appeng.parts.storagebus.StorageBusPart;
 import com.extendedae_plus.ae.wireless.WirelessSlaveLink;
 import com.extendedae_plus.ae.wireless.endpoint.GenericNodeEndpointImpl;
 import com.extendedae_plus.api.bridge.IInterfaceWirelessLinkBridge;
-import com.extendedae_plus.init.ModItems;
-import com.extendedae_plus.items.materials.ChannelCardItem;
 import com.extendedae_plus.util.Logger;
+import com.extendedae_plus.util.wireless.ChannelCardLinkHelper;
 import net.minecraft.nbt.CompoundTag;
+import java.util.UUID;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -29,6 +29,9 @@ public abstract class StorageBusPartChannelCardMixin implements IInterfaceWirele
     
     @Unique
     private long eap$lastChannel = -1;
+
+    @Unique
+    private UUID eap$lastOwner;
     
     @Unique
     private boolean eap$clientConnected = false;
@@ -55,6 +58,7 @@ public abstract class StorageBusPartChannelCardMixin implements IInterfaceWirele
         if (!((appeng.parts.AEBasePart)(Object)this).isClientSide()) {
             // 从NBT加载时重置频道缓存，强制重新初始化
             eap$lastChannel = -1;
+            eap$lastOwner = null;
             eap$initializeChannelLink();
         }
     }
@@ -68,37 +72,31 @@ public abstract class StorageBusPartChannelCardMixin implements IInterfaceWirele
         
         try {
             IUpgradeInventory inv = this.getUpgrades();
-            long channel = 0L;
-            java.util.UUID ownerUUID = null;
-            boolean found = false;
-            for (var stack : inv) {
-                if (!stack.isEmpty() && stack.getItem() == ModItems.CHANNEL_CARD.get()) {
-                    channel = ChannelCardItem.getChannel(stack);
-                    ownerUUID = ChannelCardItem.getOwnerUUID(stack);
-                    found = true;
-                    break;
-                }
-            }
-            
-            // 频道没有变化则跳过
-            if (eap$lastChannel == channel) {
+            var boundChannel = ChannelCardLinkHelper.findBoundChannel(inv, this::eap$getFallbackOwner);
+            long channel = boundChannel != null ? boundChannel.channel() : 0L;
+            boolean found = boundChannel != null;
+            UUID ownerUUID = boundChannel != null ? boundChannel.owner() : null;
+
+            if (eap$link != null && ChannelCardLinkHelper.sameTarget(eap$lastChannel, eap$lastOwner, boundChannel)) {
                 return;
             }
             eap$lastChannel = channel;
-            
+            eap$lastOwner = ownerUUID;
+
             Logger.EAP$LOGGER.debug("[服务端] StorageBus 初始化频道链接: found={}, channel={}", found, channel);
-            
+
             if (!found) {
                 if (eap$link != null) {
-                    eap$link.setFrequency(0L);
-                    eap$link.updateStatus();
+                    ChannelCardLinkHelper.disconnect(eap$link);
                     Logger.EAP$LOGGER.debug("[服务端] StorageBus 断开频道链接");
                     // 通知客户端状态变化
                     ((appeng.parts.AEBasePart)(Object)this).getHost().markForUpdate();
                 }
+                eap$lastChannel = 0L;
+                eap$lastOwner = null;
                 return;
             }
-            
+
             if (eap$link == null) {
                 var endpoint = new GenericNodeEndpointImpl(
                         () -> ((appeng.parts.AEBasePart)(Object)this).getHost().getBlockEntity(),
@@ -107,8 +105,7 @@ public abstract class StorageBusPartChannelCardMixin implements IInterfaceWirele
                 eap$link = new WirelessSlaveLink(endpoint);
                 Logger.EAP$LOGGER.debug("[服务端] StorageBus 创建新的无线链接");
             }
-            
-            // 设置频道卡的所有者UUID（如果有的话）
+
             eap$link.setPlacerId(ownerUUID);
             eap$link.setFrequency(channel);
             eap$link.updateStatus();
@@ -127,6 +124,11 @@ public abstract class StorageBusPartChannelCardMixin implements IInterfaceWirele
             eap$link.updateStatus();
         }
     }
+
+    @Override
+    public boolean eap$shouldKeepTicking() {
+        return ChannelCardLinkHelper.shouldKeepTicking(this.getUpgrades(), eap$link, true);
+    }
     
     @Override
     public boolean eap$isWirelessConnected() {
@@ -140,5 +142,17 @@ public abstract class StorageBusPartChannelCardMixin implements IInterfaceWirele
     @Override
     public void eap$setClientWirelessState(boolean connected) {
         eap$clientConnected = connected;
+    }
+
+    @Unique
+    private UUID eap$getFallbackOwner() {
+        try {
+            var node = ((IActionHost) (Object) this).getActionableNode();
+            if (node != null) {
+                return node.getOwningPlayerProfileId();
+            }
+        } catch (Throwable ignored) {
+        }
+        return null;
     }
 }

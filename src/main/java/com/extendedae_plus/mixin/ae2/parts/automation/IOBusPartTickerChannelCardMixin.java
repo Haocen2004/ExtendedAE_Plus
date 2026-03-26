@@ -15,10 +15,16 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(value = IOBusPart.class, remap = false)
 public abstract class IOBusPartTickerChannelCardMixin {
 
-    @Inject(method = "tickingRequest", at = @At("TAIL"))
+    @Inject(method = "tickingRequest", at = @At("TAIL"), cancellable = true)
     private void eap$tickTail(IGridNode node, int ticksSinceLastCall, CallbackInfoReturnable<TickRateModulation> cir) {
+        if (((IOBusPart) (Object) this).isClientSide()) {
+            return;
+        }
         if (this instanceof IInterfaceWirelessLinkBridge bridge) {
             bridge.eap$updateWirelessLink();
+            if (bridge.eap$shouldKeepTicking() && cir.getReturnValue() == TickRateModulation.SLEEP) {
+                cir.setReturnValue(TickRateModulation.SLOWER);
+            }
         }
     }
 }
