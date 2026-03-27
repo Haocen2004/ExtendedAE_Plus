@@ -184,14 +184,34 @@ public class LabeledWirelessTransceiverBlockEntity extends AEBaseBlockEntity imp
     }
 
     public void onRemoved() {
+        cleanupForRemoval();
+    }
+
+    @Override
+    public void onChunkUnloaded() {
+        cleanupForRemoval();
+        super.onChunkUnloaded();
+    }
+
+    @Override
+    public void setRemoved() {
+        cleanupForRemoval();
+        super.setRemoved();
+    }
+
+    private void cleanupForRemoval() {
+        if (this.beingRemoved) {
+            return;
+        }
+
         this.beingRemoved = true;
-        labelLink.onUnloadOrRemove();
+        this.labelLink.onUnloadOrRemove();
         ServerLevel sl = getServerLevel();
         if (sl != null) {
             LabelNetworkRegistry.get(sl).unregister(this);
         }
-        if (managedNode != null) {
-            managedNode.destroy();
+        if (this.managedNode != null) {
+            this.managedNode.destroy();
         }
     }
 
