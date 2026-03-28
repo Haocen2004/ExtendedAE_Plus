@@ -282,6 +282,7 @@ public class CtrlQPatternKeyHandler {
             
             // 10. 获取输出材料
             List<ItemStack> selectedOutputs = convertOutputsToItemStacks(matchingRecipeInfo);
+            RecipeTypeNameConfig.presetCraftingProviderSearchKey();
             
             // 11. 发送网络包创建样板并上传到装配矩阵
             ModNetwork.CHANNEL.sendToServer(new CreateAndUploadPatternC2SPacket(

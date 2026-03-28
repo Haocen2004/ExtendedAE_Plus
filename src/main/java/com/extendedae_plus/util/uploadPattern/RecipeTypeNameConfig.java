@@ -42,10 +42,32 @@ public final class RecipeTypeNameConfig {
 
     private RecipeTypeNameConfig() {}
 
-    // 最近一次通过 JEI 填充到编码终端的“处理配方”的中文名称（如：烧炼/高炉/烟熏...）
-    public static volatile String lastProcessingName = null;
+    // 最近一次打开供应器选择界面时的预设搜索关键字。
+    // 处理样板会写入映射后的配方类型关键字，合成样板固定使用 crafting（可通过映射改名）。
+    public static final String DEFAULT_CRAFTING_SEARCH_KEY = "crafting";
+    private static volatile String lastProviderSearchKey = null;
+
     public static void setLastProcessingName(String name) {
-        lastProcessingName = name;
+        setLastProviderSearchKey(name);
+    }
+
+    public static void setLastProviderSearchKey(String name) {
+        if (name == null) {
+            lastProviderSearchKey = null;
+            return;
+        }
+        String trimmed = name.trim();
+        lastProviderSearchKey = trimmed.isEmpty() ? null : trimmed;
+    }
+
+    public static void presetCraftingProviderSearchKey() {
+        setLastProviderSearchKey(resolveSearchKeyAlias(DEFAULT_CRAFTING_SEARCH_KEY));
+    }
+
+    public static String consumeLastProviderSearchKey() {
+        String searchKey = lastProviderSearchKey;
+        lastProviderSearchKey = null;
+        return searchKey;
     }
 
     /**
@@ -240,14 +262,25 @@ public final class RecipeTypeNameConfig {
      * @param recipe 配方对象
      * @return 搜索关键字（自定义名称、别名或类型路径），或 null 如果无效
      */
+    public static String resolveSearchKeyAlias(String rawKey) {
+        if (rawKey == null) return null;
+        String normalized = rawKey.trim();
+        if (normalized.isEmpty()) return null;
+        String alias = CUSTOM_ALIASES.get(normalized.toLowerCase());
+        return alias != null && !alias.isBlank() ? alias : normalized;
+    }
+
     public static String mapRecipeTypeToSearchKey(Recipe<?> recipe) {
         if (recipe == null) return null;
         RecipeType<?> type = recipe.getType();
         ResourceLocation key = BuiltInRegistries.RECIPE_TYPE.getKey(type);
         if (key == null) return null;
-        String path = key.getPath().toLowerCase();
-        // 优先查别名，再查完整 ID，最后用路径
-        return CUSTOM_ALIASES.getOrDefault(path, CUSTOM_NAMES.getOrDefault(key, path));
+        String resolvedPath = resolveSearchKeyAlias(key.getPath());
+        if (resolvedPath != null) {
+            return resolvedPath;
+        }
+        String custom = CUSTOM_NAMES.get(key);
+        return custom != null && !custom.isBlank() ? custom : key.getPath();
     }
 
     /**
@@ -269,7 +302,7 @@ public final class RecipeTypeNameConfig {
             // 1) 别名优先（使用 path 作为最终搜索关键字）
             String path = rl.getPath();
             if (path != null) {
-                String alias = CUSTOM_ALIASES.get(path.toLowerCase());
+                String alias = resolveSearchKeyAlias(path);
                 if (alias != null && !alias.isBlank()) return alias;
             }
             // 2) 再查完整ID映射

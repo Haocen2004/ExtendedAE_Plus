@@ -78,7 +78,7 @@ public class ProviderSelectScreen extends Screen {
     // 缓存 Component JSON 解析
     private static final Map<String, String> componentCache = new HashMap<>();
     private String lastLanguage = ""; // 当前语言版本
-    private boolean autoUploadRequestedFromProcessingName = false;
+    private boolean autoUploadRequestedFromPresetSearch = false;
     private boolean autoUploadAttempted = false;
     private int lastExactMatchCount = 0;
     private boolean lastFilterUsedFallback = false;
@@ -89,14 +89,12 @@ public class ProviderSelectScreen extends Screen {
         this.ids = ids;
         this.names = names;
         this.emptySlots = emptySlots;
-        // 如果有来自 JEI 的最近处理名称，则作为初始查询
+        // 如果有来自最近一次写样板流程的预设搜索词，则作为初始查询
         try {
-            String recent = RecipeTypeNameConfig.lastProcessingName;
+            String recent = RecipeTypeNameConfig.consumeLastProviderSearchKey();
             if (recent != null && !recent.isBlank()) {
                 this.query = recent;
-                this.autoUploadRequestedFromProcessingName = true;
-                // 用后即清空，避免污染下次
-                RecipeTypeNameConfig.lastProcessingName = null;
+                this.autoUploadRequestedFromPresetSearch = true;
             }
         } catch (Throwable ignored) {}
         buildGroups();
@@ -401,7 +399,7 @@ public class ProviderSelectScreen extends Screen {
     }
 
     private void tryAutoUploadIfUniqueMatch() {
-        if (!autoUploadRequestedFromProcessingName || autoUploadAttempted) {
+        if (!autoUploadRequestedFromPresetSearch || autoUploadAttempted) {
             return;
         }
         autoUploadAttempted = true;
