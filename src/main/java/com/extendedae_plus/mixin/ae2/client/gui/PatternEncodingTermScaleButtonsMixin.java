@@ -60,9 +60,13 @@ public abstract class PatternEncodingTermScaleButtonsMixin {
             this.eap$div3Button = eap$createScaleButton(16, 16, "/3", ScaleEncodingPatternC2SPacket.Operation.DIV3);
             this.eap$div5Button = eap$createScaleButton(32, 16, "/5", ScaleEncodingPatternC2SPacket.Operation.DIV5);
             this.eap$swapOutputsButton = eap$createStandaloneButton(
-                    EAP$SWAP_OUTPUT_TEXTURE, "主副切换", ScaleEncodingPatternC2SPacket.Operation.SWAP_OUTPUTS);
+                    EAP$SWAP_OUTPUT_TEXTURE,
+                    Component.translatable("extendedae_plus.tooltip.swap_processing_outputs"),
+                    ScaleEncodingPatternC2SPacket.Operation.SWAP_OUTPUTS);
             this.eap$restoreRatioButton = eap$createStandaloneButton(
-                    EAP$RESTORE_RATIO_TEXTURE, "恢复比例", ScaleEncodingPatternC2SPacket.Operation.RESTORE_RATIO);
+                    EAP$RESTORE_RATIO_TEXTURE,
+                    Component.translatable("extendedae_plus.tooltip.restore_processing_ratio"),
+                    ScaleEncodingPatternC2SPacket.Operation.RESTORE_RATIO);
         }
 
         eap$ensureAdded(this.eap$mul2Button);
@@ -128,14 +132,14 @@ public abstract class PatternEncodingTermScaleButtonsMixin {
                 srcY,
                 16,
                 16,
-                0.375f,
+                0.5f,
                 Component.literal(tooltipText),
                 btn -> ModNetwork.CHANNEL.sendToServer(new ScaleEncodingPatternC2SPacket(op))
         );
     }
 
     @Unique
-    private ScaledTextureButton eap$createStandaloneButton(ResourceLocation texture, String tooltipText,
+    private ScaledTextureButton eap$createStandaloneButton(ResourceLocation texture, Component tooltipText,
             ScaleEncodingPatternC2SPacket.Operation op) {
         return new ScaledTextureButton(
                 texture,
@@ -145,8 +149,8 @@ public abstract class PatternEncodingTermScaleButtonsMixin {
                 0,
                 16,
                 16,
-                0.375f,
-                Component.literal(tooltipText),
+                0.5f,
+                tooltipText,
                 btn -> ModNetwork.CHANNEL.sendToServer(new ScaleEncodingPatternC2SPacket(op))
         );
     }
