@@ -58,6 +58,12 @@ public final class ModNetwork {
                 .consumerNetworkThread(EncodeWithShiftFlagC2SPacket::handle)
                 .add();
 
+        CHANNEL.messageBuilder(ScaleEncodingPatternC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
+                .encoder(ScaleEncodingPatternC2SPacket::encode)
+                .decoder(ScaleEncodingPatternC2SPacket::decode)
+                .consumerNetworkThread(ScaleEncodingPatternC2SPacket::handle)
+                .add();
+
         CHANNEL.messageBuilder(UploadEncodedPatternToProviderC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
                 .encoder(UploadEncodedPatternToProviderC2SPacket::encode)
                 .decoder(UploadEncodedPatternToProviderC2SPacket::decode)

@@ -14,6 +14,7 @@
     "ae2.client.gui.CraftConfirmScreenMixin",
     "ae2.client.gui.InterfaceScreenMixin",
     "ae2.client.gui.PatternEncodingTermScreenMixin",
+    "ae2.client.gui.PatternEncodingTermScaleButtonsMixin",
     "ae2.client.gui.SlotGridLayoutMixin",
     "ae2.client.gui.patternProvider.PatternProviderHighlightCleanupMixin",
     "ae2.client.gui.patternProvider.PatternProviderScreenMixin",
