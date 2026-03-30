@@ -101,17 +101,7 @@ public class OpenCraftFromJeiC2SPacket {
             if (!(located.stack.getItem() instanceof WirelessTerminalItem wt)) return;
 
             // 基本前置校验：联网、电量
-            IGrid grid = null;
-                    {
-                        var gridKeyOpt = wt.getGridKey(located.stack);
-                        if (gridKeyOpt.isPresent()) {
-                            var secHost = appeng.api.features.Locatables.securityStations().get(player.getLevel(), gridKeyOpt.getAsLong());
-                            if (secHost != null) {
-                                var secNode = secHost.getActionableNode();
-                                if (secNode != null) grid = secNode.getGrid();
-                            }
-                        }
-                    }
+            IGrid grid = wt.getLinkedGrid(located.stack, player.level(), player);
             if (grid == null) return;
             if (!wt.hasPower(player, 0.5, located.stack)) return;
 

@@ -7,7 +7,7 @@ import net.minecraft.core.Direction;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.core.Registry;
+import net.minecraft.core.registries.Registries;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.AABB;
 import net.minecraftforge.network.NetworkEvent;
@@ -52,7 +52,7 @@ public class SetBlockHighlightS2CPacket {
         ctx.enqueueWork(() -> {
             try {
                 // 在客户端执行高亮
-                ResourceKey<Level> dimKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, msg.dim);
+                ResourceKey<Level> dimKey = ResourceKey.create(Registries.DIMENSION, msg.dim);
                 long endTime = System.currentTimeMillis() + msg.durationMillis;
                 if (msg.face == null) {
                     EAEHighlightHandler.highlight(msg.pos, dimKey, endTime);
