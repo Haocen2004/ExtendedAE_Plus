@@ -9,12 +9,13 @@ import com.extendedae_plus.client.render.crafting.EPlusCraftingCubeModelProvider
 import com.extendedae_plus.client.screen.GlobalProviderModesScreen;
 import com.extendedae_plus.client.screen.LabeledWirelessTransceiverScreen;
 import com.extendedae_plus.content.crafting.EPlusCraftingUnitType;
-import com.extendedae_plus.hooks.BuiltInModelHooks;
 import com.extendedae_plus.init.ModItems;
 import com.extendedae_plus.init.ModMenuTypes;
 import com.extendedae_plus.items.materials.EntitySpeedCardItem;
 import net.minecraft.client.gui.screens.MenuScreens;
 import net.minecraft.client.renderer.item.ItemProperties;
+import net.minecraftforge.client.event.ModelEvent;
+import net.minecraftforge.client.model.geometry.IGeometryLoader;
 import net.minecraftforge.fml.ModList;
 
 /**
@@ -34,29 +35,6 @@ public final class ClientRegistrar {
         // 注册 Item property，用于根据 ItemStack 的 NBT exponent 切换模型
         ItemProperties.register(ModItems.ENTITY_SPEED_CARD.get(), ExtendedAEPlus.id("mult"),
                 (stack, world, entity, seed) -> (float) EntitySpeedCardItem.readMultiplier(stack));
-        // 注册四种形成态模型为内置模型 (在1.19.2中暂时禁用 - IUnbakedGeometry不兼容UnbakedModel)
-        // TODO: 使用Forge的RegisterGeometryLoaders事件重新实现模型注册
-        /*
-        BuiltInModelHooks.addBuiltInModel(
-                ExtendedAEPlus.id("block/crafting/4x_accelerator_formed_v2"),
-                new CraftingCubeModel(new EPlusCraftingCubeModelProvider(EPlusCraftingUnitType.ACCELERATOR_4x)));
-
-        BuiltInModelHooks.addBuiltInModel(
-                ExtendedAEPlus.id("block/crafting/16x_accelerator_formed_v2"),
-                new CraftingCubeModel(new EPlusCraftingCubeModelProvider(EPlusCraftingUnitType.ACCELERATOR_16x)));
-
-        BuiltInModelHooks.addBuiltInModel(
-                ExtendedAEPlus.id("block/crafting/64x_accelerator_formed_v2"),
-                new CraftingCubeModel(new EPlusCraftingCubeModelProvider(EPlusCraftingUnitType.ACCELERATOR_64x)));
-
-        BuiltInModelHooks.addBuiltInModel(
-                ExtendedAEPlus.id("block/crafting/256x_accelerator_formed_v2"),
-                new CraftingCubeModel(new EPlusCraftingCubeModelProvider(EPlusCraftingUnitType.ACCELERATOR_256x)));
-
-        BuiltInModelHooks.addBuiltInModel(
-                ExtendedAEPlus.id("block/crafting/1024x_accelerator_formed_v2"),
-                new CraftingCubeModel(new EPlusCraftingCubeModelProvider(EPlusCraftingUnitType.ACCELERATOR_1024x)));
-        */
     }
 
     /**
@@ -88,4 +66,21 @@ public final class ClientRegistrar {
 //                        (mc, parent) -> new ModConfigScreen(parent))
 //        );
 //    }
+
+    /**
+     * 注册形成态合成加速器的 IGeometryLoader（与 AE2 12.9.12 相同做法）。
+     * 每个 loader 忽略 JSON 内容，直接返回对应的 CraftingCubeModel。
+     */
+    public static void registerCraftingCubeGeometryLoaders(ModelEvent.RegisterGeometryLoaders evt) {
+        registerFormedLoader(evt, "block/crafting/4x_accelerator_formed_v2", EPlusCraftingUnitType.ACCELERATOR_4x);
+        registerFormedLoader(evt, "block/crafting/16x_accelerator_formed_v2", EPlusCraftingUnitType.ACCELERATOR_16x);
+        registerFormedLoader(evt, "block/crafting/64x_accelerator_formed_v2", EPlusCraftingUnitType.ACCELERATOR_64x);
+        registerFormedLoader(evt, "block/crafting/256x_accelerator_formed_v2", EPlusCraftingUnitType.ACCELERATOR_256x);
+        registerFormedLoader(evt, "block/crafting/1024x_accelerator_formed_v2", EPlusCraftingUnitType.ACCELERATOR_1024x);
+    }
+
+    private static void registerFormedLoader(ModelEvent.RegisterGeometryLoaders evt, String name, EPlusCraftingUnitType type) {
+        IGeometryLoader<CraftingCubeModel> loader = (json, ctx) -> new CraftingCubeModel(new EPlusCraftingCubeModelProvider(type));
+        evt.register(name, loader);
+    }
 }

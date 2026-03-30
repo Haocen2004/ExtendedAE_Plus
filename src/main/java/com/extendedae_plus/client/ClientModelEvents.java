@@ -15,13 +15,6 @@ public final class ClientModelEvents {
 
     @SubscribeEvent
     public static void onRegisterAdditional(ModelEvent.RegisterAdditional event) {
-        // 在每次模型重载开始时确保内置模型已注册
-        // 先显式登记这些模型ID，使其在首次加载阶段被请求，从而触发我们的内置模型拦截
-        event.register(ExtendedAEPlus.id("block/crafting/4x_accelerator_formed_v2"));
-        event.register(ExtendedAEPlus.id("block/crafting/16x_accelerator_formed_v2"));
-        event.register(ExtendedAEPlus.id("block/crafting/64x_accelerator_formed_v2"));
-        event.register(ExtendedAEPlus.id("block/crafting/256x_accelerator_formed_v2"));
-        event.register(ExtendedAEPlus.id("block/crafting/1024x_accelerator_formed_v2"));
-        ClientRegistrar.initBuiltInModels();
+        // 形成态模型现在通过 IGeometryLoader + JSON 文件注册，不再需要手动注册
     }
 }

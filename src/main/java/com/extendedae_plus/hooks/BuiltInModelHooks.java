@@ -1,28 +1,29 @@
 package com.extendedae_plus.hooks;
 
+import net.minecraft.client.resources.model.UnbakedModel;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraftforge.client.model.geometry.IUnbakedGeometry;
+import org.jetbrains.annotations.Nullable;
 
+import java.util.HashMap;
 import java.util.Map;
-import java.util.concurrent.ConcurrentHashMap;
 
 /**
- * 复刻 Fabric 的内置模型注册能力（与 AE2/MAE2 相同实现）。
- * 1.19.2 Forge: 使用 IUnbakedGeometry 而非 UnbakedModel。
+ * 复刻 AE2 的内置模型注册能力。
+ * 1.19.2: 使用 UnbakedModel（与 AE2 12.9.12 的 BuiltInModelHooks 相同）。
  */
 public final class BuiltInModelHooks {
-    private static final Map<ResourceLocation, IUnbakedGeometry<?>> BUILTIN_MODELS = new ConcurrentHashMap<>();
+    private static final Map<ResourceLocation, UnbakedModel> BUILTIN_MODELS = new HashMap<>();
 
     private BuiltInModelHooks() {}
 
-    public static void addBuiltInModel(ResourceLocation id, IUnbakedGeometry<?> model) {
-        var prev = BUILTIN_MODELS.putIfAbsent(id, model);
-        if (prev != null) {
+    public static void addBuiltInModel(ResourceLocation id, UnbakedModel model) {
+        if (BUILTIN_MODELS.put(id, model) != null) {
             throw new IllegalStateException("Duplicate built-in model ID: " + id);
         }
     }
 
-    public static IUnbakedGeometry<?> getBuiltInModel(ResourceLocation id) {
+    @Nullable
+    public static UnbakedModel getBuiltInModel(ResourceLocation id) {
         return BUILTIN_MODELS.get(id);
     }
 }

@@ -122,11 +122,11 @@ public class ExtendedAEPlus {
 
         @SubscribeEvent
         public static void onRegisterGeometryLoaders(final ModelEvent.RegisterGeometryLoaders evt) {
-            try {
-                ClientRegistrar.initBuiltInModels();
-                // 注册 AE2 部件模型（例如 entity_ticker_part_item），仿照 CrazyAddons 的做法
-                ModItems.registerPartModels();
-            } catch (Exception ignored) {}
+            ClientRegistrar.initBuiltInModels();
+            // 注册 AE2 部件模型（例如 entity_ticker_part_item），仿照 CrazyAddons 的做法
+            ModItems.registerPartModels();
+            // 注册形成态模型的 IGeometryLoader（与 AE2 12.9.12 相同做法）
+            ClientRegistrar.registerCraftingCubeGeometryLoaders(evt);
         }
 
         @SubscribeEvent
