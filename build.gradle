@@ -167,10 +167,16 @@ compileJava {
 }
 
 processResources {
-    inputs.property 'version', project.version
+    var replaceProperties = [
+            minecraft_version: minecraft_version,
+            forge_version: forge_version,
+            mod_version: mod_version,
+    ]
 
-    filesMatching('META-INF/mods.toml') {
-        expand version: project.version
+    inputs.properties replaceProperties
+
+    filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
+        expand replaceProperties + [project: project]
     }
 }
 
