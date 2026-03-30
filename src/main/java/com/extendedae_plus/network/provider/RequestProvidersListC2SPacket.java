@@ -17,7 +17,7 @@ import java.util.List;
 import java.util.function.Supplier;
 
 /**
- * C2S: 请求当前终端可见的样板供应器列表（用于弹窗选择）�?
+ * C2S: Request the list of pattern providers visible in the current terminal (for popup selection).
  */
 public class RequestProvidersListC2SPacket {
     public RequestProvidersListC2SPacket() {}
@@ -32,7 +32,7 @@ public class RequestProvidersListC2SPacket {
             ServerPlayer player = ctx.getSender();
             if (player == null) return;
 
-            // Ctrl+Q pending 模式：不依赖编码终端，直接基于玩家网络给出列表（负数索引 ID�?
+            // Ctrl+Q pending mode: not dependent on encoding terminal, list based on player network (negative index IDs)
             if (ProviderUploadUtil.hasPendingCtrlQPattern(player)) {
                 List<PatternContainer> containers = ProviderUploadUtil.listAvailableProvidersFromPlayerNetwork(player);
                 List<Long> idxIds = new ArrayList<>();
@@ -54,7 +54,7 @@ public class RequestProvidersListC2SPacket {
 
             if (!(player.containerMenu instanceof PatternEncodingTermMenu encMenu)) return;
 
-            // 优先：若玩家也打开了样板访问终端，则用 byId 方式（精确服务器ID�?
+            // Priority: if player also has Pattern Access Terminal open, use byId method (exact server IDs)
             PatternAccessTermMenu accessMenu = PatternTerminalUtil.getPatternAccessMenu(player);
             if (accessMenu != null) {
                 List<Long> ids = PatternTerminalUtil.getAllProviderIds(accessMenu);
@@ -66,7 +66,7 @@ public class RequestProvidersListC2SPacket {
                     if (id == null) continue;
                     if (!PatternProviderDataUtil.isProviderAvailable(id, accessMenu)) continue;
                     int empty = PatternProviderDataUtil.getAvailableSlots(id, accessMenu);
-                    if (empty <= 0) continue; // 只列出有空位�?
+                    if (empty <= 0) continue; // Only list providers with empty slots
                     filteredIds.add(id);
                     names.add(PatternProviderDataUtil.getProviderDisplayName(id, accessMenu));
                     slots.add(empty);

@@ -14,8 +14,8 @@ import com.extendedae_plus.mixin.minecraft.accessor.ScreenAccessor;
 import com.extendedae_plus.network.provider.RequestProvidersListC2SPacket;
 import com.extendedae_plus.network.upload.EncodeWithShiftFlagC2SPacket;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
-import net.minecraft.client.gui.components.Tooltip;
+import com.mojang.blaze3d.vertex.PoseStack;
+import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
@@ -27,9 +27,7 @@ import org.spongepowered.asm.mixin.injection.ModifyVariable;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 在图样编码终端界面加入一个上传按钮：
- * 点击后把当前“已编码样板”上传到任意可用的样板供应器。
- * 按钮位于 encodePattern 左侧。
+ * Add an upload button to the Pattern Encoding Terminal.
  */
 @SuppressWarnings({"AddedMixinMembersNamePattern"})
 @Mixin(PatternEncodingTermScreen.class)
@@ -46,7 +44,6 @@ public abstract class PatternEncodingTermScreenMixin {
         });
     }
 
-    // 只创建按钮
     @Inject(method = "<init>", at = @At("TAIL"))
     private void eap$createUploadButton(CallbackInfo ci) {
         if (eap$uploadBtn == null) {
@@ -55,7 +52,6 @@ public abstract class PatternEncodingTermScreenMixin {
         addButtonToScreen();
     }
 
-    // 每帧更新按钮位置并确保加入屏幕
     @Inject(method = "updateBeforeRender", at = @At("TAIL"), remap = false)
     private void eap$ensureUploadButton(CallbackInfo ci) {
         if (eap$uploadBtn == null) return;
@@ -72,7 +68,7 @@ public abstract class PatternEncodingTermScreenMixin {
             private final float eap$scale = 0.75f;
 
             @Override
-            public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partial) {
+            public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partial) {
                 if (!this.visible) return;
 
                 var icon = this.getIcon();
@@ -85,29 +81,28 @@ public abstract class PatternEncodingTermScreenMixin {
                 RenderSystem.disableDepthTest();
                 RenderSystem.enableBlend();
 
-                if (isFocused()) {
-                    guiGraphics.fill(getX() - 1, getY() - 1, getX() + width + 1, getY(), 0xFFFFFFFF);
-                    guiGraphics.fill(getX() - 1, getY(), getX(), getY() + height, 0xFFFFFFFF);
-                    guiGraphics.fill(getX() + width, getY(), getX() + width + 1, getY() + height, 0xFFFFFFFF);
-                    guiGraphics.fill(getX() - 1, getY() + height, getX() + width + 1, getY() + height + 1, 0xFFFFFFFF);
+                if (this.isFocused()) {
+                    GuiComponent.fill(poseStack, this.x - 1, this.y - 1, this.x + width + 1, this.y, 0xFFFFFFFF);
+                    GuiComponent.fill(poseStack, this.x - 1, this.y, this.x, this.y + height, 0xFFFFFFFF);
+                    GuiComponent.fill(poseStack, this.x + width, this.y, this.x + width + 1, this.y + height, 0xFFFFFFFF);
+                    GuiComponent.fill(poseStack, this.x - 1, this.y + height, this.x + width + 1, this.y + height + 1, 0xFFFFFFFF);
                 }
 
-                var pose = guiGraphics.pose();
-                pose.pushPose();
-                pose.translate(getX(), getY(), 0.0F);
-                pose.scale(eap$scale, eap$scale, 1.f);
+                poseStack.pushPose();
+                poseStack.translate(this.x, this.y, 0.0F);
+                poseStack.scale(eap$scale, eap$scale, 1.f);
                 if (!this.isDisableBackground()) {
-                    Icon.TOOLBAR_BUTTON_BACKGROUND.getBlitter().dest(0, 0).blit(guiGraphics);
+                    Icon.TOOLBAR_BUTTON_BACKGROUND.getBlitter().dest(0, 0).blit(poseStack, 0);
                 }
-                blitter.dest(0, 0).blit(guiGraphics);
-                pose.popPose();
+                blitter.dest(0, 0).blit(poseStack, 0);
+                poseStack.popPose();
 
                 RenderSystem.enableDepthTest();
             }
 
             @Override
             public Rect2i getTooltipArea() {
-                return new Rect2i(getX(), getY(), Math.round(16 * eap$scale), Math.round(16 * eap$scale));
+                return new Rect2i(this.x, this.y, Math.round(16 * eap$scale), Math.round(16 * eap$scale));
             }
 
             @Override
@@ -115,7 +110,7 @@ public abstract class PatternEncodingTermScreenMixin {
                 return Icon.ARROW_UP;
             }
         };
-        btn.setTooltip(Tooltip.create(Component.translatable("extendedae_plus.button.choose_provider")));
+        btn.setMessage(Component.translatable("extendedae_plus.button.choose_provider"));
         return btn;
     }
 
@@ -144,16 +139,16 @@ public abstract class PatternEncodingTermScreenMixin {
 
             eap$uploadBtn.setWidth(targetW);
             eap$uploadBtn.setHeight(targetH);
-            eap$uploadBtn.setX(pos.getX() - targetW);
-            eap$uploadBtn.setY(pos.getY());
+            eap$uploadBtn.x = pos.getX() - targetW;
+            eap$uploadBtn.y = pos.getY();
         } catch (Throwable t) {
             int leftPos = screen.eap$getLeftPos();
             int topPos = screen.eap$getTopPos();
             int imageWidth = screen.eap$getImageWidth();
             eap$uploadBtn.setWidth(12);
             eap$uploadBtn.setHeight(12);
-            eap$uploadBtn.setX(leftPos + imageWidth - 14);
-            eap$uploadBtn.setY(topPos + 88);
+            eap$uploadBtn.x = leftPos + imageWidth - 14;
+            eap$uploadBtn.y = topPos + 88;
         }
     }
 

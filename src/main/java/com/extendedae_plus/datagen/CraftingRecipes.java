@@ -85,51 +85,7 @@ public class CraftingRecipes extends RecipeProvider {
                 .unlockedBy("has_singularity", has(AEItems.SINGULARITY))
                 .save(consumer);*/
 
-        // TODO: EPPItemAndBlock.ASSEMBLER_MATRIX_* fields not available in EPP 1.19.2
-        // These recipes are disabled until EPP provides these fields
-        /*
-        // 上传核心
-        ShapelessRecipeBuilder.shapeless(ModItems.ASSEMBLER_MATRIX_UPLOAD_CORE.get())
-                .requires(EPPItemAndBlock.ASSEMBLER_MATRIX_WALL)
-                .requires(Items.LEVER)
-                .unlockedBy("has_assembler_matrix_wall", has(EPPItemAndBlock.ASSEMBLER_MATRIX_WALL))
-                .save(consumer);
-
-        //超级装配矩阵速度核心
-        ShapedRecipeBuilder.shaped(ModItems.ASSEMBLER_MATRIX_SPEED_PLUS.get())
-                .pattern("BRB")
-                .pattern("RLR")
-                .pattern("BRB")
-                .define('R', EPPItemAndBlock.ASSEMBLER_MATRIX_SPEED)
-                .define('L', Items.NETHER_STAR)
-                .define('B', EPPItemAndBlock.ASSEMBLER_MATRIX_WALL)
-                .unlockedBy("has_quantum_ring", has(AEBlocks.QUANTUM_RING))
-                .save(consumer);
-
-        //超级装配矩阵合成核心
-        ShapedRecipeBuilder.shaped(ModItems.ASSEMBLER_MATRIX_CRAFTER_PLUS.get())
-                .pattern("BRB")
-                .pattern("RLR")
-                .pattern("BRB")
-                .define('R', EPPItemAndBlock.ASSEMBLER_MATRIX_CRAFTER)
-                .define('L', Items.NETHER_STAR)
-                .define('B', EPPItemAndBlock.ASSEMBLER_MATRIX_WALL)
-                .unlockedBy("has_quantum_ring", has(AEBlocks.QUANTUM_RING))
-                .save(consumer);
-
-        //超级装配矩阵样板核心
-        ShapedRecipeBuilder.shaped(ModItems.ASSEMBLER_MATRIX_PATTERN_PLUS.get())
-                .pattern("BRB")
-                .pattern("RLR")
-                .pattern("BRB")
-                .define('R', EPPItemAndBlock.ASSEMBLER_MATRIX_PATTERN)
-                .define('L', Items.NETHER_STAR)
-                .define('B', EPPItemAndBlock.ASSEMBLER_MATRIX_WALL)
-                .unlockedBy("has_quantum_ring", has(AEBlocks.QUANTUM_RING))
-                .save(consumer);
-        */
-
-        //镜像样板供应�?
+        //镜像样板供应器
         ShapedRecipeBuilder.shaped(ModItems.MIRROR_PATTERN_PROVIDER.get())
                 .pattern("AAA")
                 .pattern("ABA")

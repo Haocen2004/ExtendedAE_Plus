@@ -28,31 +28,21 @@ sourceSets {
             srcDir 'src/generated/resources'
         }
         java {
-            // 1.19.2 不可用的可选 Mod 集成代码：暂时排除编译
-            exclude 'com/extendedae_plus/mixin/advancedae/**'
-            exclude 'com/extendedae_plus/mixin/appflux/**'
-            exclude 'com/extendedae_plus/mixin/guideme/**'
-            exclude 'com/extendedae_plus/mixin/ae2WTlib/**'
-            exclude 'com/extendedae_plus/mixin/extendedae/**'
-            exclude 'com/extendedae_plus/api/crafting/ScaledProcessingPatternAdv.java'
-            // 依赖 1.20+ GuiGraphics 或不存在的 ExtendedAE API
-            exclude 'com/extendedae_plus/mixin/ae2/client/gui/AEBaseScreenMixin.java'
-            exclude 'com/extendedae_plus/mixin/ae2/client/gui/InterfaceScreenMixin.java'
-            exclude 'com/extendedae_plus/util/ScaleButtonHelper.java'
-            exclude 'com/extendedae_plus/util/GuiUtil.java'
-            // 依赖 ExtendedAE 1.20+ / AdvancedAE / AppFlux 的网络包和工具类
-            exclude 'com/extendedae_plus/network/provider/SetPerProviderScalingLimitC2SPacket.java'
-            exclude 'com/extendedae_plus/network/provider/ToggleAdvancedBlockingC2SPacket.java'
-            exclude 'com/extendedae_plus/network/provider/ToggleSmartDoublingC2SPacket.java'
-            exclude 'com/extendedae_plus/network/SetBlockHighlightS2CPacket.java'
-            exclude 'com/extendedae_plus/network/crafting/OpenCraftFromJeiC2SPacket.java'
-            exclude 'com/extendedae_plus/util/entitySpeed/FluxEnergyHelper.java'
-            exclude 'com/extendedae_plus/util/uploadPattern/MatrixUploadUtil.java'
-            // 依赖 1.20+ GuiGraphics/Tooltip 或多个已排除类
-            exclude 'com/extendedae_plus/mixin/ae2/client/gui/PatternEncodingTermScreenMixin.java'
-            exclude 'com/extendedae_plus/mixin/ae2/client/gui/patternProvider/PatternProviderSmartFeaturesMixin.java'
             // ModelBakeryMixin: 1.19.2 Forge model system incompatible (IUnbakedGeometry vs UnbakedModel)
             exclude 'com/extendedae_plus/mixin/minecraft/ModelBakeryMixin.java'
+            // EPP 1.19.2 doesn't have GuiExPatternTerminal, HighlightButton, ContainerExPatternTerminal, glodium, etc.
+            exclude 'com/extendedae_plus/mixin/extendedae/accessor/GuiExPatternTerminalAccessor.java'
+            exclude 'com/extendedae_plus/mixin/extendedae/accessor/GuiExPatternTerminalGroupHeaderRowAccessor.java'
+            exclude 'com/extendedae_plus/mixin/extendedae/accessor/HighlightButtonAccessor.java'
+            exclude 'com/extendedae_plus/mixin/extendedae/client/HighlightButtonMixin.java'
+            exclude 'com/extendedae_plus/mixin/extendedae/client/gui/GuiExPatternTerminalMixin.java'
+            exclude 'com/extendedae_plus/mixin/extendedae/container/ContainerExPatternTerminalMixin.java'
+            exclude 'com/extendedae_plus/mixin/extendedae/container/ContainerWirelessExPatternTerminalMixin.java'
+            // ae2wtlib/glodium integration classes not available in 1.19.2 EPP
+            exclude 'com/extendedae_plus/mixin/ae2WTlib/ContainerUWirelessExPatternTerminalMixin.java'
+            exclude 'com/extendedae_plus/network/crafting/OpenCraftFromJeiC2SPacket.java'
+            // EPP 1.19.2 lacks EAEHighlightHandler/FCClientUtil; Registries.DIMENSION requires 1.19.3+
+            exclude 'com/extendedae_plus/network/SetBlockHighlightS2CPacket.java'
         }
     }
 }

@@ -10,6 +10,7 @@ import com.extendedae_plus.network.pattern.CancelPendingPatternC2SPacket;
 import com.extendedae_plus.network.pattern.CreateCtrlQPatternC2SPacket;
 import com.extendedae_plus.network.pattern.CreateAndUploadPatternC2SPacket;
 import com.extendedae_plus.network.provider.*;
+import com.extendedae_plus.network.provider.PatternScaleC2SPacket;
 import com.extendedae_plus.network.upload.EncodeWithShiftFlagC2SPacket;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.network.NetworkDirection;
@@ -96,8 +97,23 @@ public final class ModNetwork {
                 .consumerNetworkThread(SetProviderPageS2CPacket::handle)
                 .add();
 
-        // ToggleAdvancedBlockingC2SPacket, ToggleSmartDoublingC2SPacket, SetPerProviderScalingLimitC2SPacket
-        // excluded: depend on AdvancedAE (not available in 1.19.2)
+        CHANNEL.messageBuilder(ToggleAdvancedBlockingC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
+                .encoder(ToggleAdvancedBlockingC2SPacket::encode)
+                .decoder(ToggleAdvancedBlockingC2SPacket::decode)
+                .consumerNetworkThread(ToggleAdvancedBlockingC2SPacket::handle)
+                .add();
+
+        CHANNEL.messageBuilder(ToggleSmartDoublingC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
+                .encoder(ToggleSmartDoublingC2SPacket::encode)
+                .decoder(ToggleSmartDoublingC2SPacket::decode)
+                .consumerNetworkThread(ToggleSmartDoublingC2SPacket::handle)
+                .add();
+
+        CHANNEL.messageBuilder(SetPerProviderScalingLimitC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
+                .encoder(SetPerProviderScalingLimitC2SPacket::encode)
+                .decoder(SetPerProviderScalingLimitC2SPacket::decode)
+                .consumerNetworkThread(SetPerProviderScalingLimitC2SPacket::handle)
+                .add();
 
         CHANNEL.messageBuilder(GlobalToggleProviderModesC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
                 .encoder(GlobalToggleProviderModesC2SPacket::encode)
@@ -175,6 +191,12 @@ public final class ModNetwork {
                 .encoder(CancelPendingPatternC2SPacket::encode)
                 .decoder(CancelPendingPatternC2SPacket::decode)
                 .consumerNetworkThread(CancelPendingPatternC2SPacket::handle)
+                .add();
+
+        CHANNEL.messageBuilder(PatternScaleC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
+                .encoder(PatternScaleC2SPacket::encode)
+                .decoder(PatternScaleC2SPacket::decode)
+                .consumerNetworkThread(PatternScaleC2SPacket::handle)
                 .add();
     }
 

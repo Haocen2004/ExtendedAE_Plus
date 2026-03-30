@@ -8,8 +8,6 @@ import com.extendedae_plus.client.ClientRegistrar;
 import com.extendedae_plus.client.ModKeybindings;
 import com.extendedae_plus.config.ModConfig;
 import com.extendedae_plus.content.ae2.MirrorPatternProviderBlockEntity;
-import com.extendedae_plus.content.matrix.CrafterCorePlusBlockEntity;
-import com.extendedae_plus.content.matrix.PatternCorePlusBlockEntity;
 import com.extendedae_plus.init.*;
 import com.extendedae_plus.menu.locator.CuriosItemLocator;
 import com.extendedae_plus.util.command.InfinityDiskGiveCommand;
@@ -77,35 +75,6 @@ public class ExtendedAEPlus {
             ModNetwork.register();
             // 注册自定义 Curios 宿主定位器，便于将菜单宿主信息在服务端与客户端间同步
             MenuLocators.register(CuriosItemLocator.class, CuriosItemLocator::writeToPacket, CuriosItemLocator::readFromPacket);
-            
-            // 绑定方块实体类型，避免 blockEntityClass 为 null 的问题
-            ModBlocks.ASSEMBLER_MATRIX_UPLOAD_CORE.get().setBlockEntity(
-                com.extendedae_plus.content.matrix.UploadCoreBlockEntity.class,
-                ModBlockEntities.UPLOAD_CORE_BE.get(),
-                null,
-                null
-            );
-
-            ModBlocks.ASSEMBLER_MATRIX_SPEED_PLUS.get().setBlockEntity(
-                com.extendedae_plus.content.matrix.SpeedCorePlusBlockEntity.class,
-                ModBlockEntities.ASSEMBLER_MATRIX_SPEED_PLUS_BE.get(),
-                null,
-                null
-            );
-
-            ModBlocks.ASSEMBLER_MATRIX_CRAFTER_PLUS.get().setBlockEntity(
-                    CrafterCorePlusBlockEntity.class,
-                    ModBlockEntities.ASSEMBLER_MATRIX_CRAFTER_PLUS_BE.get(),
-                    null,
-                    null
-            );
-
-            ModBlocks.ASSEMBLER_MATRIX_PATTERN_PLUS.get().setBlockEntity(
-                    PatternCorePlusBlockEntity.class,
-                    ModBlockEntities.ASSEMBLER_MATRIX_PATTERN_PLUS_BE.get(),
-                    null,
-                    null
-            );
 
             ((AEBaseEntityBlock) ModBlocks.MIRROR_PATTERN_PROVIDER.get()).setBlockEntity(
                     MirrorPatternProviderBlockEntity.class,

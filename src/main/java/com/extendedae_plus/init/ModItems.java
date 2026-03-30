@@ -37,112 +37,89 @@ public final class ModItems {
             () -> new BlockItem(ModBlocks.NETWORK_PATTERN_CONTROLLER.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
-    // 装配矩阵上传核心（方块物品）
-    public static final RegistryObject<Item> ASSEMBLER_MATRIX_UPLOAD_CORE = ITEMS.register(
-            "assembler_matrix_upload_core",
-            () -> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_UPLOAD_CORE.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
-    );
-
-    //超级装配矩阵速度核心
-    public static final RegistryObject<Item> ASSEMBLER_MATRIX_SPEED_PLUS = ITEMS.register(
-            "assembler_matrix_speed_plus",
-            ()-> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_SPEED_PLUS.get(), new Item.Properties())
-    );
-
-    //超级装配矩阵合成核心
-    public static final RegistryObject<Item> ASSEMBLER_MATRIX_CRAFTER_PLUS = ITEMS.register(
-            "assembler_matrix_crafter_plus",
-            ()-> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_CRAFTER_PLUS.get(), new Item.Properties())
-    );
-
-    //超级装配矩阵样板核心
-    public static final RegistryObject<Item> ASSEMBLER_MATRIX_PATTERN_PLUS = ITEMS.register(
-            "assembler_matrix_pattern_plus",
-            ()-> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_PATTERN_PLUS.get(), new Item.Properties())
-    );
     // Crafting Accelerators
     public static final RegistryObject<Item> CRAFTING_ACCELERATOR_4x = ITEMS.register(
             "4x_crafting_accelerator",
-            () -> new BlockItem(ModBlocks.CRAFTING_ACCELERATOR_4x.get(), new Item.Properties())
+            () -> new BlockItem(ModBlocks.CRAFTING_ACCELERATOR_4x.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     public static final RegistryObject<Item> CRAFTING_ACCELERATOR_16x = ITEMS.register(
             "16x_crafting_accelerator",
-            () -> new BlockItem(ModBlocks.CRAFTING_ACCELERATOR_16x.get(), new Item.Properties())
+            () -> new BlockItem(ModBlocks.CRAFTING_ACCELERATOR_16x.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     public static final RegistryObject<Item> CRAFTING_ACCELERATOR_64x = ITEMS.register(
             "64x_crafting_accelerator",
-            () -> new BlockItem(ModBlocks.CRAFTING_ACCELERATOR_64x.get(), new Item.Properties())
+            () -> new BlockItem(ModBlocks.CRAFTING_ACCELERATOR_64x.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     public static final RegistryObject<Item> CRAFTING_ACCELERATOR_256x = ITEMS.register(
             "256x_crafting_accelerator",
-            () -> new BlockItem(ModBlocks.CRAFTING_ACCELERATOR_256x.get(), new Item.Properties())
+            () -> new BlockItem(ModBlocks.CRAFTING_ACCELERATOR_256x.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     public static final RegistryObject<Item> CRAFTING_ACCELERATOR_1024x = ITEMS.register(
             "1024x_crafting_accelerator",
-            () -> new BlockItem(ModBlocks.CRAFTING_ACCELERATOR_1024x.get(), new Item.Properties())
+            () -> new BlockItem(ModBlocks.CRAFTING_ACCELERATOR_1024x.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     public static final RegistryObject<Item> MIRROR_PATTERN_PROVIDER = ITEMS.register(
             "mirror_pattern_provider",
-            () -> new BlockItem(ModBlocks.MIRROR_PATTERN_PROVIDER.get(), new Item.Properties())
+            () -> new BlockItem(ModBlocks.MIRROR_PATTERN_PROVIDER.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     public static final RegistryObject<MirrorPatternBindingToolItem> MIRROR_PATTERN_BINDING_TOOL = ITEMS.register(
             "mirror_pattern_binding_tool",
-            () -> new MirrorPatternBindingToolItem(new Item.Properties())
+            () -> new MirrorPatternBindingToolItem(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     public static final RegistryObject<EntitySpeedTickerPartItem> ENTITY_TICKER_PART_ITEM = ITEMS.register(
             "entity_speed_ticker",
-            () -> new EntitySpeedTickerPartItem(new Item.Properties())
+            () -> new EntitySpeedTickerPartItem(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     // AE Upgrade Cards: 实体加速卡（四个等级：x2,x4,x8,x16）
     // 单一实体加速卡 Item（不同等级由 ItemStack.nbt 存储）
     public static final RegistryObject<EntitySpeedCardItem> ENTITY_SPEED_CARD = ITEMS.register(
             "entity_speed_card",
-            () -> new EntitySpeedCardItem(new Item.Properties())
+            () -> new EntitySpeedCardItem(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     public static final RegistryObject<InfinityBigIntegerCellItem> INFINITY_BIGINTEGER_CELL = ITEMS.register(
-            "infinity_biginteger_cell", () -> new InfinityBigIntegerCellItem(new Item.Properties())
+            "infinity_biginteger_cell", () -> new InfinityBigIntegerCellItem(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     // 频道卡（作为 AE 升级卡使用）
     public static final RegistryObject<ChannelCardItem> CHANNEL_CARD = ITEMS.register(
             "channel_card",
-            () -> new ChannelCardItem(new Item.Properties())
+            () -> new ChannelCardItem(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     // 虚拟合成卡
     public static final RegistryObject<VirtualCraftingCardItem> VIRTUAL_CRAFTING_CARD = ITEMS.register(
             "virtual_crafting_card",
-            () -> new VirtualCraftingCardItem(new Item.Properties())
+            () -> new VirtualCraftingCardItem(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     public static final RegistryObject<BasicCoreItem> BASIC_CORE = ITEMS.register(
             "basic_core",
-            () -> new BasicCoreItem(new Item.Properties())
+            () -> new BasicCoreItem(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
     public static final RegistryObject<Item> STORAGE_CORE = ITEMS.register(
             "storage_core",
-            () -> new Item(new Item.Properties())
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
     public static final RegistryObject<Item> SPATIAL_CORE = ITEMS.register(
             "spatial_core",
-            () -> new Item(new Item.Properties())
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
     public static final RegistryObject<Item> INFINITY_CORE = ITEMS.register(
             "infinity_core",
-            () -> new Item(new Item.Properties())
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
     public static final RegistryObject<Item> OBLIVION_SINGULARITY = ITEMS.register(
             "oblivion_singularity",
-            () -> new Item(new Item.Properties())
+            () -> new Item(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
     public static final RegistryObject<Item> ENERGY_STORAGE_CORE;
     public static final RegistryObject<Item> QUANTUM_STORAGE_CORE;

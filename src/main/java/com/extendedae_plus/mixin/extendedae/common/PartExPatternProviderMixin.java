@@ -1,7 +1,7 @@
 package com.extendedae_plus.mixin.extendedae.common;
 
 import com.extendedae_plus.config.ModConfig;
-import com.glodblock.github.extendedae.common.parts.PartExPatternProvider;
+import com.github.glodblock.epp.common.parts.PartExPatternProvider;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.ModifyArg;
@@ -13,7 +13,7 @@ public abstract class PartExPatternProviderMixin {
             method = "createLogic",
             at = @At(
                     value = "INVOKE",
-                    target = "Lappeng/helpers/patternprovider/PatternProviderLogic;<init>(Lappeng/api/networking/IManagedGridNode;Lappeng/helpers/patternprovider/PatternProviderLogicHost;I)V"
+                    target = "Lappeng/helpers/iface/PatternProviderLogic;<init>(Lappeng/api/networking/IManagedGridNode;Lappeng/helpers/iface/PatternProviderLogicHost;I)V"
             ),
             index = 2
     )

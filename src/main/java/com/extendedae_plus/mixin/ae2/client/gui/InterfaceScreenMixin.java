@@ -8,8 +8,8 @@ import com.extendedae_plus.mixin.minecraft.accessor.AbstractContainerScreenAcces
 import com.extendedae_plus.mixin.minecraft.accessor.ScreenAccessor;
 import com.extendedae_plus.network.meInterface.InterfaceAdjustConfigAmountC2SPacket;
 import com.extendedae_plus.util.ScaleButtonHelper;
-import com.glodblock.github.extendedae.client.button.ActionEPPButton;
-import com.glodblock.github.extendedae.client.gui.GuiExInterface;
+import com.extendedae_plus.client.widget.BlitterIconButton;
+import com.github.glodblock.epp.client.gui.GuiExInterface;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,8 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 /**
- * 在 AE2 的 ME 接口界面注入倍增/除法按钮（x2/÷2、x5/÷5、x10/÷10）。
- * 点击逻辑直接对所有 CONFIG 槽生效，删除了 hover 回退索引。
+ * Inject multiply/divide buttons into AE2 ME Interface screen and EPP Ex Interface screen.
  */
 @Mixin(AEBaseScreen.class)
 public abstract class InterfaceScreenMixin<T extends AEBaseMenu> {
@@ -32,26 +31,21 @@ public abstract class InterfaceScreenMixin<T extends AEBaseMenu> {
 
     @Inject(method = "init", at = @At("TAIL"))
     private void eap$addScaleButtons(CallbackInfo ci) {
-        // 仅在 AE2 接口界面或 ExtendedAE 扩展接口界面中添加
         if (!eap$isSupportedInterfaceScreen()) return;
 
         if (eap$scaleButtons == null) {
-            // 使用工具类创建按钮，统一回调
             eap$scaleButtons = ScaleButtonHelper.createButtons((divide, factor) -> {
-                // 对所有 CONFIG 槽生效
                 ModNetwork.CHANNEL.sendToServer(new InterfaceAdjustConfigAmountC2SPacket(-1, divide, factor));
             });
         }
 
-        // 注册到 renderables 和 children
         var accessor = (ScreenAccessor) this;
-        for (ActionEPPButton b : ScaleButtonHelper.all(eap$scaleButtons)) {
+        for (BlitterIconButton b : ScaleButtonHelper.all(eap$scaleButtons)) {
             if (!accessor.eap$getRenderables().contains(b)) accessor.eap$getRenderables().add(b);
             if (!accessor.eap$getChildren().contains(b)) accessor.eap$getChildren().add(b);
             b.setVisibility(true);
         }
 
-        // 初次布局
         eap$relayoutButtons();
     }
 
@@ -60,15 +54,13 @@ public abstract class InterfaceScreenMixin<T extends AEBaseMenu> {
         if (!eap$isSupportedInterfaceScreen()) return;
 
         var accessor = (ScreenAccessor) this;
-        // 确保按钮在 renderables/children 中
-        for (ActionEPPButton b : ScaleButtonHelper.all(eap$scaleButtons)) {
+        for (BlitterIconButton b : ScaleButtonHelper.all(eap$scaleButtons)) {
             if (b != null) {
                 if (!accessor.eap$getRenderables().contains(b)) accessor.eap$getRenderables().add(b);
                 if (!accessor.eap$getChildren().contains(b)) accessor.eap$getChildren().add(b);
             }
         }
 
-        // 检查屏幕尺寸变化
         AbstractContainerScreenAccessor<?> screen = (AbstractContainerScreenAccessor<?>) this;
         int curLeft = screen.eap$getLeftPos();
         int curTop = screen.eap$getTopPos();
@@ -100,13 +92,12 @@ public abstract class InterfaceScreenMixin<T extends AEBaseMenu> {
         int leftPos = screen.eap$getLeftPos();
         int topPos = screen.eap$getTopPos();
 
-        // 左侧竖排布局（和原来一致）
         ScaleButtonHelper.layoutButtons(
                 eap$scaleButtons,
-                leftPos - eap$scaleButtons.divide2().getWidth(), // 左侧外缘
-                topPos + eap$scaleButtons.divide2().getWidth() + 30,    // 上偏移
-                22,                                                     // 间距
-                ScaleButtonHelper.Side.LEFT                             // 左侧布局
+                leftPos - eap$scaleButtons.divide2().getWidth(),
+                topPos + eap$scaleButtons.divide2().getWidth() + 30,
+                22,
+                ScaleButtonHelper.Side.LEFT
         );
     }
 }
