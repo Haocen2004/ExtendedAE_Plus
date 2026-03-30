@@ -9,6 +9,8 @@ import appeng.helpers.iface.PatternProviderLogic;
 import appeng.util.CustomNameUtil;
 import appeng.util.SettingsFrom;
 import appeng.util.inv.AppEngInternalInventory;
+import com.extendedae_plus.api.advancedBlocking.IAdvancedBlocking;
+import com.extendedae_plus.api.smartDoubling.ISmartDoublingHolder;
 import com.extendedae_plus.config.ModConfig;
 import com.extendedae_plus.init.ModBlockEntities;
 import net.minecraft.core.BlockPos;
@@ -295,6 +297,17 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
             this.setPriority(master.getPriority());
         }
 
+        // Sync EAP smart features (advanced blocking, smart doubling, per-provider limit)
+        var mirrorLogic = this.getLogic();
+        var masterLogic = master.getLogic();
+        if (mirrorLogic instanceof IAdvancedBlocking mirrorAB && masterLogic instanceof IAdvancedBlocking masterAB) {
+            mirrorAB.eap$setAdvancedBlocking(masterAB.eap$getAdvancedBlocking());
+        }
+        if (mirrorLogic instanceof ISmartDoublingHolder mirrorSD && masterLogic instanceof ISmartDoublingHolder masterSD) {
+            mirrorSD.eap$setSmartDoubling(masterSD.eap$getSmartDoubling());
+            mirrorSD.eap$setProviderSmartDoublingLimit(masterSD.eap$getProviderSmartDoublingLimit());
+        }
+
         return true;
     }
 
@@ -302,14 +315,31 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
         var mirrorLogic = this.getLogic();
         var masterLogic = master.getLogic();
 
-        return !Objects.equals(this.getCustomInventoryName(), master.getCustomInventoryName())
+        if (!Objects.equals(this.getCustomInventoryName(), master.getCustomInventoryName())
                 || this.getPriority() != master.getPriority()
                 || mirrorLogic.getConfigManager().getSetting(Settings.BLOCKING_MODE)
                 != masterLogic.getConfigManager().getSetting(Settings.BLOCKING_MODE)
                 || mirrorLogic.getConfigManager().getSetting(Settings.PATTERN_ACCESS_TERMINAL)
                 != masterLogic.getConfigManager().getSetting(Settings.PATTERN_ACCESS_TERMINAL)
                 || mirrorLogic.getConfigManager().getSetting(Settings.LOCK_CRAFTING_MODE)
-                != masterLogic.getConfigManager().getSetting(Settings.LOCK_CRAFTING_MODE);
+                != masterLogic.getConfigManager().getSetting(Settings.LOCK_CRAFTING_MODE)) {
+            return true;
+        }
+
+        // Check EAP smart features
+        if (mirrorLogic instanceof IAdvancedBlocking mirrorAB && masterLogic instanceof IAdvancedBlocking masterAB) {
+            if (mirrorAB.eap$getAdvancedBlocking() != masterAB.eap$getAdvancedBlocking()) {
+                return true;
+            }
+        }
+        if (mirrorLogic instanceof ISmartDoublingHolder mirrorSD && masterLogic instanceof ISmartDoublingHolder masterSD) {
+            if (mirrorSD.eap$getSmartDoubling() != masterSD.eap$getSmartDoubling()
+                    || mirrorSD.eap$getProviderSmartDoublingLimit() != masterSD.eap$getProviderSmartDoublingLimit()) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     private boolean syncMirroredPatterns(PatternProviderBlockEntity master) {

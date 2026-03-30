@@ -2,9 +2,11 @@ package com.extendedae_plus.items.materials;
 
 import appeng.items.materials.UpgradeCardItem;
 import com.extendedae_plus.init.ModItems;
+import net.minecraft.core.NonNullList;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.world.item.CreativeModeTab;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.level.Level;
@@ -22,6 +24,16 @@ public class EntitySpeedCardItem extends UpgradeCardItem {
 
     public EntitySpeedCardItem(Properties props) {
         super(props);
+    }
+
+    @Override
+    public void fillItemCategory(@NotNull CreativeModeTab tab, @NotNull NonNullList<ItemStack> items) {
+        if (this.allowedIn(tab)) {
+            items.add(withMultiplier(2));
+            items.add(withMultiplier(4));
+            items.add(withMultiplier(8));
+            items.add(withMultiplier(16));
+        }
     }
 
     public static ItemStack withMultiplier(int multiplier) {
