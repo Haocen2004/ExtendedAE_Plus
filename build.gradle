@@ -151,9 +151,6 @@ dependencies {
     //geckolib
     runtimeOnly fg.deobf("curse.maven:geckolib-388172:4407241")
 
-    // configuration
-    implementation fg.deobf("curse.maven:configuration-444699:5030099")
-
     //ftbteams
     compileOnly fg.deobf("curse.maven:ftb-teams-forge-404468:4611938")
     compileOnly fg.deobf("curse.maven:ftb-library-forge-404465:4661834")

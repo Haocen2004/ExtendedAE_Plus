@@ -22,6 +22,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -59,6 +60,7 @@ public class ExtendedAEPlus {
         MinecraftForge.EVENT_BUS.addListener(this::onRegisterCommands);
         // 注册通用配置
         ModConfig.init();
+        modEventBus.addListener(ExtendedAEPlus::onConfigEvent);
         MinecraftForge.EVENT_BUS.addListener(ExtendedAEPlus::worldTick);
     }
 
@@ -146,5 +148,11 @@ public class ExtendedAEPlus {
 
     private void onRegisterCommands(RegisterCommandsEvent event) {
         InfinityDiskGiveCommand.register(event.getDispatcher());
+    }
+
+    private static void onConfigEvent(ModConfigEvent event) {
+        if (event.getConfig().getSpec() == ModConfig.SPEC) {
+            ModConfig.refresh();
+        }
     }
 }
