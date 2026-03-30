@@ -127,7 +127,7 @@ public final class WrenchHook {
                     openFrequencyInputScreen(pos, te.getFrequency());
                 }
                 // 轻微反馈音效
-                level.playSound(player, pos, SoundEvents.UI_BUTTON_CLICK.get(), SoundSource.BLOCKS, 0.5F, 1.0F);
+                level.playSound(player, pos, SoundEvents.UI_BUTTON_CLICK, SoundSource.BLOCKS, 0.5F, 1.0F);
 
                 event.setCanceled(true);
             }

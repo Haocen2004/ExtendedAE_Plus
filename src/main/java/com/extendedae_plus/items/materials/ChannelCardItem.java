@@ -156,14 +156,14 @@ public class ChannelCardItem extends UpgradeCardItem {
             return false; // 不拦截
         }
         
-        if (player.level().isClientSide) {
+        if (player.getLevel().isClientSide) {
             return true; // 客户端拦截，防止破坏方块
         }
         
         // 服务端处理
-        if (player.level() instanceof ServerLevel serverLevel) {
+        if (player.getLevel() instanceof ServerLevel serverLevel) {
             // 检查是否是收发器（让Block类处理）
-            var blockState = player.level().getBlockState(pos);
+            var blockState = player.getLevel().getBlockState(pos);
             if (blockState.getBlock() instanceof com.extendedae_plus.content.wireless.WirelessTransceiverBlock) {
                 return false; // 不拦截，让Block类处理
             }

@@ -16,6 +16,6 @@ public class DataGenerators {
         ExistingFileHelper helper = event.getExistingFileHelper();
 
         // 仅添加配方生成器
-        generator.addProvider(true, new CraftingRecipes(generator.getPackOutput()));
+        generator.addProvider(true, new CraftingRecipes(generator));
     }
 }

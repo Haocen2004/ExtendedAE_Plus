@@ -42,7 +42,7 @@ public class SetWirelessFrequencyC2SPacket {
             }
 
             // 检查方块实体是否存在
-            var level = player.serverLevel();
+            var level = ((net.minecraft.server.level.ServerLevel) player.getLevel());
             if (!level.hasChunkAt(packet.pos)) {
                 return;
             }

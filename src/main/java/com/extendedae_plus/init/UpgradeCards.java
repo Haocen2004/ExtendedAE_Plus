@@ -7,7 +7,7 @@ import appeng.core.definitions.AEParts;
 import appeng.core.localization.GuiText;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 
-import static com.glodblock.github.extendedae.common.EPPItemAndBlock.*;
+import static com.github.glodblock.epp.common.EPPItemAndBlock.*;
 
 /**
  * 
@@ -39,11 +39,10 @@ public final class UpgradeCards {
             Upgrades.add(ModItems.VIRTUAL_CRAFTING_CARD.get(),EX_PATTERN_PROVIDER, 1, patternProviderGroup);
             Upgrades.add(ModItems.VIRTUAL_CRAFTING_CARD.get(),EX_PATTERN_PROVIDER_PART, 1, patternProviderGroup);
 
-            //EAE 的扩展接口与超大接口（方块与部件）支持频道卡
+            //EAE 的扩展接口支持频道卡（1.19.2 版本无超大接口）
             Upgrades.add(ModItems.CHANNEL_CARD.get(), EX_INTERFACE, 1, interfaceGroup);
             Upgrades.add(ModItems.CHANNEL_CARD.get(), EX_INTERFACE_PART, 1, interfaceGroup);
-            Upgrades.add(ModItems.CHANNEL_CARD.get(), OVERSIZE_INTERFACE, 1, interfaceGroup);
-            Upgrades.add(ModItems.CHANNEL_CARD.get(), OVERSIZE_INTERFACE_PART, 1, interfaceGroup);
+            // OVERSIZE_INTERFACE 和 OVERSIZE_INTERFACE_PART 不存在于 1.19.2 ExtendedAE
 
             //AE2 的输入/输出/存储总线支持频道卡（部件）
             String ioBusGroup = GuiText.IOBuses.getTranslationKey();

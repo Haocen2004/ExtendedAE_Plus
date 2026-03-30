@@ -149,7 +149,7 @@ public abstract class StorageBusPartChannelCardMixin implements IInterfaceWirele
         try {
             var node = ((IActionHost) (Object) this).getActionableNode();
             if (node != null) {
-                return node.getOwningPlayerProfileId();
+                return appeng.api.features.IPlayerRegistry.getMapping(node.getLevel()).getProfileId(node.getOwningPlayerId());
             }
         } catch (Throwable ignored) {
         }

@@ -4,7 +4,7 @@ import appeng.api.crafting.PatternDetailsHelper;
 import appeng.api.inventories.InternalInventory;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.IGridNode;
-import appeng.helpers.patternprovider.PatternContainer;
+import appeng.helpers.iface.PatternContainer;
 import appeng.items.tools.powered.WirelessTerminalItem;
 import appeng.menu.implementations.PatternAccessTermMenu;
 import appeng.menu.me.items.PatternEncodingTermMenu;
@@ -400,7 +400,17 @@ public final class ProviderUploadUtil {
         } else {
             WirelessTerminalItem wt = terminal.getItem() instanceof WirelessTerminalItem t ? t : null;
             if (wt != null) {
-                return wt.getLinkedGrid(terminal, player.serverLevel(), player);
+                {
+                    var gridKeyOpt = wt.getGridKey(terminal);
+                    if (gridKeyOpt.isPresent()) {
+                        var secHost = appeng.api.features.Locatables.securityStations().get(((net.minecraft.server.level.ServerLevel) player.getLevel()), gridKeyOpt.getAsLong());
+                        if (secHost != null) {
+                            var secNode = secHost.getActionableNode();
+                            if (secNode != null) return secNode.getGrid();
+                        }
+                    }
+                    return null;
+                }
             }
         }
 

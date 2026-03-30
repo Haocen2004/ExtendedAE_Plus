@@ -8,7 +8,7 @@ import com.glodblock.github.glodium.network.packet.sync.IActionHolder;
 import com.glodblock.github.glodium.network.packet.sync.Paras;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerLevel;
@@ -110,7 +110,7 @@ public abstract class ContainerExPatternTerminalMixin implements IActionHolder {
                     EAP_LOGGER.warn("[EPlus] open_ui: invalid dim '{}'", dimStr);
                     return;
                 }
-                ResourceKey<Level> dimKey = ResourceKey.create(Registries.DIMENSION, dimId);
+                ResourceKey<Level> dimKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, dimId);
 
                 if (!(this.epp$player instanceof ServerPlayer sp)) {
                     EAP_LOGGER.warn("[EPlus] open_ui: not a ServerPlayer");

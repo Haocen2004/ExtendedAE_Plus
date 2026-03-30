@@ -231,7 +231,8 @@ public abstract class InterfaceLogicChannelCardMixin implements IInterfaceWirele
     @Unique
     private UUID eap$getFallbackOwner() {
         if (mainNode != null && mainNode.getNode() != null) {
-            return mainNode.getNode().getOwningPlayerProfileId();
+            var node = mainNode.getNode();
+            return appeng.api.features.IPlayerRegistry.getMapping(node.getLevel()).getProfileId(node.getOwningPlayerId());
         }
         return null;
     }

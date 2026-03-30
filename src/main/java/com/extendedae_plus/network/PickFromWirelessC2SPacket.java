@@ -64,7 +64,7 @@ public class PickFromWirelessC2SPacket {
             if (player == null || player.isCreative()) {
                 return;
             }
-            ServerLevel level = player.serverLevel();
+            ServerLevel level = ((net.minecraft.server.level.ServerLevel) player.getLevel());
             BlockState state = level.getBlockState(msg.pos);
             if (state == null || state.isAir()) {
                 return;
@@ -77,7 +77,7 @@ public class PickFromWirelessC2SPacket {
                 return;
             }
 
-            IGrid grid;
+            IGrid grid = null;
             boolean usedWtHost = false;
             // 若来自 Curios：优先通过 ae2wtlib 的 WTMenuHost 获取量子桥网络，绕过距离限制
             String curiosSlotId = located.getCuriosSlotId();
@@ -116,7 +116,16 @@ public class PickFromWirelessC2SPacket {
                 if (wt == null) {
                     return;
                 }
-                grid = wt.getLinkedGrid(terminal, level, player);
+                {
+                    var gridKeyOpt = wt.getGridKey(terminal);
+                    if (gridKeyOpt.isPresent()) {
+                        var secHost = appeng.api.features.Locatables.securityStations().get(level, gridKeyOpt.getAsLong());
+                        if (secHost != null) {
+                            var secNode = secHost.getActionableNode();
+                            if (secNode != null) grid = secNode.getGrid();
+                        }
+                    }
+                }
                 if (grid == null) {
                     return;
                 }

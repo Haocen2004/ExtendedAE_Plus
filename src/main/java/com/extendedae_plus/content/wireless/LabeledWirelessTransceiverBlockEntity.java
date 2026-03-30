@@ -329,5 +329,7 @@ public class LabeledWirelessTransceiverBlockEntity extends AEBaseBlockEntity imp
         }
         @Override
         public void onOwnerChanged(LabeledWirelessTransceiverBlockEntity host, IGridNode node) {}
+        @Override
+        public void onSecurityBreak(LabeledWirelessTransceiverBlockEntity host, IGridNode node) {}
     }
 }

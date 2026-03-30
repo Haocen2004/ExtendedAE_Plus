@@ -7,10 +7,8 @@ import com.extendedae_plus.ExtendedAEPlus;
 import com.extendedae_plus.init.ModNetwork;
 import com.extendedae_plus.integration.jei.JeiRuntimeProxy;
 import com.extendedae_plus.mixin.ae2.accessor.MEStorageScreenAccessor;
-import com.extendedae_plus.mixin.extendedae.accessor.GuiExPatternTerminalAccessor;
 import com.extendedae_plus.network.PullFromJeiOrCraftC2SPacket;
-import com.extendedae_plus.network.crafting.OpenCraftFromJeiC2SPacket;
-import com.glodblock.github.extendedae.client.gui.GuiExPatternTerminal;
+// import com.extendedae_plus.network.crafting.OpenCraftFromJeiC2SPacket; // excluded: ExtendedAE 1.20+
 import mezz.jei.api.ingredients.ITypedIngredient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
@@ -84,7 +82,8 @@ public final class InputEvents {
                 if (stack == null) return;
 
                 // 发送到服务端，让其验证并打开 CraftAmountMenu
-                ModNetwork.CHANNEL.sendToServer(new OpenCraftFromJeiC2SPacket(stack));
+                // OpenCraftFromJeiC2SPacket excluded: depends on ExtendedAE 1.20+ GuiExPatternTerminal
+                // ModNetwork.CHANNEL.sendToServer(new OpenCraftFromJeiC2SPacket(stack));
 
                 // 消费此次点击，避免 JEI/原版对中键的其它处理
                 event.setCanceled(true);
@@ -127,12 +126,8 @@ public final class InputEvents {
                     event.setCanceled(true);
                 } catch (Throwable ignored) {
                 }
-            }else if (screen instanceof GuiExPatternTerminal<?> gpt) {
-                try {
-                    GuiExPatternTerminalAccessor acc = (GuiExPatternTerminalAccessor) gpt;
-                    acc.getSearchOutField().setValue(name);
-                    event.setCanceled(true);
-                }catch (Throwable ignored) {}
+            }else {
+                // GuiExPatternTerminal 在 1.19.2 ExtendedAE 中不存在，暂时跳过
             }
         } catch (Throwable ignored) {
             // 兼容 JEI 版本差异或运行时异常

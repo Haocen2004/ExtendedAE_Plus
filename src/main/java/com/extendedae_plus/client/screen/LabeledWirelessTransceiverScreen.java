@@ -7,8 +7,8 @@ import com.extendedae_plus.network.LabelNetworkActionC2SPacket;
 import com.extendedae_plus.network.LabelNetworkListC2SPacket;
 import com.extendedae_plus.init.ModNetwork;
 import com.mojang.blaze3d.systems.RenderSystem;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.Minecraft;
-import net.minecraft.client.gui.GuiGraphics;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.components.ImageButton;
 
@@ -78,7 +78,7 @@ public class LabeledWirelessTransceiverScreen extends AbstractContainerScreen<La
         this.searchBox.setBordered(false);
         this.searchBox.setMaxLength(64);
         this.searchBox.setVisible(true);
-        this.searchBox.setFocused(false);
+        this.searchBox.setFocus(false);
         this.searchBox.setResponder(s -> {
             applyFilter();
         });
@@ -109,48 +109,48 @@ public class LabeledWirelessTransceiverScreen extends AbstractContainerScreen<La
     }
 
     @Override
-    public void render(GuiGraphics gfx, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(gfx);
-        super.render(gfx, mouseX, mouseY, partialTicks);
-        drawAllButtonText(gfx);
-        this.renderTooltip(gfx, mouseX, mouseY);
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground(poseStack);
+        super.render(poseStack, mouseX, mouseY, partialTicks);
+        drawAllButtonText(poseStack);
+        this.renderTooltip(poseStack, mouseX, mouseY);
         if (this.searchBox != null) {
-            this.searchBox.render(gfx, mouseX, mouseY, partialTicks);
+            this.searchBox.render(poseStack, mouseX, mouseY, partialTicks);
         }
     }
 
     @Override
-    protected void renderLabels(GuiGraphics gfx, int mouseX, int mouseY) {
+    protected void renderLabels(PoseStack poseStack, int mouseX, int mouseY) {
         float titleScale = getTitleScale();
-        var pose = gfx.pose();
-        pose.pushPose();
-        pose.translate(8, 8, 0);
-        pose.scale(titleScale, titleScale, 1.0f);
-        gfx.drawString(this.font, this.title, 0, 0, 0x404040, false);
-        pose.popPose();
+        poseStack.pushPose();
+        poseStack.translate(8, 8, 0);
+        poseStack.scale(titleScale, titleScale, 1.0f);
+        this.font.draw(poseStack, this.title, 0, 0, 0x404040);
+        poseStack.popPose();
 
-        pose.pushPose();
-        pose.translate(134, 8, 0);
-        pose.scale(titleScale, titleScale, 1.0f);
-        gfx.drawString(this.font, Component.translatable("gui.extendedae_plus.labeled_wireless.info"), 0, 0, 0x404040, false);
-        pose.popPose();
+        poseStack.pushPose();
+        poseStack.translate(134, 8, 0);
+        poseStack.scale(titleScale, titleScale, 1.0f);
+        this.font.draw(poseStack, Component.translatable("gui.extendedae_plus.labeled_wireless.info"), 0, 0, 0x404040);
+        poseStack.popPose();
     }
 
     @Override
-    protected void renderBg(GuiGraphics gfx, float partialTicks, int mouseX, int mouseY) {
+    protected void renderBg(PoseStack poseStack, float partialTicks, int mouseX, int mouseY) {
         RenderSystem.setShaderColor(1f, 1f, 1f, 1f);
-        gfx.blit(TEX, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
+        RenderSystem.setShaderTexture(0, TEX);
+        blit(poseStack, this.leftPos, this.topPos, 0, 0, this.imageWidth, this.imageHeight);
 
         // 占位绘制：列表和信息区内的内容框线
         // 标签列表区域
-        gfx.fill(this.leftPos + 9, this.topPos + 27, this.leftPos + 118 + 1, this.topPos + 140 + 1, 0x20FFFFFF);
+        fill(poseStack, this.leftPos + 9, this.topPos + 27, this.leftPos + 118 + 1, this.topPos + 140 + 1, 0x20FFFFFF);
         // 滚动条区域
-        gfx.fill(this.leftPos + 123, this.topPos + 21, this.leftPos + 128 + 1, this.topPos + 141 + 1, 0x20000000);
+        fill(poseStack, this.leftPos + 123, this.topPos + 21, this.leftPos + 128 + 1, this.topPos + 141 + 1, 0x20000000);
         // 当前收发器信息区域
-        gfx.fill(this.leftPos + 134, this.topPos + 41, this.leftPos + 249 + 1, this.topPos + 92 + 1, 0x10FFFFFF);
+        fill(poseStack, this.leftPos + 134, this.topPos + 41, this.leftPos + 249 + 1, this.topPos + 92 + 1, 0x10FFFFFF);
 
-        renderList(gfx);
-        renderScrollBar(gfx);
+        renderList(poseStack);
+        renderScrollBar(poseStack);
     }
 
     @Override
@@ -194,7 +194,7 @@ public class LabeledWirelessTransceiverScreen extends AbstractContainerScreen<La
         return super.mouseScrolled(mouseX, mouseY, delta);
     }
 
-    private void renderList(GuiGraphics gfx) {
+    private void renderList(PoseStack poseStack) {
         int baseX = this.leftPos + LIST_X;
         int baseY = this.topPos + LIST_Y;
         for (int row = 0; row < VISIBLE_ROWS; row++) {
@@ -202,12 +202,12 @@ public class LabeledWirelessTransceiverScreen extends AbstractContainerScreen<La
             if (idx >= filtered.size()) break;
             int y = baseY + row * ROW_H;
             if (idx == selectedIndex) {
-                gfx.fill(baseX, y, baseX + LIST_W, y + ROW_H, 0x40FFFFFF);
+                fill(poseStack, baseX, y, baseX + LIST_W, y + ROW_H, 0x40FFFFFF);
             }
             LabelEntry e = filtered.get(idx);
             String text = this.font.plainSubstrByWidth(e.label(), LIST_W - 2);
             int ty = y + (ROW_H - this.font.lineHeight) / 2;
-            gfx.drawString(this.font, text, baseX + 2, ty, 0x404040, false);
+            this.font.draw(poseStack, text, baseX + 2, ty, 0x404040);
         }
 
         // 信息显示
@@ -220,27 +220,27 @@ public class LabeledWirelessTransceiverScreen extends AbstractContainerScreen<La
         Component channelComp = maxChannels <= 0
                 ? Component.translatable("extendedae_plus.jade.channels", usedChannels)
                 : Component.translatable("extendedae_plus.jade.channels_of", usedChannels, maxChannels);
-        drawInfoLine(gfx, labelLine, infoX, infoY, infoScale);
-        drawInfoLine(gfx, ownerLine, infoX, infoY + 12, infoScale);
-        drawInfoLine(gfx, onlineLine, infoX, infoY + 24, infoScale);
-        drawInfoLine(gfx, channelComp.getString(), infoX, infoY + 36, infoScale);
+        drawInfoLine(poseStack, labelLine, infoX, infoY, infoScale);
+        drawInfoLine(poseStack, ownerLine, infoX, infoY + 12, infoScale);
+        drawInfoLine(poseStack, onlineLine, infoX, infoY + 24, infoScale);
+        drawInfoLine(poseStack, channelComp.getString(), infoX, infoY + 36, infoScale);
     }
 
-    private void renderScrollBar(GuiGraphics gfx) {
+    private void renderScrollBar(PoseStack poseStack) {
         int total = filtered.size();
         if (total <= VISIBLE_ROWS) {
             // 画静态条
-            gfx.fill(this.leftPos + SCROLL_X, this.topPos + SCROLL_Y, this.leftPos + SCROLL_X + SCROLL_W, this.topPos + SCROLL_Y + SCROLL_H, 0x20000000);
+            fill(poseStack, this.leftPos + SCROLL_X, this.topPos + SCROLL_Y, this.leftPos + SCROLL_X + SCROLL_W, this.topPos + SCROLL_Y + SCROLL_H, 0x20000000);
             return;
         }
         int maxOffset = total - VISIBLE_ROWS;
         int trackX1 = this.leftPos + SCROLL_X;
         int trackY1 = this.topPos + SCROLL_Y;
         int trackY2 = trackY1 + SCROLL_H;
-        gfx.fill(trackX1, trackY1, trackX1 + SCROLL_W, trackY2, 0x20000000);
+        fill(poseStack, trackX1, trackY1, trackX1 + SCROLL_W, trackY2, 0x20000000);
         int knobH = Math.max(10, (int) ((double) VISIBLE_ROWS / total * SCROLL_H));
         int knobY = trackY1 + (int) ((SCROLL_H - knobH) * (scrollOffset / (double) maxOffset));
-        gfx.fill(trackX1, knobY, trackX1 + SCROLL_W, knobY + knobH, 0x80FFFFFF);
+        fill(poseStack, trackX1, knobY, trackX1 + SCROLL_W, knobY + knobH, 0x80FFFFFF);
     }
 
     private boolean isMouseInList(double mouseX, double mouseY) {
@@ -355,7 +355,7 @@ public class LabeledWirelessTransceiverScreen extends AbstractContainerScreen<La
 
     private record LabelEntry(String label, long channel) {}
 
-    private void drawAllButtonText(GuiGraphics gfx) {
+    private void drawAllButtonText(PoseStack poseStack) {
         // 按钮文本（24px 内居中，避免溢出）。放在 super.render 之后，确保绘制在按钮纹理之上。
         int startX = this.leftPos + 145;
         int startY = this.topPos + 101;
@@ -364,17 +364,17 @@ public class LabeledWirelessTransceiverScreen extends AbstractContainerScreen<La
         int secondColX = startX + BTN_W + hGap;
         int secondRowY = startY + BTN_H + vGap;
 
-        drawButtonText(gfx, Component.translatable("gui.extendedae_plus.labeled_wireless.button.new"), startX, startY);
-        drawButtonText(gfx, Component.translatable("gui.extendedae_plus.labeled_wireless.button.delete"), secondColX, startY);
-        drawButtonText(gfx, Component.translatable("gui.extendedae_plus.labeled_wireless.button.set"), startX, secondRowY);
-        drawButtonText(gfx, Component.translatable("gui.extendedae_plus.labeled_wireless.button.refresh"), secondColX, secondRowY);
+        drawButtonText(poseStack, Component.translatable("gui.extendedae_plus.labeled_wireless.button.new"), startX, startY);
+        drawButtonText(poseStack, Component.translatable("gui.extendedae_plus.labeled_wireless.button.delete"), secondColX, startY);
+        drawButtonText(poseStack, Component.translatable("gui.extendedae_plus.labeled_wireless.button.set"), startX, secondRowY);
+        drawButtonText(poseStack, Component.translatable("gui.extendedae_plus.labeled_wireless.button.refresh"), secondColX, secondRowY);
     }
 
-    private void drawButtonText(GuiGraphics gfx, Component text, int x, int y) {
+    private void drawButtonText(PoseStack poseStack, Component text, int x, int y) {
         String s = this.font.plainSubstrByWidth(text.getString(), BTN_W - 4);
         int tx = x + (BTN_W - this.font.width(s)) / 2;
         int ty = y + (BTN_H - this.font.lineHeight) / 2 + 1;
-        gfx.drawString(this.font, s, tx, ty, 0xFFFFFF, false);
+        this.font.drawShadow(poseStack, s, tx, ty, 0xFFFFFF);
     }
 
     private void ensureSelectionVisible() {
@@ -394,20 +394,19 @@ public class LabeledWirelessTransceiverScreen extends AbstractContainerScreen<La
         return this.font.plainSubstrByWidth(text, maxWidth);
     }
 
-    private void drawInfoLine(GuiGraphics gfx, String text, int x, int y, float scale) {
+    private void drawInfoLine(PoseStack poseStack, String text, int x, int y, float scale) {
         String trimmed = trimInfo(text, scale);
-        var pose = gfx.pose();
-        pose.pushPose();
-        pose.translate(x, y, 0);
-        pose.scale(scale, scale, 1.0f);
-        gfx.drawString(this.font, trimmed, 0, 0, 0x404040, false);
-        pose.popPose();
+        poseStack.pushPose();
+        poseStack.translate(x, y, 0);
+        poseStack.scale(scale, scale, 1.0f);
+        this.font.draw(poseStack, trimmed, 0, 0, 0x404040);
+        poseStack.popPose();
     }
 
     private boolean isEnglish() {
         Minecraft mc = Minecraft.getInstance();
         var lang = mc.getLanguageManager().getSelected();
-        return lang != null && lang.equalsIgnoreCase("en_us");
+        return lang != null && lang.getCode().equalsIgnoreCase("en_us");
     }
 
     private float getInfoScale() {
@@ -445,7 +444,7 @@ public class LabeledWirelessTransceiverScreen extends AbstractContainerScreen<La
         }
 
         @Override
-        public void renderWidget(GuiGraphics gfx, int mouseX, int mouseY, float partialTicks) {
+        public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
             boolean hovered = this.isMouseOver(mouseX, mouseY);
             boolean pressed = pressedVisual || (hovered && GLFW.glfwGetMouseButton(Minecraft.getInstance().getWindow().getWindow(), GLFW.GLFW_MOUSE_BUTTON_1) == GLFW.GLFW_PRESS);
             int u = baseU;
@@ -457,7 +456,8 @@ public class LabeledWirelessTransceiverScreen extends AbstractContainerScreen<La
                 u = hoverU;
                 v = hoverV;
             }
-            gfx.blit(tex, this.getX(), this.getY(), u, v, this.width, this.height, texW, texH);
+            RenderSystem.setShaderTexture(0, tex);
+            blit(poseStack, this.x, this.y, (float)u, (float)v, this.width, this.height, texW, texH);
         }
 
         @Override

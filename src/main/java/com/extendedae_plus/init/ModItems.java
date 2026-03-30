@@ -24,23 +24,23 @@ public final class ModItems {
 
     public static final RegistryObject<Item> WIRELESS_TRANSCEIVER = ITEMS.register(
             "wireless_transceiver",
-            () -> new BlockItem(ModBlocks.WIRELESS_TRANSCEIVER.get(), new Item.Properties())
+            () -> new BlockItem(ModBlocks.WIRELESS_TRANSCEIVER.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     public static final RegistryObject<Item> LABELED_WIRELESS_TRANSCEIVER = ITEMS.register(
             "labeled_wireless_transceiver",
-            () -> new BlockItem(ModBlocks.LABELED_WIRELESS_TRANSCEIVER.get(), new Item.Properties())
+            () -> new BlockItem(ModBlocks.LABELED_WIRELESS_TRANSCEIVER.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     public static final RegistryObject<Item> NETWORK_PATTERN_CONTROLLER = ITEMS.register(
             "network_pattern_controller",
-            () -> new BlockItem(ModBlocks.NETWORK_PATTERN_CONTROLLER.get(), new Item.Properties())
+            () -> new BlockItem(ModBlocks.NETWORK_PATTERN_CONTROLLER.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     // 装配矩阵上传核心（方块物品）
     public static final RegistryObject<Item> ASSEMBLER_MATRIX_UPLOAD_CORE = ITEMS.register(
             "assembler_matrix_upload_core",
-            () -> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_UPLOAD_CORE.get(), new Item.Properties())
+            () -> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_UPLOAD_CORE.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
     //超级装配矩阵速度核心

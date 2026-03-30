@@ -5,9 +5,9 @@ import appeng.menu.me.items.PatternEncodingTermMenu;
 import appeng.menu.slot.RestrictedInputSlot;
 import appeng.parts.encoding.EncodingMode;
 import com.extendedae_plus.api.upload.IPatternEncodingShiftUploadSync;
-import com.extendedae_plus.util.uploadPattern.MatrixUploadUtil;
-import com.glodblock.github.glodium.network.packet.sync.IActionHolder;
-import com.glodblock.github.glodium.network.packet.sync.Paras;
+// import com.extendedae_plus.util.uploadPattern.MatrixUploadUtil; // excluded: depends on ExtendedAE 1.20+
+// import com.glodblock.github.glodium.network.packet.sync.IActionHolder; // Glodium not available in 1.19.2
+// import com.glodblock.github.glodium.network.packet.sync.Paras; // Glodium not available in 1.19.2
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -28,10 +28,10 @@ import java.util.function.Consumer;
  * 注册动作 "upload_to_matrix"：仅上传“合成图样”到 ExtendedAE 装配矩阵。
  */
 @Mixin(PatternEncodingTermMenu.class)
-public abstract class ContainerPatternEncodingTermMenuMixin implements IActionHolder, IPatternEncodingShiftUploadSync {
+public abstract class ContainerPatternEncodingTermMenuMixin implements IPatternEncodingShiftUploadSync {
 
-    @Unique
-    private final Map<String, Consumer<Paras>> eap$actions = createHolder();
+    // IActionHolder removed: Glodium not available in 1.19.2
+    // private final Map<String, Consumer<Paras>> eap$actions = createHolder();
 
     @Unique
     private Player epp$player;
@@ -51,7 +51,8 @@ public abstract class ContainerPatternEncodingTermMenuMixin implements IActionHo
                 }
                 var stack = this.encodedPatternSlot != null ? this.encodedPatternSlot.getItem() : net.minecraft.world.item.ItemStack.EMPTY;
                 if (stack != null && !stack.isEmpty() && PatternDetailsHelper.isEncodedPattern(stack)) {
-                    MatrixUploadUtil.uploadFromEncodingMenuToMatrix(sp, menu);
+                    // MatrixUploadUtil excluded: depends on ExtendedAE 1.20+ ClusterAssemblerMatrix
+                    // MatrixUploadUtil.uploadFromEncodingMenuToMatrix(sp, menu);
                 } else {
                     // 槽位可能尚未同步到位，继续下一 tick 重试
                     if (attemptsLeft > 0) {
@@ -91,11 +92,12 @@ public abstract class ContainerPatternEncodingTermMenuMixin implements IActionHo
         return flag;
     }
 
-    @NotNull
-    @Override
-    public Map<String, Consumer<Paras>> getActionMap() {
-        return this.eap$actions;
-    }
+    // getActionMap removed: Glodium IActionHolder not available in 1.19.2
+    // @NotNull
+    // @Override
+    // public Map<String, Consumer<Paras>> getActionMap() {
+    //     return this.eap$actions;
+    // }
 
     // 服务器端：在 encode() 执行完毕后，如果已编码槽位存在样板且当前为“合成模式”，则上传到装配矩阵
     @Inject(method = "encode", at = @At("TAIL"), remap = false)
@@ -124,12 +126,13 @@ public abstract class ContainerPatternEncodingTermMenuMixin implements IActionHo
                 return; // 不是编码样板
             }
             // 为避免与 AE2 后续同步竞争，切到下一 tick 执行
-            sp.server.execute(() -> {
-                try {
-                    MatrixUploadUtil.uploadFromEncodingMenuToMatrix(sp, menu);
-                } catch (Throwable ignored) {
-                }
-            });
+            // MatrixUploadUtil excluded: depends on ExtendedAE 1.20+
+            // sp.server.execute(() -> {
+            //     try {
+            //         MatrixUploadUtil.uploadFromEncodingMenuToMatrix(sp, menu);
+            //     } catch (Throwable ignored) {
+            //     }
+            // });
         } catch (Throwable ignored) {
         }
     }

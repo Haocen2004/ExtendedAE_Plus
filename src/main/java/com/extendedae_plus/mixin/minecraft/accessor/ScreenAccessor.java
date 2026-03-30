@@ -1,7 +1,7 @@
 package com.extendedae_plus.mixin.minecraft.accessor;
 
 import net.minecraft.client.gui.Font;
-import net.minecraft.client.gui.components.Renderable;
+import net.minecraft.client.gui.components.Widget;
 import net.minecraft.client.gui.components.events.GuiEventListener;
 import net.minecraft.client.gui.screens.Screen;
 import org.spongepowered.asm.mixin.Mixin;
@@ -12,7 +12,7 @@ import java.util.List;
 @Mixin(Screen.class)
 public interface ScreenAccessor {
     @Accessor("renderables")
-    List<Renderable> eap$getRenderables();
+    List<Widget> eap$getRenderables();
 
     @Accessor("children")
     List<GuiEventListener> eap$getChildren();

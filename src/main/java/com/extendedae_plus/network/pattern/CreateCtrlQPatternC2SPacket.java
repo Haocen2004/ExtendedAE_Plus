@@ -106,7 +106,7 @@ public class CreateCtrlQPatternC2SPacket {
                 return;
             }
 
-            RecipeManager recipeManager = player.level().getRecipeManager();
+            RecipeManager recipeManager = player.getLevel().getRecipeManager();
             var recipeOpt = recipeManager.byKey(msg.recipeId);
             if (recipeOpt.isEmpty()) {
                 player.displayClientMessage(Component.translatable("message.extendedae_plus.recipe_not_found"), false);
@@ -164,7 +164,7 @@ public class CreateCtrlQPatternC2SPacket {
             return false;
         }
 
-        IGrid grid;
+        IGrid grid = null;
         boolean usedWtHost;
 
         String curiosSlotId = located.getCuriosSlotId();
@@ -204,7 +204,16 @@ public class CreateCtrlQPatternC2SPacket {
             if (wt == null) {
                 return false;
             }
-            grid = wt.getLinkedGrid(terminal, player.serverLevel(), player);
+            {
+                var gridKeyOpt = wt.getGridKey(terminal);
+                if (gridKeyOpt.isPresent()) {
+                    var secHost = appeng.api.features.Locatables.securityStations().get(player.getLevel(), gridKeyOpt.getAsLong());
+                    if (secHost != null) {
+                        var secNode = secHost.getActionableNode();
+                        if (secNode != null) grid = secNode.getGrid();
+                    }
+                }
+            }
             if (grid == null) {
                 return false;
             }
@@ -253,7 +262,7 @@ public class CreateCtrlQPatternC2SPacket {
                     }
                 }
 
-                ItemStack output = recipe.getResultItem(player.level().registryAccess()).copy();
+                ItemStack output = recipe.getResultItem().copy();
                 ItemStack encodedPattern = PatternDetailsHelper.encodeCraftingPattern(
                     craftingRecipe,
                     inputs,

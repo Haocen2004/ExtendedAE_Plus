@@ -30,7 +30,7 @@ public class InfinityDiskGiveCommand {
         CommandSourceStack source = ctx.getSource();
         try {
             ServerPlayer player = source.getPlayerOrException();
-            if (player.level() == null || !(player.level() instanceof ServerLevel)) {
+            if (player.getLevel() == null || !(player.getLevel() instanceof ServerLevel)) {
                 source.sendFailure(Component.translatable("extendedae_plus.command.server_side_only"));
                 return 0;
             }
@@ -50,7 +50,7 @@ public class InfinityDiskGiveCommand {
                 given++;
             }
             final int finalGiven = given;
-            source.sendSuccess(() -> Component.translatable("extendedae_plus.command.gave_infinity_disks", finalGiven), false);
+            source.sendSuccess(Component.translatable("extendedae_plus.command.gave_infinity_disks", finalGiven), false);
             return given;
         } catch (Exception ex) {
             source.sendFailure(Component.translatable("extendedae_plus.command.error", ex.getMessage()));

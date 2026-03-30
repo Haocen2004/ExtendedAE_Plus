@@ -1,14 +1,13 @@
 package com.extendedae_plus.mixin.ae2.menu;
 
-import appeng.helpers.patternprovider.PatternProviderLogic;
-import appeng.helpers.patternprovider.PatternProviderLogicHost;
+import appeng.helpers.iface.PatternProviderLogic;
+import appeng.helpers.iface.PatternProviderLogicHost;
 import appeng.menu.AEBaseMenu;
 import appeng.menu.guisync.GuiSync;
 import appeng.menu.implementations.PatternProviderMenu;
 import com.extendedae_plus.api.advancedBlocking.IAdvancedBlocking;
 import com.extendedae_plus.api.advancedBlocking.IPatternProviderMenuAdvancedSync;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.MenuType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -25,7 +24,7 @@ public abstract class PatternProviderMenuAdvancedMixin implements IPatternProvid
     @Shadow(remap = false)
     protected PatternProviderLogic logic;
 
-    // 选择一个未占用的 GUI 同步 id（AE2 已用到 7），这里使用 20 以避冲突
+    // 选择一个未占用�?GUI 同步 id（AE2 已用�?7），这里使用 20 以避冲突
     @Unique
     @GuiSync(20)
     public boolean eap$AdvancedBlocking = false;
@@ -41,8 +40,8 @@ public abstract class PatternProviderMenuAdvancedMixin implements IPatternProvid
         }
     }
 
-    // 构造器尾注入（public ctor）
-    @Inject(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lappeng/helpers/patternprovider/PatternProviderLogicHost;)V", at = @At("TAIL"), remap = false)
+    // 构造器尾注入（public ctor�?
+    @Inject(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lappeng/helpers/iface/PatternProviderLogicHost;)V", at = @At("TAIL"), remap = false)
     private void eap$initAdvancedSync_Public(int id, Inventory playerInventory, PatternProviderLogicHost host, CallbackInfo ci) {
         try {
             var l = this.logic;
@@ -52,18 +51,7 @@ public abstract class PatternProviderMenuAdvancedMixin implements IPatternProvid
         } catch (Throwable ignored) {}
     }
 
-    // 构造器尾注入（protected ctor with MenuType）
-    @Inject(method = "<init>(Lnet/minecraft/world/inventory/MenuType;ILnet/minecraft/world/entity/player/Inventory;Lappeng/helpers/patternprovider/PatternProviderLogicHost;)V", at = @At("TAIL"), remap = false)
-    private void eap$initAdvancedSync_Protected(MenuType<? extends PatternProviderMenu> menuType, int id, Inventory playerInventory, PatternProviderLogicHost host, CallbackInfo ci) {
-        try {
-            var l = this.logic;
-            if (l instanceof IAdvancedBlocking holder) {
-                this.eap$AdvancedBlocking = holder.eap$getAdvancedBlocking();
-            }
-        } catch (Throwable t) {
-            EAP$LOGGER.error("Error initializing advanced sync", t);
-        }
-    }
+    // 构造器尾注入（protected ctor with MenuType）- AE2 12.9.12 无此构造函数，已移除
 
     @Override
     public boolean eap$getAdvancedBlockingSynced() {

@@ -82,8 +82,8 @@ public class LabelLink {
                 current.destroy();
                 connection.setConnection(null);
             }
-            connection.setConnection(GridHelper.createConnection(hostNode, targetNode));
-        } catch (IllegalStateException ignore) {
+            connection.setConnection(GridHelper.createGridConnection(hostNode, targetNode));
+        } catch (IllegalStateException | appeng.api.exceptions.FailedConnectionException ignore) {
             destroyConnection();
         }
     }

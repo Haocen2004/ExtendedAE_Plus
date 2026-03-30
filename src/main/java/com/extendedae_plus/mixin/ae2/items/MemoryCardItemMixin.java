@@ -8,7 +8,7 @@ import appeng.items.tools.NetworkToolItem;
 import appeng.util.inv.PlayerInternalInventory;
 import com.extendedae_plus.ae.parts.EntitySpeedTickerPart;
 import com.extendedae_plus.init.ModItems;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.ListTag;
 import net.minecraft.nbt.Tag;
@@ -41,7 +41,7 @@ public class MemoryCardItemMixin {
                 ItemStack upgradeStack = upgrades.getStackInSlot(i);
                 if (upgradeStack.isEmpty()) continue;
 
-                ResourceLocation itemId = BuiltInRegistries.ITEM.getKey(upgradeStack.getItem());
+                ResourceLocation itemId = Registry.ITEM.getKey(upgradeStack.getItem());
                 String key = itemId.toString();
 
                 if (upgradeStack.getItem().equals(ModItems.ENTITY_SPEED_CARD.get())) {
@@ -140,7 +140,7 @@ public class MemoryCardItemMixin {
                             if (missingAmount <= 0) break;
                         }
 
-                        if (missingAmount > 0 && !player.level().isClientSide()) {
+                        if (missingAmount > 0 && !player.getLevel().isClientSide()) {
                             player.displayClientMessage(
                                     PlayerMessages.MissingUpgrades.text(desiredStack.getItem().getDescription(), missingAmount),
                                     true
@@ -165,7 +165,7 @@ public class MemoryCardItemMixin {
                     continue;
                 }
 
-                var item = BuiltInRegistries.ITEM.getOptional(id).orElse(null);
+                var item = Registry.ITEM.getOptional(id).orElse(null);
                 if (item == null || item.equals(ModItems.ENTITY_SPEED_CARD.get())) continue;
 
                 int desiredCount = desiredUpgradesTag.getInt(key);
@@ -195,7 +195,7 @@ public class MemoryCardItemMixin {
                             if (missingAmount <= 0) break;
                         }
 
-                        if (missingAmount > 0 && !player.level().isClientSide()) {
+                        if (missingAmount > 0 && !player.getLevel().isClientSide()) {
                             player.displayClientMessage(
                                     PlayerMessages.MissingUpgrades.text(item.getDescription(), missingAmount),
                                     true

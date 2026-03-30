@@ -10,10 +10,12 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
-import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IServerDataProvider;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
-public enum WirelessTransceiverProvider implements IServerDataProvider<BlockAccessor> {
+public enum WirelessTransceiverProvider implements IServerDataProvider<BlockEntity> {
     INSTANCE;
 
     private static final ResourceLocation UID = new ResourceLocation("extendedae_plus", "wireless_transceiver_info");
@@ -25,8 +27,8 @@ public enum WirelessTransceiverProvider implements IServerDataProvider<BlockAcce
     }
 
     @Override
-    public void appendServerData(CompoundTag data, BlockAccessor accessor) {
-        if (accessor.getBlockEntity() instanceof WirelessTransceiverBlockEntity blockEntity) {
+    public void appendServerData(CompoundTag data, ServerPlayer serverPlayer, Level level, BlockEntity be, boolean showDetails) {
+        if (be instanceof WirelessTransceiverBlockEntity blockEntity) {
             data.putLong("frequency", blockEntity.getFrequency());
             data.putBoolean("masterMode", blockEntity.isMasterMode());
             data.putBoolean("locked", blockEntity.isLocked());
@@ -68,23 +70,23 @@ public enum WirelessTransceiverProvider implements IServerDataProvider<BlockAcce
             var placerId = blockEntity.getPlacerId();
             if (placerId != null) {
                 data.putUUID("placerId", placerId);
-                var level = blockEntity.getServerLevel();
-                if (level != null) {
+                var serverLevel = blockEntity.getServerLevel();
+                if (serverLevel != null) {
                     // 使用WirelessTeamUtil自动判断显示团队或玩家名称
-                    Component ownerName = WirelessTeamUtil.getNetworkOwnerName(level, placerId);
+                    Component ownerName = WirelessTeamUtil.getNetworkOwnerName(serverLevel, placerId);
                     data.putString("ownerName", ownerName.getString());
                 }
             }
             
             // 如果是从模式，查询主节点位置与维度
             if (!blockEntity.isMasterMode()) {
-                var level = blockEntity.getServerLevel();
+                var slaveLevel = blockEntity.getServerLevel();
                 long freq = blockEntity.getFrequency();
                 // 复用上面的placerId变量
-                IWirelessEndpoint master = WirelessMasterRegistry.get(level, freq, placerId);
+                IWirelessEndpoint master = WirelessMasterRegistry.get(slaveLevel, freq, placerId);
                 if (master != null && !master.isEndpointRemoved()) {
-                    if (master instanceof WirelessTransceiverBlockEntity masterBlockEntity && masterBlockEntity.getCustomName() != null) {
-                        data.putString("customName", masterBlockEntity.getCustomName().getString());
+                    if (master instanceof WirelessTransceiverBlockEntity masterBlockEntity && masterBlockEntity.hasCustomInventoryName()) {
+                        data.putString("customName", masterBlockEntity.getCustomInventoryName().getString());
                     }
                     BlockPos pos = master.getBlockPos();
                     if (pos != null) {

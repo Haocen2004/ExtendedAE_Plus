@@ -44,10 +44,10 @@ public class InterfaceAdjustConfigAmountC2SPacket {
             if (player == null) return;
             // 支持 AE2 原版接口和 ExtendedAE 扩展接口
             InterfaceMenu menu = null;
-            com.glodblock.github.extendedae.container.ContainerExInterface exMenu = null;
+            com.github.glodblock.epp.container.ContainerExInterface exMenu = null;
             if (player.containerMenu instanceof InterfaceMenu im) {
                 menu = im;
-            } else if (player.containerMenu instanceof com.glodblock.github.extendedae.container.ContainerExInterface cem) {
+            } else if (player.containerMenu instanceof com.github.glodblock.epp.container.ContainerExInterface cem) {
                 exMenu = cem;
             } else {
                 return;

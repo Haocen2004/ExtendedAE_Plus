@@ -1,14 +1,13 @@
 package com.extendedae_plus.mixin.ae2.menu;
 
-import appeng.helpers.patternprovider.PatternProviderLogic;
-import appeng.helpers.patternprovider.PatternProviderLogicHost;
+import appeng.helpers.iface.PatternProviderLogic;
+import appeng.helpers.iface.PatternProviderLogicHost;
 import appeng.menu.AEBaseMenu;
 import appeng.menu.guisync.GuiSync;
 import appeng.menu.implementations.PatternProviderMenu;
 import com.extendedae_plus.api.smartDoubling.IPatternProviderMenuDoublingSync;
 import com.extendedae_plus.api.smartDoubling.ISmartDoublingHolder;
 import net.minecraft.world.entity.player.Inventory;
-import net.minecraft.world.inventory.MenuType;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -43,7 +42,7 @@ public abstract class PatternProviderMenuDoublingMixin implements IPatternProvid
         }
     }
 
-    @Inject(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lappeng/helpers/patternprovider/PatternProviderLogicHost;)V", at = @At("TAIL"), remap = false)
+    @Inject(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lappeng/helpers/iface/PatternProviderLogicHost;)V", at = @At("TAIL"), remap = false)
     private void eap$initSmartSync_Public(int id, Inventory playerInventory, PatternProviderLogicHost host, CallbackInfo ci) {
         try {
             var l = this.logic;
@@ -56,18 +55,7 @@ public abstract class PatternProviderMenuDoublingMixin implements IPatternProvid
         }
     }
 
-    @Inject(method = "<init>(Lnet/minecraft/world/inventory/MenuType;ILnet/minecraft/world/entity/player/Inventory;Lappeng/helpers/patternprovider/PatternProviderLogicHost;)V", at = @At("TAIL"), remap = false)
-    private void eap$initSmartSync_Protected(MenuType<? extends PatternProviderMenu> menuType, int id, Inventory playerInventory, PatternProviderLogicHost host, CallbackInfo ci) {
-        try {
-            var l = this.logic;
-            if (l instanceof ISmartDoublingHolder holder) {
-                this.eap$SmartDoubling = holder.eap$getSmartDoubling();
-                this.eap$PerProviderScalingLimit = holder.eap$getProviderSmartDoublingLimit();
-            }
-        } catch (Throwable t) {
-            EAP$LOGGER.error("Error initializing smart doubling sync", t);
-        }
-    }
+    // 构造器尾注入（protected ctor with MenuType）- AE2 12.9.12 无此构造函数，已移除
 
 
     @Override

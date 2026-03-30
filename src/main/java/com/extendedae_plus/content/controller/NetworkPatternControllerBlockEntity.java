@@ -88,5 +88,7 @@ public class NetworkPatternControllerBlockEntity extends BlockEntity implements 
         public void onSaveChanges(NetworkPatternControllerBlockEntity host, IGridNode node) {
             host.setChanged();
         }
+        @Override
+        public void onSecurityBreak(NetworkPatternControllerBlockEntity host, IGridNode node) {}
     }
 }

@@ -99,10 +99,10 @@ public class WirelessSlaveLink {
                             current.destroy();
                             connection = new ConnectionWrapper(null);
                         }
-                        connection = new ConnectionWrapper(GridHelper.createConnection(a, b));
+                        connection = new ConnectionWrapper(GridHelper.createGridConnection(a, b));
                         return;
                     }
-                } catch (IllegalStateException ignore) {
+                } catch (IllegalStateException | appeng.api.exceptions.FailedConnectionException ignore) {
                     // 连接非法（如重复连接等）——落入重建/关闭逻辑
                 }
             } else {

@@ -12,16 +12,13 @@ import net.minecraft.advancements.AdvancementRewards;
 import net.minecraft.advancements.CriterionTriggerInstance;
 import net.minecraft.advancements.RequirementsStrategy;
 import net.minecraft.advancements.critereon.RecipeUnlockedTrigger;
-import net.minecraft.data.recipes.CraftingRecipeBuilder;
 import net.minecraft.data.recipes.FinishedRecipe;
 import net.minecraft.data.recipes.RecipeBuilder;
-import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.nbt.*;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.crafting.CraftingBookCategory;
 import net.minecraft.world.item.crafting.RecipeSerializer;
 import net.minecraft.world.level.ItemLike;
 import net.minecraftforge.common.crafting.ConditionalRecipe;
@@ -35,33 +32,31 @@ import javax.annotation.Nullable;
 import java.util.*;
 import java.util.function.Consumer;
 
-public class NBTShapedRecipeBuilder extends CraftingRecipeBuilder implements RecipeBuilder {
+public class NBTShapedRecipeBuilder implements RecipeBuilder {
 
-    private final RecipeCategory category;
     private final ItemStack result;
     private final List<String> rows = Lists.newArrayList();
     private final Map<Character, JsonObject> key = Maps.newLinkedHashMap();
-    private final Advancement.Builder advancement = Advancement.Builder.recipeAdvancement();
+    private final Advancement.Builder advancement = Advancement.Builder.advancement();
     private final List<ICondition> conditions = new ArrayList<>();
 
     @Nullable private String group;
     private boolean showNotification = true;
 
-    private NBTShapedRecipeBuilder(RecipeCategory category, ItemStack result) {
-        this.category = category;
+    private NBTShapedRecipeBuilder(ItemStack result) {
         this.result = result;
     }
 
-    public static NBTShapedRecipeBuilder shaped(RecipeCategory category, ItemStack result) {
-        return new NBTShapedRecipeBuilder(category, result);
+    public static NBTShapedRecipeBuilder shaped(ItemStack result) {
+        return new NBTShapedRecipeBuilder(result);
     }
 
-    public static NBTShapedRecipeBuilder shaped(RecipeCategory category, ItemLike result) {
-        return shaped(category, new ItemStack(result));
+    public static NBTShapedRecipeBuilder shaped(ItemLike result) {
+        return shaped(new ItemStack(result));
     }
 
-    public static NBTShapedRecipeBuilder shaped(RecipeCategory category, ItemLike result, int count) {
-        return shaped(category, new ItemStack(result, count));
+    public static NBTShapedRecipeBuilder shaped(ItemLike result, int count) {
+        return shaped(new ItemStack(result, count));
     }
 
     /** 普通物品 */
@@ -156,8 +151,8 @@ public class NBTShapedRecipeBuilder extends CraftingRecipeBuilder implements Rec
         // 构建普通配方结果
         FinishedRecipe plainRecipe = new NBTResult(
                 id, this.result, this.group == null ? "" : this.group,
-                determineBookCategory(this.category), this.rows, this.key,
-                advancementBuilder, id.withPrefix("recipes/" + this.category.getFolderName() + "/"),
+                this.rows, this.key,
+                advancementBuilder, id.withPrefix("recipes/misc/"),
                 this.showNotification
         );
 
@@ -238,7 +233,7 @@ public class NBTShapedRecipeBuilder extends CraftingRecipeBuilder implements Rec
     }
 
     /** 完美 Result */
-    public static class NBTResult extends CraftingRecipeBuilder.CraftingResult {
+    public static class NBTResult implements FinishedRecipe {
         private final ResourceLocation id;
         private final ItemStack result;
         private final String group;
@@ -249,10 +244,9 @@ public class NBTShapedRecipeBuilder extends CraftingRecipeBuilder implements Rec
         private final boolean showNotification;
 
         public NBTResult(ResourceLocation id, ItemStack result, String group,
-                         CraftingBookCategory category, List<String> pattern,
+                         List<String> pattern,
                          Map<Character, JsonObject> key, Advancement.Builder advancement,
                          ResourceLocation advancementId, boolean showNotification) {
-            super(category);
             this.id = id;
             this.result = result;
             this.group = group;

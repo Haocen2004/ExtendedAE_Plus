@@ -2,7 +2,7 @@ package com.extendedae_plus.network.provider;
 
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.resources.ResourceLocation;
@@ -53,7 +53,7 @@ public class OpenProviderUiC2SPacket {
             
 
             // 校验维度与方块
-            ResourceKey<Level> levelKey = ResourceKey.create(Registries.DIMENSION, msg.dimId);
+            ResourceKey<Level> levelKey = ResourceKey.create(Registry.DIMENSION_REGISTRY, msg.dimId);
             ServerLevel level = player.server.getLevel(levelKey);
             if (level == null) {
                 return; // 无效维度

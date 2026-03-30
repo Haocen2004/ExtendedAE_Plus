@@ -2,7 +2,7 @@ package com.extendedae_plus.mixin.ae2.helpers.patternprovider;
 
 import appeng.api.crafting.IPatternDetails;
 import appeng.crafting.pattern.AEProcessingPattern;
-import appeng.helpers.patternprovider.PatternProviderLogic;
+import appeng.helpers.iface.PatternProviderLogic;
 import com.extendedae_plus.api.smartDoubling.ISmartDoublingAwarePattern;
 import com.extendedae_plus.api.smartDoubling.ISmartDoublingHolder;
 import com.extendedae_plus.mixin.ae2.accessor.PatternProviderLogicAccessor;
@@ -23,7 +23,7 @@ public class PatternProviderLogicDoublingMixin implements ISmartDoublingHolder {
     @Unique private static final String EAP_PROVIDER_SCALING_LIMIT = "eap_provider_scaling_limit";
 
     @Unique private boolean eap$smartDoubling = false;
-    @Unique private int eap$providerScalingLimit = 0; // 供应器级别的上限，0 表示不限制
+    @Unique private int eap$providerScalingLimit = 0; // 供应器级别的上限�? 表示不限�?
 
     @Override
     public boolean eap$getSmartDoubling() {
@@ -33,7 +33,7 @@ public class PatternProviderLogicDoublingMixin implements ISmartDoublingHolder {
     @Override
     public void eap$setSmartDoubling(boolean value) {
         this.eap$smartDoubling = value;
-        // 触发一次刷新
+        // 触发一次刷�?
         try {
             ((PatternProviderLogic) (Object) this).updatePatterns();
         } catch (Throwable ignored) {}
@@ -55,7 +55,7 @@ public class PatternProviderLogicDoublingMixin implements ISmartDoublingHolder {
     @Inject(method = "writeToNBT", at = @At("TAIL"))
     private void eap$writeSmartDoublingToNbt(CompoundTag tag, CallbackInfo ci) {
         tag.putBoolean(EAP_SMART_DOUBLING_KEY, this.eap$smartDoubling);
-        // 保存供应器级别上限
+        // 保存供应器级别上�?
         tag.putInt(EAP_PROVIDER_SCALING_LIMIT, this.eap$providerScalingLimit);
 
     }

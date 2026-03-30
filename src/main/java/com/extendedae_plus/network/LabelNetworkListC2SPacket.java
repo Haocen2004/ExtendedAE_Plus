@@ -33,7 +33,7 @@ public class LabelNetworkListC2SPacket {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) return;
-            var level = player.serverLevel();
+            var level = ((net.minecraft.server.level.ServerLevel) player.getLevel());
             if (!level.hasChunkAt(pkt.pos)) return;
             var be = level.getBlockEntity(pkt.pos);
             if (!(be instanceof LabeledWirelessTransceiverBlockEntity te)) return;

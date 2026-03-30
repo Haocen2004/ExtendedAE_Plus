@@ -63,7 +63,7 @@ public abstract class PatternEncodingTermMenuMixin {
             var player = self.getPlayerInventory().player;
 
             // 仅在服务端执行逻辑
-            if (!player.level().isClientSide()) {
+            if (!player.getLevel().isClientSide()) {
                 eap$tryAutoFill(self.getPlayerInventory(), (IPatternTerminalMenuHost) self.getTarget(), true);
             }
         }
@@ -83,7 +83,7 @@ public abstract class PatternEncodingTermMenuMixin {
             var player = ip.player;
 
             // 跳过客户端执行（避免无效提取）
-            if (player.level().isClientSide()) return;
+            if (player.getLevel().isClientSide()) return;
 
             // 获取 AE2 存储访问接口
             var accessor = (MEStorageMenuAccessor) self;

@@ -4,7 +4,7 @@ import com.extendedae_plus.ExtendedAEPlus;
 import com.extendedae_plus.network.*;
 import com.extendedae_plus.network.crafting.CraftingMonitorJumpC2SPacket;
 import com.extendedae_plus.network.crafting.CraftingMonitorOpenProviderC2SPacket;
-import com.extendedae_plus.network.crafting.OpenCraftFromJeiC2SPacket;
+// import com.extendedae_plus.network.crafting.OpenCraftFromJeiC2SPacket; // excluded: ExtendedAE 1.20+
 import com.extendedae_plus.network.meInterface.InterfaceAdjustConfigAmountC2SPacket;
 import com.extendedae_plus.network.pattern.CancelPendingPatternC2SPacket;
 import com.extendedae_plus.network.pattern.CreateCtrlQPatternC2SPacket;
@@ -40,11 +40,12 @@ public final class ModNetwork {
                 .consumerNetworkThread(PickFromWirelessC2SPacket::handle)
                 .add();
 
-        CHANNEL.messageBuilder(OpenCraftFromJeiC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
-                .encoder(OpenCraftFromJeiC2SPacket::encode)
-                .decoder(OpenCraftFromJeiC2SPacket::decode)
-                .consumerNetworkThread(OpenCraftFromJeiC2SPacket::handle)
-                .add();
+        // OpenCraftFromJeiC2SPacket excluded: depends on ExtendedAE 1.20+ GuiExPatternTerminal
+        // CHANNEL.messageBuilder(OpenCraftFromJeiC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
+        //         .encoder(OpenCraftFromJeiC2SPacket::encode)
+        //         .decoder(OpenCraftFromJeiC2SPacket::decode)
+        //         .consumerNetworkThread(OpenCraftFromJeiC2SPacket::handle)
+        //         .add();
 
         CHANNEL.messageBuilder(PullFromJeiOrCraftC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
                 .encoder(PullFromJeiOrCraftC2SPacket::encode)
@@ -82,11 +83,12 @@ public final class ModNetwork {
                 .consumerNetworkThread(SetPatternHighlightS2CPacket::handle)
                 .add();
 
-        CHANNEL.messageBuilder(com.extendedae_plus.network.SetBlockHighlightS2CPacket.class, nextId(), NetworkDirection.PLAY_TO_CLIENT)
-                .encoder(com.extendedae_plus.network.SetBlockHighlightS2CPacket::encode)
-                .decoder(com.extendedae_plus.network.SetBlockHighlightS2CPacket::decode)
-                .consumerNetworkThread(com.extendedae_plus.network.SetBlockHighlightS2CPacket::handle)
-                .add();
+        // SetBlockHighlightS2CPacket excluded: depends on ExtendedAE 1.20+ EAEHighlightHandler/FCClientUtil
+        // CHANNEL.messageBuilder(com.extendedae_plus.network.SetBlockHighlightS2CPacket.class, nextId(), NetworkDirection.PLAY_TO_CLIENT)
+        //         .encoder(com.extendedae_plus.network.SetBlockHighlightS2CPacket::encode)
+        //         .decoder(com.extendedae_plus.network.SetBlockHighlightS2CPacket::decode)
+        //         .consumerNetworkThread(com.extendedae_plus.network.SetBlockHighlightS2CPacket::handle)
+        //         .add();
 
         CHANNEL.messageBuilder(SetProviderPageS2CPacket.class, nextId(), NetworkDirection.PLAY_TO_CLIENT)
                 .encoder(SetProviderPageS2CPacket::encode)
@@ -94,23 +96,8 @@ public final class ModNetwork {
                 .consumerNetworkThread(SetProviderPageS2CPacket::handle)
                 .add();
 
-        CHANNEL.messageBuilder(ToggleAdvancedBlockingC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
-                .encoder(ToggleAdvancedBlockingC2SPacket::encode)
-                .decoder(ToggleAdvancedBlockingC2SPacket::decode)
-                .consumerNetworkThread(ToggleAdvancedBlockingC2SPacket::handle)
-                .add();
-
-        CHANNEL.messageBuilder(ToggleSmartDoublingC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
-                .encoder(ToggleSmartDoublingC2SPacket::encode)
-                .decoder(ToggleSmartDoublingC2SPacket::decode)
-                .consumerNetworkThread(ToggleSmartDoublingC2SPacket::handle)
-                .add();
-
-        CHANNEL.messageBuilder(com.extendedae_plus.network.provider.SetPerProviderScalingLimitC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
-                .encoder(com.extendedae_plus.network.provider.SetPerProviderScalingLimitC2SPacket::encode)
-                .decoder(com.extendedae_plus.network.provider.SetPerProviderScalingLimitC2SPacket::decode)
-                .consumerNetworkThread(com.extendedae_plus.network.provider.SetPerProviderScalingLimitC2SPacket::handle)
-                .add();
+        // ToggleAdvancedBlockingC2SPacket, ToggleSmartDoublingC2SPacket, SetPerProviderScalingLimitC2SPacket
+        // excluded: depend on AdvancedAE (not available in 1.19.2)
 
         CHANNEL.messageBuilder(GlobalToggleProviderModesC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
                 .encoder(GlobalToggleProviderModesC2SPacket::encode)

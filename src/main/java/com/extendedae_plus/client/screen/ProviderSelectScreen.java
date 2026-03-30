@@ -116,8 +116,8 @@ public class ProviderSelectScreen extends Screen {
             searchBox = new EditBox(this.font, centerX - 120, startY - 25, 240, 18, Component.translatable("extendedae_plus.screen.search"));
         } else {
             // 重新定位，保持输入值
-            searchBox.setX(centerX - 120);
-            searchBox.setY(startY - 25);
+            searchBox.x = centerX - 120;
+            searchBox.y = startY - 25;
             searchBox.setWidth(240);
         }
         searchBox.setValue(query);
@@ -137,13 +137,13 @@ public class ProviderSelectScreen extends Screen {
         int gap = 5;
         for (int i = 0; i < PAGE_SIZE; i++) {
             int btnIdx = i;
-            Button btn = Button.builder(Component.literal(""), b -> {
+            Button btn = new Button(centerX - buttonWidth / 2, startY + i * (buttonHeight + gap), buttonWidth, buttonHeight,
+                    Component.literal(""), b -> {
                         int actualIdx = buttonIndexMap[btnIdx];
                         if (actualIdx >= 0 && actualIdx < fIds.size()) {
                             onChoose(actualIdx);
                         }
-                    }).bounds(centerX - buttonWidth / 2, startY + i * (buttonHeight + gap), buttonWidth, buttonHeight)
-                    .build();
+                    });
             entryButtons.add(btn);
             buttonIndexMap[i] = -1; // 初始化为无效索引
             this.addRenderableWidget(btn);
@@ -151,12 +151,10 @@ public class ProviderSelectScreen extends Screen {
 
         // 分页按钮
         int navY = startY + PAGE_SIZE * (buttonHeight + gap) + 10;
-        prevButton = Button.builder(Component.literal("<"), b -> changePage(-1))
-                .bounds(centerX - 60, navY, 20, 20)
-                .build();
-        nextButton = Button.builder(Component.literal(">"), b -> changePage(1))
-                .bounds(centerX + 40, navY, 20, 20)
-                .build();
+        prevButton = new Button(centerX - 60, navY, 20, 20,
+                Component.literal("<"), b -> changePage(-1));
+        nextButton = new Button(centerX + 40, navY, 20, 20,
+                Component.literal(">"), b -> changePage(1));
         this.addRenderableWidget(prevButton);
         this.addRenderableWidget(nextButton);
 
@@ -171,37 +169,33 @@ public class ProviderSelectScreen extends Screen {
         int startX = centerX - totalWidth / 2;
 
         // 重载映射按钮
-        Button reload = Button.builder(Component.translatable("extendedae_plus.screen.reload_mapping"), b -> reloadMapping())
-                .bounds(startX, navY + 30, btnWidth2, 20)
-                .build();
+        Button reload = new Button(startX, navY + 30, btnWidth2, 20,
+                Component.translatable("extendedae_plus.screen.reload_mapping"), b -> reloadMapping());
         this.addRenderableWidget(reload);
 
         // 中文名输入框（用于新增映射的值）
         if (cnInput == null) {
             cnInput = new EditBox(this.font, startX + btnWidth2 + btnGap, navY + 30, inputWidth, 20, Component.translatable("extendedae_plus.screen.upload.name"));
         } else {
-            cnInput.setX(startX + btnWidth2 + btnGap);
-            cnInput.setY(navY + 30);
+            cnInput.x = startX + btnWidth2 + btnGap;
+            cnInput.y = navY + 30;
             cnInput.setWidth(inputWidth);
         }
         this.addRenderableWidget(cnInput);
 
         // 关闭按钮
-        Button close = Button.builder(Component.translatable("gui.cancel"), b -> onClose())
-                .bounds(startX + btnWidth2 + btnGap + inputWidth + btnGap, navY + 30, btnWidth2, 20)
-                .build();
+        Button close = new Button(startX + btnWidth2 + btnGap + inputWidth + btnGap, navY + 30, btnWidth2, 20,
+                Component.translatable("gui.cancel"), b -> onClose());
         this.addRenderableWidget(close);
 
         // 添加映射按钮（使用当前搜索关键字 -> 中文）
-        Button addMap = Button.builder(Component.translatable("extendedae_plus.screen.add_mapping"), b -> addMappingFromUI())
-                .bounds(startX + btnWidth2 + btnGap + inputWidth + btnGap + btnWidth2 + btnGap, navY + 30, btnWidth2, 20)
-                .build();
+        Button addMap = new Button(startX + btnWidth2 + btnGap + inputWidth + btnGap + btnWidth2 + btnGap, navY + 30, btnWidth2, 20,
+                Component.translatable("extendedae_plus.screen.add_mapping"), b -> addMappingFromUI());
         this.addRenderableWidget(addMap);
 
         // 删除映射按钮（按中文值精确匹配删除）按钮
-        Button delByCn = Button.builder(Component.translatable("extendedae_plus.screen.delete_mapping"), b -> deleteMappingByCnFromUI())
-                .bounds(startX + btnWidth2 + btnGap + inputWidth + btnGap + btnWidth2 * 2 + btnGap * 2, navY + 30, btnWidth2, 20)
-                .build();
+        Button delByCn = new Button(startX + btnWidth2 + btnGap + inputWidth + btnGap + btnWidth2 * 2 + btnGap * 2, navY + 30, btnWidth2, 20,
+                Component.translatable("extendedae_plus.screen.delete_mapping"), b -> deleteMappingByCnFromUI());
         this.addRenderableWidget(delByCn);
 
         refreshButtons(); // 初始化完成后刷新按钮状态
@@ -487,8 +481,8 @@ public class ProviderSelectScreen extends Screen {
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         // 右键点击搜索框区域时，清空搜索框内容并刷新
         if (button == 1 && this.searchBox != null) {
-            int x = this.searchBox.getX();
-            int y = this.searchBox.getY();
+            int x = this.searchBox.x;
+            int y = this.searchBox.y;
             int w = this.searchBox.getWidth();
             int h = this.searchBox.getHeight();
             if (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h) {
@@ -508,8 +502,8 @@ public class ProviderSelectScreen extends Screen {
             for (int i = 0; i < entryButtons.size(); i++) {
                 Button btn = entryButtons.get(i);
                 if (btn.visible && btn.active) {
-                    int x = btn.getX();
-                    int y = btn.getY();
+                    int x = btn.x;
+                    int y = btn.y;
                     int w = btn.getWidth();
                     int h = btn.getHeight();
                     if (mouseX >= x && mouseX <= x + w && mouseY >= y && mouseY <= y + h) {

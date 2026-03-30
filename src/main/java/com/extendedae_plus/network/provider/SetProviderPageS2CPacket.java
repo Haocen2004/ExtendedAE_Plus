@@ -1,7 +1,7 @@
 package com.extendedae_plus.network.provider;
 
 import appeng.menu.SlotSemantics;
-import com.glodblock.github.extendedae.client.gui.GuiExPatternProvider;
+import com.github.glodblock.epp.client.gui.GuiExPatternProvider;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.network.FriendlyByteBuf;

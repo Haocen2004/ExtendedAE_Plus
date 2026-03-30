@@ -10,8 +10,8 @@ import appeng.api.upgrades.IUpgradeInventory;
 import appeng.api.upgrades.IUpgradeableObject;
 import appeng.api.upgrades.UpgradeInventories;
 import appeng.blockentity.AEBaseBlockEntity;
-import appeng.helpers.patternprovider.PatternProviderLogic;
-import appeng.helpers.patternprovider.PatternProviderLogicHost;
+import appeng.helpers.iface.PatternProviderLogic;
+import appeng.helpers.iface.PatternProviderLogicHost;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
 import com.extendedae_plus.ae.wireless.WirelessSlaveLink;
 import com.extendedae_plus.ae.wireless.endpoint.GenericNodeEndpointImpl;
@@ -151,7 +151,7 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
                             try {
                                 logicAccessor.extendedae_plus$invokeFinishJob(true);
                             } catch (Throwable ignored) {
-                                cluster.cancelJob();
+                                cluster.cancel();
                             }
                             break;
                         }
@@ -188,9 +188,9 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
         eap$compatOnExternalUpgradesChanged();
     }
 
-    @Inject(method = "<init>(Lappeng/api/networking/IManagedGridNode;Lappeng/helpers/patternprovider/PatternProviderLogicHost;I)V",
+    @Inject(method = "<init>(Lappeng/api/networking/IManagedGridNode;Lappeng/helpers/iface/PatternProviderLogicHost;)V",
             at = @At("TAIL"))
-    private void eap$compatInitUpgrades(IManagedGridNode mainNode, PatternProviderLogicHost host, int patternInventorySize, CallbackInfo ci) {
+    private void eap$compatInitUpgrades(IManagedGridNode mainNode, PatternProviderLogicHost host, CallbackInfo ci) {
         try {
 
             boolean upgradeSlots = UpgradeSlotCompat.shouldManageLocalUpgradeInventory();
@@ -259,7 +259,9 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
     private void eap$compatClearUpgrades(CallbackInfo ci) {
         try {
             if (UpgradeSlotCompat.shouldManageLocalUpgradeInventory()) {
-                this.eap$compatUpgrades.clear();
+                for (int i = 0; i < this.eap$compatUpgrades.size(); i++) {
+                    this.eap$compatUpgrades.setItemDirect(i, net.minecraft.world.item.ItemStack.EMPTY);
+                }
             }
             if (UpgradeSlotCompat.shouldEnableChannelCard()) {
                 eap$compatVirtualCraftingEnabled = false;
@@ -541,7 +543,8 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
     @Unique
     private UUID eap$getFallbackOwner() {
         if (this.mainNode != null && this.mainNode.getNode() != null) {
-            return this.mainNode.getNode().getOwningPlayerProfileId();
+            var node = this.mainNode.getNode();
+            return appeng.api.features.IPlayerRegistry.getMapping(node.getLevel()).getProfileId(node.getOwningPlayerId());
         }
         return null;
     }

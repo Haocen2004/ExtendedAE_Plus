@@ -18,7 +18,7 @@ import net.minecraft.server.MinecraftServer;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.saveddata.SavedData;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -188,7 +188,7 @@ public class LabelNetworkRegistry extends SavedData {
         for (int i = 0; i < list.size(); i++) {
             CompoundTag nbt = list.getCompound(i);
             String label = nbt.getString("label");
-            ResourceKey<Level> dim = nbt.contains("dim") ? ResourceKey.create(Registries.DIMENSION, new ResourceLocation(nbt.getString("dim"))) : null;
+            ResourceKey<Level> dim = nbt.contains("dim") ? ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(nbt.getString("dim"))) : null;
             UUID owner = nbt.getUUID("owner");
             long channel = nbt.getLong("channel");
             LabelNetwork net = new LabelNetwork(dim, label, owner, channel);
@@ -311,7 +311,7 @@ public class LabelNetworkRegistry extends SavedData {
 
         public static EndpointRef load(CompoundTag tag) {
             ResourceKey<Level> d = tag.contains("dim")
-                    ? ResourceKey.create(Registries.DIMENSION, new ResourceLocation(tag.getString("dim")))
+                    ? ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(tag.getString("dim")))
                     : null;
             BlockPos p = BlockPos.of(tag.getLong("pos"));
             return new EndpointRef(d, p);
@@ -335,6 +335,8 @@ public class LabelNetworkRegistry extends SavedData {
 
         @Override
         public void onOwnerChanged(VirtualLabelNodeHost host, IGridNode node) {}
+        @Override
+        public void onSecurityBreak(VirtualLabelNodeHost host, IGridNode node) {}
     }
 
     /**

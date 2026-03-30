@@ -473,13 +473,8 @@ public class EntitySpeedTickerPart extends UpgradeablePart implements IGridTicka
     }
 
     @Override
-    public boolean hasCustomName() {
-        return super.hasCustomName();
-    }
-
-    @Override
     public @NotNull Component getDisplayName() {
-        return super.getDisplayName();
+        return this.getPartItem().asItem().getDescription();
     }
 
     /**

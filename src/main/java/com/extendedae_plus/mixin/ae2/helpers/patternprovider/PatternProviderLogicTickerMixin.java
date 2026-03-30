@@ -1,7 +1,7 @@
 package com.extendedae_plus.mixin.ae2.helpers.patternprovider;
 
 import appeng.api.networking.ticking.TickRateModulation;
-import appeng.helpers.patternprovider.PatternProviderLogic;
+import appeng.helpers.iface.PatternProviderLogic;
 import com.extendedae_plus.api.bridge.IInterfaceWirelessLinkBridge;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -12,9 +12,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 import java.lang.reflect.Field;
 
 /**
- * 注入到 PatternProviderLogic.Ticker 的每tick回调，驱动无线链接状态更新。
+ * 注入�?PatternProviderLogic.Ticker 的每tick回调，驱动无线链接状态更新�?
  */
-@Mixin(targets = "appeng.helpers.patternprovider.PatternProviderLogic$Ticker", remap = false)
+@Mixin(targets = "appeng.helpers.iface.PatternProviderLogic$Ticker", remap = false)
 public abstract class PatternProviderLogicTickerMixin {
 
     @Unique

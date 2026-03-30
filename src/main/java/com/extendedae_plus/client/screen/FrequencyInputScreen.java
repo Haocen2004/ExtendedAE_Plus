@@ -2,7 +2,7 @@ package com.extendedae_plus.client.screen;
 
 import com.extendedae_plus.init.ModNetwork;
 import com.extendedae_plus.network.SetWirelessFrequencyC2SPacket;
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
 import net.minecraft.client.gui.components.EditBox;
 import net.minecraft.client.gui.screens.Screen;
@@ -45,20 +45,18 @@ public class FrequencyInputScreen extends Screen {
             }
         });
         this.addRenderableWidget(this.frequencyInput);
-        this.setInitialFocus(this.frequencyInput);
+        this.frequencyInput.setFocus(true);
 
         // 确认按钮
-        Button confirmButton = Button.builder(Component.translatable("extendedae_plus.screen.frequency_input.confirm"), 
-                button -> onConfirm())
-                .bounds(centerX - 105, centerY + 20, 100, 20)
-                .build();
+        Button confirmButton = new Button(centerX - 105, centerY + 20, 100, 20,
+                Component.translatable("extendedae_plus.screen.frequency_input.confirm"),
+                button -> onConfirm());
         this.addRenderableWidget(confirmButton);
 
         // 取消按钮
-        Button cancelButton = Button.builder(Component.translatable("gui.cancel"), 
-                button -> onClose())
-                .bounds(centerX + 5, centerY + 20, 100, 20)
-                .build();
+        Button cancelButton = new Button(centerX + 5, centerY + 20, 100, 20,
+                Component.translatable("gui.cancel"),
+                button -> onClose());
         this.addRenderableWidget(cancelButton);
     }
 
@@ -83,12 +81,12 @@ public class FrequencyInputScreen extends Screen {
     }
 
     @Override
-    public void render(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTicks) {
-        this.renderBackground(guiGraphics);
-        super.render(guiGraphics, mouseX, mouseY, partialTicks);
+    public void render(PoseStack poseStack, int mouseX, int mouseY, float partialTicks) {
+        this.renderBackground(poseStack);
+        super.render(poseStack, mouseX, mouseY, partialTicks);
         
         // 绘制标题
-        guiGraphics.drawCenteredString(this.font, this.title, this.width / 2, this.height / 2 - 40, 0xFFFFFF);
+        drawCenteredString(poseStack, this.font, this.title, this.width / 2, this.height / 2 - 40, 0xFFFFFF);
     }
 
     @Override

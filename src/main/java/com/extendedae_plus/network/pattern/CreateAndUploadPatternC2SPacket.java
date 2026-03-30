@@ -12,7 +12,7 @@ import appeng.core.definitions.AEItems;
 import appeng.items.tools.powered.WirelessCraftingTerminalItem;
 import appeng.items.tools.powered.WirelessTerminalItem;
 import appeng.me.helpers.PlayerSource;
-import com.extendedae_plus.util.uploadPattern.MatrixUploadUtil;
+// import com.extendedae_plus.util.uploadPattern.MatrixUploadUtil; // excluded: depends on ExtendedAE 1.20+
 import com.extendedae_plus.util.wireless.WirelessTerminalLocator;
 import de.mari_023.ae2wtlib.terminal.WTMenuHost;
 import de.mari_023.ae2wtlib.wut.WTDefinition;
@@ -96,7 +96,7 @@ public class CreateAndUploadPatternC2SPacket {
             }
 
             // 1. 验证配方存在
-            RecipeManager recipeManager = player.level().getRecipeManager();
+            RecipeManager recipeManager = player.getLevel().getRecipeManager();
             var recipeOpt = recipeManager.byKey(msg.recipeId);
 
             if (recipeOpt.isEmpty()) {
@@ -141,8 +141,9 @@ public class CreateAndUploadPatternC2SPacket {
                 return;
             }
 
-            // 5. 上传样板到装配矩阵
-            boolean uploaded = MatrixUploadUtil.uploadPatternToMatrix(player, pattern, grid);
+            // 5. 上传样板到装配矩阵 (disabled: MatrixUploadUtil depends on ExtendedAE 1.20+)
+            // boolean uploaded = MatrixUploadUtil.uploadPatternToMatrix(player, pattern, grid);
+            boolean uploaded = false;
 
             if (!uploaded) {
                 // 上传失败，将样板塞到背包。
@@ -186,7 +187,17 @@ public class CreateAndUploadPatternC2SPacket {
         } else {
             WirelessTerminalItem wt = terminal.getItem() instanceof WirelessTerminalItem t ? t : null;
             if (wt != null) {
-                return wt.getLinkedGrid(terminal, player.serverLevel(), player);
+                {
+                    var gridKeyOpt = wt.getGridKey(terminal);
+                    if (gridKeyOpt.isPresent()) {
+                        var secHost = appeng.api.features.Locatables.securityStations().get(((net.minecraft.server.level.ServerLevel) player.getLevel()), gridKeyOpt.getAsLong());
+                        if (secHost != null) {
+                            var secNode = secHost.getActionableNode();
+                            if (secNode != null) return secNode.getGrid();
+                        }
+                    }
+                    return null;
+                }
             }
         }
 
@@ -245,7 +256,7 @@ public class CreateAndUploadPatternC2SPacket {
                     }
                 }
 
-                ItemStack output = recipe.getResultItem(player.level().registryAccess()).copy();
+                ItemStack output = recipe.getResultItem().copy();
 
                 ItemStack encodedPattern = PatternDetailsHelper.encodeCraftingPattern(
                         craftingRecipe,

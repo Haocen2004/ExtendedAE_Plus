@@ -46,7 +46,7 @@ public class ChannelCardBindPacket {
                 return;
             }
             
-            ServerLevel level = player.serverLevel();
+            ServerLevel level = ((net.minecraft.server.level.ServerLevel) player.getLevel());
             UUID currentOwner = ChannelCardItem.getOwnerUUID(stack);
             
             if (currentOwner != null) {

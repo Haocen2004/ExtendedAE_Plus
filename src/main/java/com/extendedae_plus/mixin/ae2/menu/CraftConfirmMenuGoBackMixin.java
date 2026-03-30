@@ -49,7 +49,7 @@ public class CraftConfirmMenuGoBackMixin {
                 if (entry.getMissingAmount() > 0) {
                     var what = entry.getWhat();
                     if (what instanceof AEItemKey aeItemKey) {
-                        JeiRuntimeProxy.addBookmark(aeItemKey.getReadOnlyStack());
+                        JeiRuntimeProxy.addBookmark(aeItemKey.toStack());
                     } else if (what instanceof AEFluidKey aeFluidKey) {
                         JeiRuntimeProxy.addBookmark(aeFluidKey.toStack(1000));
                     } else if (ModList.get().isLoaded("appmek") && ModList.get().isLoaded("mekanism")) {

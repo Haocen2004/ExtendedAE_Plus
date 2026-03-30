@@ -95,7 +95,7 @@ public final class JeiRuntimeProxy {
     public static boolean isJeiCheatModeEnabled() {
         try {
             // 使用完全限定名以避免在源码缺失时的编译依赖问题
-            return mezz.jei.common.Internal.getClientToggleState().isCheatItemsEnabled();
+            return mezz.jei.common.Internal.getWorldConfig().isCheatItemsEnabled();
         } catch (Throwable t) {
             return false;
         }

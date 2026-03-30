@@ -1,8 +1,19 @@
+buildscript {
+    repositories {
+        maven { url = 'https://repo.spongepowered.org/repository/maven-public/' }
+    }
+    dependencies {
+        classpath 'org.spongepowered:mixingradle:0.7-SNAPSHOT'
+    }
+}
+
 plugins {
-    id 'dev.architectury.loom' version '1.1-SNAPSHOT'
+    id 'net.minecraftforge.gradle' version '[6.0,6.2)'
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
+
+apply plugin: 'org.spongepowered.mixin'
 
 group = project.maven_group
 version = project.mod_version
@@ -16,26 +27,79 @@ sourceSets {
         resources {
             srcDir 'src/generated/resources'
         }
+        java {
+            // 1.19.2 不可用的可选 Mod 集成代码：暂时排除编译
+            exclude 'com/extendedae_plus/mixin/advancedae/**'
+            exclude 'com/extendedae_plus/mixin/appflux/**'
+            exclude 'com/extendedae_plus/mixin/guideme/**'
+            exclude 'com/extendedae_plus/mixin/ae2WTlib/**'
+            exclude 'com/extendedae_plus/mixin/extendedae/**'
+            exclude 'com/extendedae_plus/api/crafting/ScaledProcessingPatternAdv.java'
+            // 依赖 1.20+ GuiGraphics 或不存在的 ExtendedAE API
+            exclude 'com/extendedae_plus/mixin/ae2/client/gui/AEBaseScreenMixin.java'
+            exclude 'com/extendedae_plus/mixin/ae2/client/gui/InterfaceScreenMixin.java'
+            exclude 'com/extendedae_plus/util/ScaleButtonHelper.java'
+            exclude 'com/extendedae_plus/util/GuiUtil.java'
+            // 依赖 ExtendedAE 1.20+ / AdvancedAE / AppFlux 的网络包和工具类
+            exclude 'com/extendedae_plus/network/provider/SetPerProviderScalingLimitC2SPacket.java'
+            exclude 'com/extendedae_plus/network/provider/ToggleAdvancedBlockingC2SPacket.java'
+            exclude 'com/extendedae_plus/network/provider/ToggleSmartDoublingC2SPacket.java'
+            exclude 'com/extendedae_plus/network/SetBlockHighlightS2CPacket.java'
+            exclude 'com/extendedae_plus/network/crafting/OpenCraftFromJeiC2SPacket.java'
+            exclude 'com/extendedae_plus/util/entitySpeed/FluxEnergyHelper.java'
+            exclude 'com/extendedae_plus/util/uploadPattern/MatrixUploadUtil.java'
+            // 依赖 1.20+ GuiGraphics/Tooltip 或多个已排除类
+            exclude 'com/extendedae_plus/mixin/ae2/client/gui/PatternEncodingTermScreenMixin.java'
+            exclude 'com/extendedae_plus/mixin/ae2/client/gui/patternProvider/PatternProviderSmartFeaturesMixin.java'
+            // ModelBakeryMixin: 1.19.2 Forge model system incompatible (IUnbakedGeometry vs UnbakedModel)
+            exclude 'com/extendedae_plus/mixin/minecraft/ModelBakeryMixin.java'
+        }
     }
 }
 
-loom {
-    silentMojangMappingsLicense()
-
-    forge {
-        mixinConfig 'extendedae_plus.mixins.json'
-    }
+minecraft {
+    mappings channel: 'official', version: "${minecraft_version}"
 
     runs {
+        client {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                extendedae_plus {
+                    source sourceSets.main
+                }
+            }
+        }
+        server {
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            mods {
+                extendedae_plus {
+                    source sourceSets.main
+                }
+            }
+        }
         data {
-            data()
-            name "Data Generation"
-            // IDE 启动时传入参数
-            programArgs.addAll(
-                    '--mod', project.name, '--all', '--output', file('src/generated/resources/').getAbsolutePath(), '--existing', file('src/main/resources/').getAbsolutePath()
-            )
+            workingDirectory project.file('run')
+            property 'forge.logging.markers', 'REGISTRIES'
+            property 'forge.logging.console.level', 'debug'
+            args '--mod', project.name, '--all',
+                 '--output', file('src/generated/resources/').getAbsolutePath(),
+                 '--existing', file('src/main/resources/').getAbsolutePath()
+            mods {
+                extendedae_plus {
+                    source sourceSets.main
+                }
+            }
         }
     }
+}
+
+mixin {
+    add sourceSets.main, 'extendedae_plus.refmap.json'
+    config 'extendedae_plus.mixins.json'
 }
 
 repositories {
@@ -62,82 +126,56 @@ repositories {
     }
     maven {
         url "https://maven.shedaniel.me/"
-        content {
-            includeGroup "me.shedaniel"
-            includeGroup "me.shedaniel.cloth"
-            includeGroup "dev.architectury"
-        }
     }
     maven { url "https://repo.spongepowered.org/maven" }
     maven { url "https://dl.cloudsmith.io/public/geckolib3/geckolib/maven/" }
 }
 
 dependencies {
-    minecraft "net.minecraft:minecraft:${minecraft_version}"
-    mappings loom.officialMojangMappings()
-    forge "net.minecraftforge:forge:${forge_version}"
+    minecraft "net.minecraftforge:forge:${forge_version}"
     annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
 
-    //exendedae前置
-    // modImplementation "curse.maven:glodium-957920:${glodium_version}"
     //extendedAE
-    modImplementation "curse.maven:ex-pattern-provider-892005:5250574"
+    implementation fg.deobf("curse.maven:ex-pattern-provider-892005:5250574")
 
     //ae2
-    modImplementation "appeng:appliedenergistics2-forge:${ae2_version}"
-    // modImplementation "org.appliedenergistics:guideme:${guideme_version}"
-    modImplementation "curse.maven:applied-energistics-2-wireless-terminals-459929:${wireless_terminals_version}"
-    // modCompileOnly "curse.maven:applied-flux-965012:7072853"
-    modImplementation "curse.maven:mega-cells-622112:${mega_cells_version}"
+    implementation fg.deobf("appeng:appliedenergistics2-forge:${ae2_version}")
+    implementation fg.deobf("curse.maven:applied-energistics-2-wireless-terminals-459929:${wireless_terminals_version}")
+    implementation fg.deobf("curse.maven:mega-cells-622112:${mega_cells_version}")
 
-    //mae2
-    //modRuntimeOnly "curse.maven:modern-ae2-additions-1028068:6827727"
-    // modCompileOnly "curse.maven:modern-ae2-additions-1028068:6827727"
-
-    //aea
-    // modCompileOnly "curse.maven:advancedae-1084104:6939473"
-    // modRuntimeOnly "curse.maven:advancedae-1084104:6939473"
-
-    modCompileOnly "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
-    modRuntimeOnly "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
-    modImplementation "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
-    modImplementation "curse.maven:jade-324717:${jade_version}"
-
-    // GregTech
-    // modCompileOnly "curse.maven:gregtechceu-modern-890405:${gregtech_version}"
-    // modCompileOnly "curse.maven:ldlib-626676:${ldlib_version}"
+    //jei
+    implementation fg.deobf("mezz.jei:jei-${minecraft_version}-forge:${jei_version}")
+    implementation fg.deobf("curse.maven:jade-324717:${jade_version}")
 
     //curios
-    modImplementation "curse.maven:curios-309927:${curios_version}"
+    implementation fg.deobf("curse.maven:curios-309927:${curios_version}")
 
-    // Runtime test
-    modRuntimeOnly "dev.architectury:architectury-forge:6.6.92"
-    modRuntimeOnly "curse.maven:cloth-config-348521:5729096"
+    // Runtime
+    runtimeOnly fg.deobf("dev.architectury:architectury-forge:6.6.92")
+    runtimeOnly fg.deobf("curse.maven:cloth-config-348521:5729096")
 
     //jec
-    modCompileClasspath "curse.maven:just-enough-characters-250702:5782908"
-    modRuntimeOnly "curse.maven:just-enough-characters-250702:5782908"
+    compileOnly fg.deobf("curse.maven:just-enough-characters-250702:5782908")
+    //runtimeOnly fg.deobf("curse.maven:just-enough-characters-250702:5782908")
 
     //geckolib
-    modRuntimeOnly "curse.maven:geckolib-388172:4407241"
-    //mclib运行时
-    // forgeRuntimeLibrary "com.eliotlash.mclib:mclib:20"
+    runtimeOnly fg.deobf("curse.maven:geckolib-388172:4407241")
 
-    // compileOnly 供代码编译
-    include "curse.maven:configuration-444699:5030099"
-    modImplementation "curse.maven:configuration-444699:5030099"
+    // configuration
+    implementation fg.deobf("curse.maven:configuration-444699:5030099")
 
     //ftbteams
-    modCompileOnly "curse.maven:ftb-teams-forge-404468:4611938"
-    modCompileOnly "curse.maven:ftb-library-forge-404465:4661834"
-    modRuntimeOnly "curse.maven:ftb-teams-forge-404468:4611938"
-    modRuntimeOnly "curse.maven:ftb-library-forge-404465:4661834"
+    compileOnly fg.deobf("curse.maven:ftb-teams-forge-404468:4611938")
+    compileOnly fg.deobf("curse.maven:ftb-library-forge-404465:4661834")
+    runtimeOnly fg.deobf("curse.maven:ftb-teams-forge-404468:4611938")
+    runtimeOnly fg.deobf("curse.maven:ftb-library-forge-404465:4661834")
 
     //MEK
-    modImplementation "curse.maven:mekanism-268560:4644795"
+    implementation fg.deobf("curse.maven:mekanism-268560:4644795")
 }
 
 compileJava {
+    options.encoding = 'UTF-8'
     options.compilerArgs += ['-Xlint:-deprecation', '-Xlint:-removal', '-Xlint:-unchecked']
 }
 
@@ -150,9 +188,6 @@ processResources {
 }
 
 java {
-    // Loom will automatically attach sourcesJar to a RemapSourcesJar task and to the "build" task
-    // if it is present.
-    // If you remove this line, sources will not be generated.
     withSourcesJar()
 
     sourceCompatibility = JavaVersion.VERSION_17

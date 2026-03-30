@@ -1,4 +1,4 @@
-package com.extendedae_plus.util.uploadPattern;
+﻿package com.extendedae_plus.util.uploadPattern;
 
 import appeng.api.crafting.IPatternDetails;
 import appeng.api.crafting.PatternDetailsHelper;
@@ -49,7 +49,7 @@ public final class MatrixUploadUtil {
         if (stack.isEmpty() || !PatternDetailsHelper.isEncodedPattern(stack)) return;
 
         // 仅允许“合成/锻造台/切石机样板”
-        IPatternDetails details = PatternDetailsHelper.decodePattern(stack, player.level());
+        IPatternDetails details = PatternDetailsHelper.decodePattern(stack, player.getLevel());
         if (!(details instanceof AECraftingPattern
                 || details instanceof AESmithingTablePattern
                 || details instanceof AEStonecuttingPattern)) {
@@ -106,7 +106,7 @@ public final class MatrixUploadUtil {
         }
 
         // 仅允许"合成/锻造台/切石机样板"
-        IPatternDetails details = PatternDetailsHelper.decodePattern(pattern, player.level());
+        IPatternDetails details = PatternDetailsHelper.decodePattern(pattern, player.getLevel());
         if (!(details instanceof AECraftingPattern
                 || details instanceof AESmithingTablePattern
                 || details instanceof AEStonecuttingPattern)) {

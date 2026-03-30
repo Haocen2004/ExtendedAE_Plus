@@ -51,8 +51,7 @@ public class ExtendedAEPlus {
         ModBlockEntities.BLOCK_ENTITY_TYPES.register(modEventBus);
         ModItems.ITEMS.register(modEventBus);
 
-        // 在注册阶段将创造模式标签页放入注册表
-        ModCreativeTabs.TABS.register(modEventBus);
+        // 1.19.2 中创造标签页通过 Item.Properties().tab() 注册，而非 DeferredRegister
 
         ModMenuTypes.MENUS.register(modEventBus);
 

@@ -3,7 +3,7 @@ package com.extendedae_plus.mixin.ae2.client.gui;
 import appeng.client.Point;
 import appeng.client.gui.layout.SlotGridLayout;
 import com.extendedae_plus.api.IExPatternPage;
-import com.glodblock.github.extendedae.client.gui.GuiExPatternProvider;
+import com.github.glodblock.epp.client.gui.GuiExPatternProvider;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;

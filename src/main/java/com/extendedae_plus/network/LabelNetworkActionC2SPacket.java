@@ -44,7 +44,7 @@ public class LabelNetworkActionC2SPacket {
         ctx.get().enqueueWork(() -> {
             ServerPlayer player = ctx.get().getSender();
             if (player == null) return;
-            var level = player.serverLevel();
+            var level = ((net.minecraft.server.level.ServerLevel) player.getLevel());
             if (!level.hasChunkAt(packet.pos)) return;
 
             var be = level.getBlockEntity(packet.pos);

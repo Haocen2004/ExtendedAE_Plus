@@ -65,7 +65,10 @@ public class RecipeFinderUtil {
 
         // 查找工作台配方
         try {
-            IRecipeCategory<CraftingRecipe> craftingCategory = recipeManager.getRecipeCategory(RecipeTypes.CRAFTING);
+            @SuppressWarnings("unchecked")
+            IRecipeCategory<CraftingRecipe> craftingCategory = (IRecipeCategory<CraftingRecipe>) recipeManager.createRecipeCategoryLookup()
+                    .limitTypes(List.of(RecipeTypes.CRAFTING)).get().findFirst().orElse(null);
+            if (craftingCategory == null) return results;
             
             recipeManager.createRecipeLookup(RecipeTypes.CRAFTING)
                 .limitFocus(List.of(outputFocus))
@@ -100,7 +103,9 @@ public class RecipeFinderUtil {
 
                 try {
                     @SuppressWarnings("unchecked")
-                    IRecipeCategory<Recipe<?>> category = (IRecipeCategory<Recipe<?>>) recipeManager.getRecipeCategory(recipeType);
+                    IRecipeCategory<Recipe<?>> category = (IRecipeCategory<Recipe<?>>) recipeManager.createRecipeCategoryLookup()
+                            .limitTypes(List.of(recipeType)).get().findFirst().orElse(null);
+                    if (category == null) return;
                     
                     recipeManager.createRecipeLookup(recipeType)
                         .limitFocus(List.of(outputFocus))

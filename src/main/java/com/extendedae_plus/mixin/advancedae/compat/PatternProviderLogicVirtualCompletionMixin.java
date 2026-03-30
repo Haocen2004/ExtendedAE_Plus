@@ -4,7 +4,7 @@ import appeng.api.networking.crafting.ICraftingCPU;
 import appeng.api.networking.crafting.ICraftingService;
 import appeng.api.crafting.IPatternDetails;
 import appeng.api.stacks.KeyCounter;
-import appeng.helpers.patternprovider.PatternProviderLogic;
+import appeng.helpers.iface.PatternProviderLogic;
 import com.extendedae_plus.compat.PatternProviderLogicVirtualCompatBridge;
 import com.extendedae_plus.mixin.advancedae.accessor.AdvCraftingCPULogicAccessor;
 import com.extendedae_plus.mixin.advancedae.accessor.AdvExecutingCraftingJobAccessor;

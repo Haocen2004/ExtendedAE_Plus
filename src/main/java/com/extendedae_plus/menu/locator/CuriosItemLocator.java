@@ -28,7 +28,7 @@ public record CuriosItemLocator(String slotId, int index) implements MenuLocator
     @Nullable
     public <T> T locate(Player player, Class<T> hostInterface) {
         try {
-            var resolved = CuriosApi.getCuriosInventory(player).resolve();
+            var resolved = CuriosApi.getCuriosHelper().getCuriosHandler(player).resolve();
             if (resolved.isPresent()) {
                 var handler = resolved.get();
                 ICurioStacksHandler stacksHandler = handler.getCurios().get(slotId);

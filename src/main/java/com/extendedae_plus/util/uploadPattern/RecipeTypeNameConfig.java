@@ -1,7 +1,7 @@
 package com.extendedae_plus.util.uploadPattern;
 
 import com.google.gson.*;
-import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.Registry;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.world.item.crafting.Recipe;
@@ -243,7 +243,7 @@ public final class RecipeTypeNameConfig {
     public static String mapRecipeTypeToSearchKey(Recipe<?> recipe) {
         if (recipe == null) return null;
         RecipeType<?> type = recipe.getType();
-        ResourceLocation key = BuiltInRegistries.RECIPE_TYPE.getKey(type);
+        ResourceLocation key = Registry.RECIPE_TYPE.getKey(type);
         if (key == null) return null;
         String path = key.getPath().toLowerCase();
         // 优先查别名，再查完整 ID，最后用路径

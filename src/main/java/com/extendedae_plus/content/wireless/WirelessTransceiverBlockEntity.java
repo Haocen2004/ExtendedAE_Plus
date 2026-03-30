@@ -356,5 +356,7 @@ public class WirelessTransceiverBlockEntity extends AEBaseBlockEntity implements
         }
         @Override
         public void onOwnerChanged(WirelessTransceiverBlockEntity host, IGridNode node) {}
+        @Override
+        public void onSecurityBreak(WirelessTransceiverBlockEntity host, IGridNode node) {}
     }
 }

@@ -29,8 +29,8 @@ public class LabeledWirelessTransceiverMenu extends AbstractContainerMenu {
 
     @Override
     public boolean stillValid(Player player) {
-        return player.level() != null
-                && player.level().getBlockEntity(bePos) != null
+        return player.getLevel() != null
+                && player.getLevel().getBlockEntity(bePos) != null
                 && player.distanceToSqr(bePos.getX() + 0.5, bePos.getY() + 0.5, bePos.getZ() + 0.5) <= 64;
     }
 

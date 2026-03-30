@@ -57,7 +57,7 @@ public class PullFromJeiOrCraftC2SPacket {
             ItemStack terminal = located.stack;
             if (terminal.isEmpty()) return;
 
-            IGrid grid;
+            IGrid grid = null;
             boolean usedWtHost = false;
             // Curios 情况优先通过 WTMenuHost 获取网络并由其处理能量
             String curiosSlotId = located.getCuriosSlotId();
@@ -77,11 +77,20 @@ public class PullFromJeiOrCraftC2SPacket {
                 usedWtHost = true;
             } else {
                 // 原生路径
-                ServerLevel level = player.serverLevel();
+                ServerLevel level = ((net.minecraft.server.level.ServerLevel) player.getLevel());
                 WirelessCraftingTerminalItem wct = terminal.getItem() instanceof WirelessCraftingTerminalItem c ? c : null;
                 WirelessTerminalItem wt = wct != null ? wct : (terminal.getItem() instanceof WirelessTerminalItem t ? t : null);
                 if (wt == null) return;
-                grid = wt.getLinkedGrid(terminal, level, player);
+                {
+                    var gridKeyOpt = wt.getGridKey(terminal);
+                    if (gridKeyOpt.isPresent()) {
+                        var secHost = appeng.api.features.Locatables.securityStations().get(level, gridKeyOpt.getAsLong());
+                        if (secHost != null) {
+                            var secNode = secHost.getActionableNode();
+                            if (secNode != null) grid = secNode.getGrid();
+                        }
+                    }
+                }
                 if (grid == null) return;
                 if (!wt.hasPower(player, 0.5, terminal)) return;
             }

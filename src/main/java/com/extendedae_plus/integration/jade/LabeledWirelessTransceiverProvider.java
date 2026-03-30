@@ -8,11 +8,14 @@ import net.minecraft.nbt.CompoundTag;
 import net.minecraft.resources.ResourceLocation;
 import snownee.jade.api.BlockAccessor;
 import snownee.jade.api.IServerDataProvider;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
 
 /**
  * 标签无线收发器：服务端数据同步（无主从）。
  */
-public enum LabeledWirelessTransceiverProvider implements IServerDataProvider<BlockAccessor> {
+public enum LabeledWirelessTransceiverProvider implements IServerDataProvider<BlockEntity> {
     INSTANCE;
 
     private static final ResourceLocation UID = new ResourceLocation("extendedae_plus", "labeled_wireless_info");
@@ -23,8 +26,8 @@ public enum LabeledWirelessTransceiverProvider implements IServerDataProvider<Bl
     }
 
     @Override
-    public void appendServerData(CompoundTag data, BlockAccessor accessor) {
-        if (!(accessor.getBlockEntity() instanceof LabeledWirelessTransceiverBlockEntity be)) return;
+    public void appendServerData(CompoundTag data, ServerPlayer serverPlayer, Level level, BlockEntity blockEntity, boolean showDetails) {
+        if (!(blockEntity instanceof LabeledWirelessTransceiverBlockEntity be)) return;
         String label = be.getLabelForDisplay();
         if (label != null) {
             data.putString("label", label);

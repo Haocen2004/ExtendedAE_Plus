@@ -4,7 +4,7 @@ import appeng.api.crafting.IPatternDetails;
 import appeng.api.networking.IGrid;
 import appeng.api.networking.security.IActionHost;
 import appeng.api.stacks.AEKey;
-import appeng.helpers.patternprovider.PatternProviderLogic;
+import appeng.helpers.iface.PatternProviderLogic;
 import appeng.me.service.CraftingService;
 import appeng.menu.AEBaseMenu;
 import appeng.menu.locator.MenuLocators;
@@ -12,11 +12,11 @@ import appeng.menu.me.crafting.CraftingCPUMenu;
 import appeng.parts.AEBasePart;
 import com.extendedae_plus.init.ModNetwork;
 import com.extendedae_plus.mixin.ae2.accessor.PatternProviderLogicAccessor;
-import com.extendedae_plus.network.SetBlockHighlightS2CPacket;
+// import com.extendedae_plus.network.SetBlockHighlightS2CPacket; // excluded: ExtendedAE 1.20+
 import com.extendedae_plus.network.SetPatternHighlightS2CPacket;
 import com.extendedae_plus.network.provider.SetProviderPageS2CPacket;
 import com.extendedae_plus.util.PatternProviderDataUtil;
-import com.glodblock.github.glodium.util.GlodUtil;
+// import com.glodblock.github.glodium.util.GlodUtil; // Glodium not available in 1.19.2
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
@@ -27,13 +27,13 @@ import java.util.Collection;
 import java.util.function.Supplier;
 
 /**
- * 网络包：客户端向服务器发送请求，打开与 AEKey 对应的 PatternProvider UI。
+ * 网络包：客户端向服务器发送请求，打开�?AEKey 对应�?PatternProvider UI�?
  * <p>
- * 流程：
- * 1. 客户端发送 AEKey。
- * 2. 服务端根据当前 CraftingCPUMenu 获取对应 Grid。
- * 3. 定位所有提供该 AEKey 的 PatternProvider。
- * 4. 打开 Provider UI，并向客户端发送高亮和页码信息。
+ * 流程�?
+ * 1. 客户端发�?AEKey�?
+ * 2. 服务端根据当�?CraftingCPUMenu 获取对应 Grid�?
+ * 3. 定位所有提供该 AEKey �?PatternProvider�?
+ * 4. 打开 Provider UI，并向客户端发送高亮和页码信息�?
  */
 public class CraftingMonitorOpenProviderC2SPacket {
     private final AEKey what;
@@ -56,7 +56,7 @@ public class CraftingMonitorOpenProviderC2SPacket {
             ServerPlayer player = context.getSender();
             if (player == null || !(player.containerMenu instanceof CraftingCPUMenu menu)) return;
 
-            // 从菜单获取 Grid
+            // 从菜单获�?Grid
             IGrid grid = GridHelper.getGridFromMenu(menu);
             if (grid == null) return;
 
@@ -64,11 +64,11 @@ public class CraftingMonitorOpenProviderC2SPacket {
             var cs = grid.getCraftingService();
             if (!(cs instanceof CraftingService craftingService)) return;
 
-            // 根据 AEKey 查找所有匹配样板
+            // 根据 AEKey 查找所有匹配样�?
             Collection<IPatternDetails> patterns = craftingService.getCraftingFor(msg.what);
             if (patterns.isEmpty()) return;
 
-            // 遍历所有样板，找到第一个可用 Provider 并打开 UI
+            // 遍历所有样板，找到第一个可�?Provider 并打开 UI
             for (var pattern : patterns) {
                 var provider = PatternLocator.findValidProvider(craftingService, pattern, grid);
                 if (provider == null) continue;
@@ -81,7 +81,7 @@ public class CraftingMonitorOpenProviderC2SPacket {
         context.setPacketHandled(true);
     }
 
-    // ===================== 内部工具类 =====================
+    // ===================== 内部工具�?=====================
 
     /**
      * GridHelper: 从菜单中获取网格实例
@@ -90,9 +90,9 @@ public class CraftingMonitorOpenProviderC2SPacket {
         private GridHelper() {}
 
         /**
-         * 获取菜单对应的 Grid
+         * 获取菜单对应�?Grid
          * @param menu 当前 AEBaseMenu
-         * @return Grid 或 null
+         * @return Grid �?null
          */
         private static IGrid getGridFromMenu(AEBaseMenu menu) {
             Object target = menu.getTarget();
@@ -104,17 +104,17 @@ public class CraftingMonitorOpenProviderC2SPacket {
     }
 
     /**
-     * PatternLocator: 根据样板定位可用的 Provider
+     * PatternLocator: 根据样板定位可用�?Provider
      */
     private static final class PatternLocator {
         private PatternLocator() {}
 
         /**
-         * 查找提供指定样板的可用 Provider
+         * 查找提供指定样板的可�?Provider
          * @param cs CraftingService
          * @param pattern 样板
          * @param grid 当前 Grid
-         * @return 第一个可用的 PatternProviderLogic 或 null
+         * @return 第一个可用的 PatternProviderLogic �?null
          */
         private static PatternProviderLogic findValidProvider(CraftingService cs, IPatternDetails pattern, IGrid grid) {
             var providers = cs.getProviders(pattern);
@@ -141,7 +141,7 @@ public class CraftingMonitorOpenProviderC2SPacket {
          * 1. 打开菜单
          * 2. 发送高亮包
          * 3. 发送页码包
-         * 4. 发送 Pattern 输出高亮包
+         * 4. 发�?Pattern 输出高亮�?
          *
          * @param provider PatternProviderLogic 实例
          * @param pattern 样板
@@ -156,17 +156,17 @@ public class CraftingMonitorOpenProviderC2SPacket {
             var locator = isPart ? MenuLocators.forPart((AEBasePart) host) : MenuLocators.forBlockEntity(pbe);
             host.openMenu(player, locator);
 
-            // 高亮显示
-            ModNetwork.CHANNEL.sendTo(
-                    new SetBlockHighlightS2CPacket(
-                            pbe.getBlockPos(),
-                            isPart ? ((AEBasePart) host).getSide() : null,
-                            pbe.getLevel().dimension().location(),
-                            (long) (6000 * GlodUtil.clamp(1.0, 1, 30))
-                    ),
-                    player.connection.connection,
-                    NetworkDirection.PLAY_TO_CLIENT
-            );
+            // 高亮显示 (disabled: SetBlockHighlightS2CPacket depends on ExtendedAE 1.20+)
+            // ModNetwork.CHANNEL.sendTo(
+            //         new SetBlockHighlightS2CPacket(
+            //                 pbe.getBlockPos(),
+            //                 isPart ? ((AEBasePart) host).getSide() : null,
+            //                 pbe.getLevel().dimension().location(),
+            //                 6000L
+            //         ),
+            //         player.connection.connection,
+            //         NetworkDirection.PLAY_TO_CLIENT
+            // );
 
             // 聊天提示
             player.displayClientMessage(

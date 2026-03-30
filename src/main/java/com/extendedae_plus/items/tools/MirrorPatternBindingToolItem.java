@@ -4,7 +4,7 @@ import appeng.blockentity.crafting.PatternProviderBlockEntity;
 import com.extendedae_plus.content.ae2.MirrorPatternProviderBlockEntity;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -147,7 +147,7 @@ public class MirrorPatternBindingToolItem extends Item {
         }
 
         return GlobalPos.of(
-                ResourceKey.create(Registries.DIMENSION, new ResourceLocation(selectedTag.getString(TAG_DIMENSION))),
+                ResourceKey.create(Registry.DIMENSION_REGISTRY, new ResourceLocation(selectedTag.getString(TAG_DIMENSION))),
                 BlockPos.of(selectedTag.getLong(TAG_POS)));
     }
 

@@ -4,9 +4,8 @@ import appeng.api.config.Settings;
 import appeng.api.inventories.InternalInventory;
 import appeng.api.networking.IManagedGridNode;
 import appeng.block.crafting.PatternProviderBlock;
-import appeng.block.crafting.PushDirection;
 import appeng.blockentity.crafting.PatternProviderBlockEntity;
-import appeng.helpers.patternprovider.PatternProviderLogic;
+import appeng.helpers.iface.PatternProviderLogic;
 import appeng.util.CustomNameUtil;
 import appeng.util.SettingsFrom;
 import appeng.util.inv.AppEngInternalInventory;
@@ -14,7 +13,7 @@ import com.extendedae_plus.config.ModConfig;
 import com.extendedae_plus.init.ModBlockEntities;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.GlobalPos;
-import net.minecraft.core.registries.Registries;
+import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.nbt.Tag;
 import net.minecraft.network.chat.Component;
@@ -111,7 +110,7 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
             var masterTag = data.getCompound(TAG_MASTER);
             if (masterTag.contains(TAG_MASTER_DIMENSION, Tag.TAG_STRING)
                     && masterTag.contains(TAG_MASTER_POS, Tag.TAG_LONG)) {
-                this.masterDimension = ResourceKey.create(Registries.DIMENSION,
+                this.masterDimension = ResourceKey.create(Registry.DIMENSION_REGISTRY,
                         new ResourceLocation(masterTag.getString(TAG_MASTER_DIMENSION)));
                 this.masterPos = BlockPos.of(masterTag.getLong(TAG_MASTER_POS));
             }
@@ -131,9 +130,12 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
         this.getLogic().updatePatterns();
     }
 
-    @Override
     public void clearContent() {
-        this.getLogic().clearContent();
+        var inv = this.getLogic().getPatternInv();
+        for (int i = 0; i < inv.size(); i++) {
+            inv.setItemDirect(i, net.minecraft.world.item.ItemStack.EMPTY);
+        }
+        this.getLogic().updatePatterns();
     }
 
     public boolean bindToMaster(GlobalPos master) {
@@ -283,9 +285,8 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
 
         var settingsTag = new CompoundTag();
         master.getLogic().getConfigManager().writeToNBT(settingsTag);
-        settingsTag.putByte(PatternProviderBlock.PUSH_DIRECTION.getName(),
-                (byte) master.getBlockState().getValue(PatternProviderBlock.PUSH_DIRECTION).ordinal());
-        CustomNameUtil.setCustomName(settingsTag, master.getCustomName());
+        // PUSH_DIRECTION blockstate property not available in AE2 12.9.12
+        CustomNameUtil.setCustomName(settingsTag, master.getCustomInventoryName());
 
         super.importSettings(SettingsFrom.MEMORY_CARD, settingsTag, null);
         this.getLogic().getConfigManager().readFromNBT(settingsTag);
@@ -301,16 +302,14 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
         var mirrorLogic = this.getLogic();
         var masterLogic = master.getLogic();
 
-        return !Objects.equals(this.getCustomName(), master.getCustomName())
+        return !Objects.equals(this.getCustomInventoryName(), master.getCustomInventoryName())
                 || this.getPriority() != master.getPriority()
                 || mirrorLogic.getConfigManager().getSetting(Settings.BLOCKING_MODE)
                 != masterLogic.getConfigManager().getSetting(Settings.BLOCKING_MODE)
                 || mirrorLogic.getConfigManager().getSetting(Settings.PATTERN_ACCESS_TERMINAL)
                 != masterLogic.getConfigManager().getSetting(Settings.PATTERN_ACCESS_TERMINAL)
                 || mirrorLogic.getConfigManager().getSetting(Settings.LOCK_CRAFTING_MODE)
-                != masterLogic.getConfigManager().getSetting(Settings.LOCK_CRAFTING_MODE)
-                || this.getBlockState().getValue(PatternProviderBlock.PUSH_DIRECTION)
-                != master.getBlockState().getValue(PatternProviderBlock.PUSH_DIRECTION);
+                != masterLogic.getConfigManager().getSetting(Settings.LOCK_CRAFTING_MODE);
     }
 
     private boolean syncMirroredPatterns(PatternProviderBlockEntity master) {

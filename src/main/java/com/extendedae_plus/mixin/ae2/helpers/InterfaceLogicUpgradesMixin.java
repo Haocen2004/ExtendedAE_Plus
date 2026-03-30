@@ -35,11 +35,11 @@ public class InterfaceLogicUpgradesMixin {
      * 使用优先级1100确保在Applied Flux之后执行，但不会过度干扰其他组件
      */
     @Inject(
-            method = "<init>(Lappeng/api/networking/IManagedGridNode;Lappeng/helpers/InterfaceLogicHost;Lnet/minecraft/world/item/Item;I)V",
+            method = "<init>(Lappeng/api/networking/IManagedGridNode;Lappeng/helpers/InterfaceLogicHost;Lnet/minecraft/world/item/Item;)V",
             at = @At("TAIL"),
             require = 0  // 设置为可选注入，避免在某些情况下导致崩溃
     )
-    private void expandInterfaceUpgrades(IManagedGridNode gridNode, InterfaceLogicHost host, Item is, int slots, CallbackInfo ci) {
+    private void expandInterfaceUpgrades(IManagedGridNode gridNode, InterfaceLogicHost host, Item is, CallbackInfo ci) {
         int currentSlots = this.upgrades.size();
 
         // 默认 1 个，有 Applied Flux 时希望至少 3 个，否则至少 2 个

@@ -4,8 +4,8 @@ import appeng.api.crafting.IPatternDetails;
 import appeng.api.crafting.IPatternDetails.IInput;
 import appeng.api.stacks.AEKey;
 import appeng.api.stacks.GenericStack;
-import appeng.helpers.patternprovider.PatternProviderLogic;
-import appeng.helpers.patternprovider.PatternProviderTarget;
+import appeng.helpers.iface.PatternProviderLogic;
+import appeng.helpers.iface.PatternProviderTarget;
 import com.extendedae_plus.api.advancedBlocking.IAdvancedBlocking;
 import net.minecraft.nbt.CompoundTag;
 import net.minecraft.world.entity.player.Player;
@@ -49,8 +49,8 @@ public class PatternProviderLogicAdvancedMixin implements IAdvancedBlocking {
         }
     }
 
-    // 在 pushPattern 中，重定向对 adapter.containsPatternInput(...) 的调用
-    @Redirect(method = "pushPattern", at = @At(value = "INVOKE", target = "Lappeng/helpers/patternprovider/PatternProviderTarget;containsPatternInput(Ljava/util/Set;)Z"))
+    // �?pushPattern 中，重定向对 adapter.containsPatternInput(...) 的调�?
+    @Redirect(method = "pushPattern", at = @At(value = "INVOKE", target = "Lappeng/helpers/iface/PatternProviderTarget;containsPatternInput(Ljava/util/Set;)Z"))
     private boolean eap$redirectBlockingContains(PatternProviderTarget adapter,
                                                  java.util.Set<AEKey> patternInputs,
                                                  IPatternDetails patternDetails,
@@ -61,14 +61,14 @@ public class PatternProviderLogicAdvancedMixin implements IAdvancedBlocking {
             return adapter.containsPatternInput(patternInputs);
         }
 
-        // 仅当高级阻挡启用时启用“匹配则不阻挡”
+        // 仅当高级阻挡启用时启用“匹配则不阻挡�?
         if (this.eap$advancedBlocking) {
             if (eap$targetFullyMatchesPatternInputs(adapter, patternDetails)) {
-                // 返回 false 表示“不包含阻挡关键物”，从而不触发 continue，允许发配
+                // 返回 false 表示“不包含阻挡关键物”，从而不触发 continue，允许发�?
                 return false;
             }
         }
-        // 否则使用原判定
+        // 否则使用原判�?
         return adapter.containsPatternInput(patternInputs);
     }
 
@@ -84,10 +84,10 @@ public class PatternProviderLogicAdvancedMixin implements IAdvancedBlocking {
                 }
             }
             if (!slotMatched) {
-                return false; // 任一输入槽未匹配则失败
+                return false; // 任一输入槽未匹配则失�?
             }
         }
-        return true; // 每个输入槽都至少匹配了一个候选输入
+        return true; // 每个输入槽都至少匹配了一个候选输�?
     }
 
     @Shadow public void saveChanges() {}

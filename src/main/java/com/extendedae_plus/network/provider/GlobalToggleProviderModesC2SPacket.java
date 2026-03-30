@@ -4,8 +4,8 @@ import appeng.api.config.Settings;
 import appeng.api.config.YesNo;
 import appeng.api.networking.IGrid;
 import appeng.blockentity.crafting.PatternProviderBlockEntity;
-import appeng.helpers.patternprovider.PatternProviderLogic;
-import appeng.helpers.patternprovider.PatternProviderLogicHost;
+import appeng.helpers.iface.PatternProviderLogic;
+import appeng.helpers.iface.PatternProviderLogicHost;
 import appeng.parts.crafting.PatternProviderPart;
 import com.extendedae_plus.api.advancedBlocking.IAdvancedBlocking;
 import com.extendedae_plus.api.smartDoubling.ISmartDoublingHolder;
@@ -22,11 +22,11 @@ import java.util.function.Supplier;
 
 /**
  * C2S：全网批量切换样板供应器的三种模式：
- * - 阻挡模式（AE2 内置 BLOCKING_MODE 设置）
- * - 高级阻挡模式（IAdvancedBlocking mixin）
- * - 智能翻倍模式（ISmartDoublingHolder mixin）
+ * - 阻挡模式（AE2 内置 BLOCKING_MODE 设置�?
+ * - 高级阻挡模式（IAdvancedBlocking mixin�?
+ * - 智能翻倍模式（ISmartDoublingHolder mixin�?
  *
- * 负载为三个操作码（各1字节），分别对应：blocking、advancedBlocking、smartDoubling。
+ * 负载为三个操作码（各1字节），分别对应：blocking、advancedBlocking、smartDoubling�?
  */
 public class GlobalToggleProviderModesC2SPacket {
     public enum Op {
@@ -79,8 +79,8 @@ public class GlobalToggleProviderModesC2SPacket {
             ServerPlayer player = ctx.getSender();
             if (player == null) return;
 
-            // 从控制方块实体的 AE2 节点确定 AE 网络上下文
-            var level = player.serverLevel();
+            // 从控制方块实体的 AE2 节点确定 AE 网络上下�?
+            var level = ((net.minecraft.server.level.ServerLevel) player.getLevel());
             var be = level.getBlockEntity(msg.controllerPos);
             if (!(be instanceof NetworkPatternControllerBlockEntity controller)) return;
             var node = controller.getGridNode(null);
@@ -99,7 +99,7 @@ public class GlobalToggleProviderModesC2SPacket {
         // 去重集合，避免同一逻辑重复计数
         Set<PatternProviderLogic> all = new HashSet<>();
 
-        // 方块形式的样板供应器（全部/在线）
+        // 方块形式的样板供应器（全�?在线�?
         try {
             Set<PatternProviderBlockEntity> blocksAll = grid.getMachines(PatternProviderBlockEntity.class);
             Set<PatternProviderBlockEntity> blocksActive = grid.getActiveMachines(PatternProviderBlockEntity.class);
@@ -107,7 +107,7 @@ public class GlobalToggleProviderModesC2SPacket {
             for (PatternProviderBlockEntity be : blocksActive) if (be != null && be.getLogic() != null) all.add(be.getLogic());
         } catch (Throwable ignored) {}
 
-        // Part 形式的样板供应器（全部/在线）
+        // Part 形式的样板供应器（全�?在线�?
         try {
             Set<PatternProviderPart> partsAll = grid.getMachines(PatternProviderPart.class);
             Set<PatternProviderPart> partsActive = grid.getActiveMachines(PatternProviderPart.class);
@@ -115,7 +115,7 @@ public class GlobalToggleProviderModesC2SPacket {
             for (PatternProviderPart part : partsActive) if (part != null && part.getLogic() != null) all.add(part.getLogic());
         } catch (Throwable ignored) {}
 
-        // 兼容：任意实现了 PatternProviderLogicHost 的机器（例如 ExtendedAE 的 PartExPatternProvider）
+        // 兼容：任意实现了 PatternProviderLogicHost 的机器（例如 ExtendedAE �?PartExPatternProvider�?
         try {
             Set<PatternProviderLogicHost> hostsAll = grid.getMachines(PatternProviderLogicHost.class);
             Set<PatternProviderLogicHost> hostsActive = grid.getActiveMachines(PatternProviderLogicHost.class);
@@ -136,7 +136,7 @@ public class GlobalToggleProviderModesC2SPacket {
     private static void collectByClassName(IGrid grid, Set<PatternProviderLogic> out, String className) {
         try {
             Class<?> cls = Class.forName(className);
-            // 收集全部与在线两类机器
+            // 收集全部与在线两类机�?
             Set<?> all = grid.getMachines((Class) cls);
             Set<?> active = grid.getActiveMachines((Class) cls);
             for (Object o : all) addLogicIfPresent(out, o);
@@ -151,7 +151,7 @@ public class GlobalToggleProviderModesC2SPacket {
                 if (logic != null) out.add(logic);
                 return;
             }
-            // 兜底：若对象有 getLogic 方法且返回 PatternProviderLogic
+            // 兜底：若对象�?getLogic 方法且返�?PatternProviderLogic
             var m = o.getClass().getMethod("getLogic");
             Object ret = m.invoke(o);
             if (ret instanceof PatternProviderLogic logic) out.add(logic);
@@ -161,7 +161,7 @@ public class GlobalToggleProviderModesC2SPacket {
     private static boolean applyToLogic(PatternProviderLogic logic, GlobalToggleProviderModesC2SPacket msg) {
         if (logic == null) return false;
         boolean changed = false;
-        // 1) 阻挡模式（AE2 内置设置）
+        // 1) 阻挡模式（AE2 内置设置�?
         if (msg.opBlocking != Op.NOOP) {
             boolean current = safeIsBlocking(logic);
             boolean target = computeTarget(current, msg.opBlocking);
@@ -171,14 +171,14 @@ public class GlobalToggleProviderModesC2SPacket {
                 changed = changed || (current != target);
             }
         }
-        // 2) 高级阻挡（mixin 接口）
+        // 2) 高级阻挡（mixin 接口�?
         if (msg.opAdvancedBlocking != Op.NOOP && logic instanceof IAdvancedBlocking adv) {
             boolean current = adv.eap$getAdvancedBlocking();
             boolean target = computeTarget(current, msg.opAdvancedBlocking);
             adv.eap$setAdvancedBlocking(target);
             changed = changed || (current != target);
         }
-        // 3) 智能翻倍（mixin 接口）
+        // 3) 智能翻倍（mixin 接口�?
         if (msg.opSmartDoubling != Op.NOOP && logic instanceof ISmartDoublingHolder sd) {
             boolean current = sd.eap$getSmartDoubling();
             boolean target = computeTarget(current, msg.opSmartDoubling);

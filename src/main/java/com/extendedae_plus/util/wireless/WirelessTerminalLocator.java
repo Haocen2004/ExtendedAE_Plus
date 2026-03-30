@@ -93,7 +93,7 @@ public final class WirelessTerminalLocator {
         // 3) Curios 饰品槽（若已加载）
         if (ModList.get().isLoaded("curios")) {
             try {
-                var resolved = CuriosApi.getCuriosInventory(player).resolve();
+                var resolved = CuriosApi.getCuriosHelper().getCuriosHandler(player).resolve();
                 if (resolved.isPresent()) {
                     ICuriosItemHandler handler = resolved.get();
                     for (var entry : handler.getCurios().entrySet()) {
