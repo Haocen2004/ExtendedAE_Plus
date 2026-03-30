@@ -1,5 +1,6 @@
 package com.extendedae_plus.integration.jei;
 
+import com.extendedae_plus.util.Logger;
 import mezz.jei.api.constants.VanillaTypes;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import mezz.jei.api.runtime.IBookmarkOverlay;
@@ -39,7 +40,8 @@ public final class JeiRuntimeProxy {
             Class<?> mouseUtil = Class.forName("mezz.jei.gui.input.MouseUtil");
             double mouseX = ((Number) mouseUtil.getMethod("getX").invoke(null)).doubleValue();
             double mouseY = ((Number) mouseUtil.getMethod("getY").invoke(null)).doubleValue();
-            return getIngredientUnderMouse(mouseX, mouseY);
+            var result = getIngredientUnderMouse(mouseX, mouseY);
+            if (result.isPresent()) return result;
         } catch (Throwable ignored) {
         }
 

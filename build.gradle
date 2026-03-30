@@ -55,21 +55,11 @@ minecraft {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            mods {
-                extendedae_plus {
-                    source sourceSets.main
-                }
-            }
         }
         server {
             workingDirectory project.file('run')
             property 'forge.logging.markers', 'REGISTRIES'
             property 'forge.logging.console.level', 'debug'
-            mods {
-                extendedae_plus {
-                    source sourceSets.main
-                }
-            }
         }
         data {
             workingDirectory project.file('run')
@@ -78,11 +68,6 @@ minecraft {
             args '--mod', project.name, '--all',
                  '--output', file('src/generated/resources/').getAbsolutePath(),
                  '--existing', file('src/main/resources/').getAbsolutePath()
-            mods {
-                extendedae_plus {
-                    source sourceSets.main
-                }
-            }
         }
     }
 }
@@ -178,6 +163,8 @@ processResources {
     filesMatching(['META-INF/mods.toml', 'pack.mcmeta']) {
         expand replaceProperties + [project: project]
     }
+
+    duplicatesStrategy = DuplicatesStrategy.INCLUDE
 }
 
 java {

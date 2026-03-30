@@ -1,6 +1,7 @@
 {
   "required": false,
   "package": "com.extendedae_plus.mixin",
+  "refmap": "extendedae_plus.refmap.json",
   "compatibilityLevel": "JAVA_17",
   "minVersion": "0.8",
   "client": [
@@ -64,8 +65,7 @@
     "ae2.parts.storagebus.StorageBusPartTickerChannelCardMixin",
     "extendedae.common.TileExPatternProviderMixin",
     "extendedae.common.PartExPatternProviderMixin",
-    "extendedae.container.ContainerExPatternProviderMixin",
-    "minecraft.accessor.BlockEntityAccessor"
+    "extendedae.container.ContainerExPatternProviderMixin"
   ],
   "injectors": {
     "defaultRequire": 0

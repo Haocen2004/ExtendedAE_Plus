@@ -146,11 +146,17 @@ public final class ModItems {
 
     private ModItems() {}
 
+        private static boolean PART_MODELS_REGISTERED = false;
+
     /**
      * 为 PartItem 注册 AE2 部件模型。
      * 在客户端进行模型/几何体注册时调用。
      */
     public static void registerPartModels() {
+        if (PART_MODELS_REGISTERED) {
+            return;
+        }
+        PART_MODELS_REGISTERED = true;
         PartModels.registerModels(
                 PartModelsHelper.createModels(
                         ENTITY_TICKER_PART_ITEM.get().getPartClass().asSubclass(IPart.class)
