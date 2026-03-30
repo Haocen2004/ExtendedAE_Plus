@@ -1,5 +1,5 @@
 plugins {
-    id 'dev.architectury.loom' version '1.10-SNAPSHOT'
+    id 'dev.architectury.loom' version '1.1-SNAPSHOT'
     id 'maven-publish'
     id 'com.github.johnrengelman.shadow' version '8.1.1'
 }
@@ -79,62 +79,62 @@ dependencies {
     annotationProcessor "org.spongepowered:mixin:${mixin_version}:processor"
 
     //exendedae前置
-    modImplementation "curse.maven:glodium-957920:${glodium_version}"
+    // modImplementation "curse.maven:glodium-957920:${glodium_version}"
     //extendedAE
-    modImplementation "curse.maven:ex-pattern-provider-892005:7005572"
+    modImplementation "curse.maven:ex-pattern-provider-892005:5250574"
 
     //ae2
     modImplementation "appeng:appliedenergistics2-forge:${ae2_version}"
-    modImplementation "org.appliedenergistics:guideme:${guideme_version}"
+    // modImplementation "org.appliedenergistics:guideme:${guideme_version}"
     modImplementation "curse.maven:applied-energistics-2-wireless-terminals-459929:${wireless_terminals_version}"
-    modCompileOnly "curse.maven:applied-flux-965012:7072853"
+    // modCompileOnly "curse.maven:applied-flux-965012:7072853"
     modImplementation "curse.maven:mega-cells-622112:${mega_cells_version}"
 
     //mae2
     //modRuntimeOnly "curse.maven:modern-ae2-additions-1028068:6827727"
-    modCompileOnly "curse.maven:modern-ae2-additions-1028068:6827727"
+    // modCompileOnly "curse.maven:modern-ae2-additions-1028068:6827727"
 
     //aea
-    modCompileOnly "curse.maven:advancedae-1084104:6939473"
-    modRuntimeOnly "curse.maven:advancedae-1084104:6939473"
+    // modCompileOnly "curse.maven:advancedae-1084104:6939473"
+    // modRuntimeOnly "curse.maven:advancedae-1084104:6939473"
 
     modCompileOnly "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
-    modRuntimeOnly "mezz.jei:jei-${minecraft_version}-forge:15.20.0.129"
+    modRuntimeOnly "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
     modImplementation "mezz.jei:jei-${minecraft_version}-forge:${jei_version}"
     modImplementation "curse.maven:jade-324717:${jade_version}"
 
     // GregTech
-    modCompileOnly "curse.maven:gregtechceu-modern-890405:${gregtech_version}"
-    modCompileOnly "curse.maven:ldlib-626676:${ldlib_version}"
+    // modCompileOnly "curse.maven:gregtechceu-modern-890405:${gregtech_version}"
+    // modCompileOnly "curse.maven:ldlib-626676:${ldlib_version}"
 
     //curios
     modImplementation "curse.maven:curios-309927:${curios_version}"
 
     // Runtime test
-    modRuntimeOnly "dev.architectury:architectury-forge:9.2.14"
-    modRuntimeOnly "curse.maven:cloth-config-348521:5729105"
+    modRuntimeOnly "dev.architectury:architectury-forge:6.6.92"
+    modRuntimeOnly "curse.maven:cloth-config-348521:5729096"
 
     //jec
-    modCompileClasspath "curse.maven:just-enough-characters-250702:6680042"
-    modRuntimeOnly "curse.maven:just-enough-characters-250702:6680042"
+    modCompileClasspath "curse.maven:just-enough-characters-250702:5782908"
+    modRuntimeOnly "curse.maven:just-enough-characters-250702:5782908"
 
     //geckolib
-    modRuntimeOnly "curse.maven:geckolib-388172:6920925"
+    modRuntimeOnly "curse.maven:geckolib-388172:4407241"
     //mclib运行时
-    forgeRuntimeLibrary "com.eliotlash.mclib:mclib:20"
+    // forgeRuntimeLibrary "com.eliotlash.mclib:mclib:20"
 
     // compileOnly 供代码编译
-    include "curse.maven:configuration-444699:4710266"
-    modImplementation "curse.maven:configuration-444699:4710266"
+    include "curse.maven:configuration-444699:5030099"
+    modImplementation "curse.maven:configuration-444699:5030099"
 
     //ftbteams
-    modCompileOnly "curse.maven:ftb-teams-forge-404468:6130786"
-    modCompileOnly "curse.maven:ftb-library-forge-404465:6807424"
-    modRuntimeOnly "curse.maven:ftb-teams-forge-404468:6130786"
-    modRuntimeOnly "curse.maven:ftb-library-forge-404465:6807424"
+    modCompileOnly "curse.maven:ftb-teams-forge-404468:4611938"
+    modCompileOnly "curse.maven:ftb-library-forge-404465:4661834"
+    modRuntimeOnly "curse.maven:ftb-teams-forge-404468:4611938"
+    modRuntimeOnly "curse.maven:ftb-library-forge-404465:4661834"
 
     //MEK
-    modImplementation "curse.maven:mekanism-268560:6552911"
+    modImplementation "curse.maven:mekanism-268560:4644795"
 }
 
 compileJava {
