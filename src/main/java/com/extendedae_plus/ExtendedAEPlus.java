@@ -24,6 +24,7 @@ import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.common.Mod;
+import net.minecraftforge.fml.ModList;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLCommonSetupEvent;
 import net.minecraftforge.fml.javafmlmod.FMLJavaModLoadingContext;
@@ -150,6 +151,13 @@ public class ExtendedAEPlus {
 
             // 菜单 -> 屏幕 绑定
             ClientRegistrar.registerMenuScreens();
+
+            event.enqueueWork(() -> {
+                if (ModList.get().isLoaded("jei")) {
+                    MinecraftForge.EVENT_BUS.register(com.extendedae_plus.client.InputEvents.class);
+                    MinecraftForge.EVENT_BUS.register(com.extendedae_plus.client.event.CtrlQPatternKeyHandler.class);
+                }
+            });
         }
 
         @SubscribeEvent
