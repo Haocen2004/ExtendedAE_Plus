@@ -75,7 +75,7 @@ public class ExtendedAEPlus {
         // 注册本模组网络通道与数据包
         event.enqueueWork(() -> {
             // 注册升级卡
-            new UpgradeCards(event);
+            new UpgradeCards();
             ModNetwork.register();
             // 注册自定义 Curios 宿主定位器，便于将菜单宿主信息在服务端与客户端间同步
             MenuLocators.register(CuriosItemLocator.class, CuriosItemLocator::writeToPacket, CuriosItemLocator::readFromPacket);

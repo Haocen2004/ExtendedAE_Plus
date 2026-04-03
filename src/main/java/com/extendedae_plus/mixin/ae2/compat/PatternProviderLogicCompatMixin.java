@@ -8,8 +8,10 @@ import appeng.api.networking.security.IActionSource;
 import appeng.api.stacks.KeyCounter;
 import appeng.api.upgrades.IUpgradeInventory;
 import appeng.api.upgrades.IUpgradeableObject;
+import appeng.api.upgrades.Upgrades;
 import appeng.api.upgrades.UpgradeInventories;
 import appeng.blockentity.AEBaseBlockEntity;
+import appeng.core.definitions.AEBlocks;
 import appeng.helpers.iface.PatternProviderLogic;
 import appeng.helpers.iface.PatternProviderLogicHost;
 import appeng.me.cluster.implementations.CraftingCPUCluster;
@@ -24,7 +26,10 @@ import com.extendedae_plus.mixin.ae2.accessor.ExecutingCraftingJobAccessor;
 import com.extendedae_plus.util.Logger;
 import com.extendedae_plus.util.wireless.ChannelCardLinkHelper;
 import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
+import net.minecraftforge.registries.ForgeRegistries;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -190,24 +195,78 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
 
     @Inject(method = "<init>(Lappeng/api/networking/IManagedGridNode;Lappeng/helpers/iface/PatternProviderLogicHost;)V",
             at = @At("TAIL"))
-    private void eap$compatInitUpgrades(IManagedGridNode mainNode, PatternProviderLogicHost host, CallbackInfo ci) {
+    private void eap$compatInitUpgrades2Args(IManagedGridNode mainNode, PatternProviderLogicHost host, CallbackInfo ci) {
+        eap$compatInitUpgradesInternal(host);
+    }
+
+    @Inject(method = "<init>(Lappeng/api/networking/IManagedGridNode;Lappeng/helpers/iface/PatternProviderLogicHost;I)V",
+            at = @At("TAIL"))
+    private void eap$compatInitUpgrades3Args(IManagedGridNode mainNode, PatternProviderLogicHost host, int patternCapacity, CallbackInfo ci) {
+        eap$compatInitUpgradesInternal(host);
+    }
+
+    @Unique
+    private void eap$compatInitUpgradesInternal(PatternProviderLogicHost host) {
         try {
 
             boolean upgradeSlots = UpgradeSlotCompat.shouldManageLocalUpgradeInventory();
             boolean channelCard = UpgradeSlotCompat.shouldEnableChannelCard();
 
             if (upgradeSlots) {
+                Item upgradeHostItem = this.eap$resolveUpgradeHostItem(host);
                 this.eap$compatUpgrades = UpgradeInventories.forMachine(
-                        host.getTerminalIcon().getItem(),
+                        upgradeHostItem,
                         UpgradeSlotCompat.getPatternProviderLocalUpgradeSlots(),
                         this::eap$compatOnUpgradesChanged
                 );
+
+                var hostItemId = ForgeRegistries.ITEMS.getKey(upgradeHostItem);
+                int channelMax = Upgrades.getMaxInstallable(ModItems.CHANNEL_CARD.get(), upgradeHostItem);
+                int virtualMax = Upgrades.getMaxInstallable(ModItems.VIRTUAL_CRAFTING_CARD.get(), upgradeHostItem);
+                Logger.EAP$LOGGER.info(
+                        "PatternProvider upgrades init: hostClass={}, hostItem={}, channelMax={}, virtualMax={}",
+                        host.getClass().getName(),
+                        hostItemId,
+                        channelMax,
+                        virtualMax
+                );
             } else if (!channelCard) {
                 this.eap$compatUpgrades = UpgradeInventories.empty();
+            } else {
+                Logger.EAP$LOGGER.info(
+                        "PatternProvider upgrades init uses external inventory: hostClass={}",
+                        host.getClass().getName()
+                );
             }
         } catch (Exception e) {
             Logger.EAP$LOGGER.error("兼容性升级初始化失败", e);
         }
+    }
+
+    @Unique
+    private Item eap$resolveUpgradeHostItem(PatternProviderLogicHost host) {
+        String hostClassName = host.getClass().getName();
+
+        if (hostClassName.contains("PartExPatternProvider")) {
+            Item partHost = ForgeRegistries.ITEMS.getValue(new ResourceLocation("expatternprovider", "ex_pattern_provider_part"));
+            if (partHost != null && partHost != net.minecraft.world.item.Items.AIR) {
+                return partHost;
+            }
+        }
+
+        if (hostClassName.contains("TileExPatternProvider")) {
+            Item blockHost = ForgeRegistries.ITEMS.getValue(new ResourceLocation("expatternprovider", "ex_pattern_provider"));
+            if (blockHost != null && blockHost != net.minecraft.world.item.Items.AIR) {
+                return blockHost;
+            }
+        }
+
+        Item iconHost = host.getTerminalIcon().getItem();
+        if (iconHost != null && iconHost != net.minecraft.world.item.Items.AIR) {
+            return iconHost;
+        }
+
+        return AEBlocks.PATTERN_PROVIDER.asItem();
     }
 
     @Inject(method = "writeToNBT", at = @At("TAIL"))

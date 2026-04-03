@@ -8,6 +8,7 @@ import appeng.menu.implementations.PatternProviderMenu;
 import com.extendedae_plus.compat.UpgradeSlotCompat;
 import net.minecraft.world.entity.player.Inventory;
 import net.minecraft.world.inventory.MenuType;
+import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -29,6 +30,17 @@ public abstract class PatternProviderCompatMixin extends AEBaseMenu {
     @Inject(method = "<init>(ILnet/minecraft/world/entity/player/Inventory;Lappeng/helpers/iface/PatternProviderLogicHost;)V",
             at = @At("TAIL"))
     private void eap$initCompatUpgrades(int id, Inventory playerInventory, PatternProviderLogicHost host, CallbackInfo ci) {
+        eap$setupCompatUpgrades(host);
+    }
+
+    @Inject(method = "<init>(Lnet/minecraft/world/inventory/MenuType;ILnet/minecraft/world/entity/player/Inventory;Lappeng/helpers/iface/PatternProviderLogicHost;)V",
+            at = @At("TAIL"))
+    private void eap$initCompatUpgradesWithMenuType(MenuType<?> menuType, int id, Inventory playerInventory, PatternProviderLogicHost host, CallbackInfo ci) {
+        eap$setupCompatUpgrades(host);
+    }
+
+    @Unique
+    private void eap$setupCompatUpgrades(PatternProviderLogicHost host) {
         try {
             if (UpgradeSlotCompat.shouldManageLocalUpgradeInventory()) {
                 if (host.getLogic() instanceof IUpgradeableObject upgradeableLogic) {

@@ -14,6 +14,7 @@ import com.extendedae_plus.api.smartDoubling.ISmartDoublingHolder;
 import com.extendedae_plus.config.ModConfig;
 import com.extendedae_plus.init.ModBlockEntities;
 import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
 import net.minecraft.core.GlobalPos;
 import net.minecraft.core.Registry;
 import net.minecraft.nbt.CompoundTag;
@@ -26,8 +27,10 @@ import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.level.block.entity.BlockEntity;
 import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.block.state.properties.Property;
 import org.jetbrains.annotations.Nullable;
 
+import java.lang.reflect.Field;
 import java.util.List;
 import java.util.Objects;
 
@@ -269,6 +272,8 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
 
     private boolean syncFromMaster(PatternProviderBlockEntity master) {
         var changed = this.bindToMaster(master);
+        changed |= this.syncMirroredOrientationFields(master);
+        changed |= this.syncMirroredDirection(master);
         changed |= this.syncMirroredSettings(master);
         changed |= this.syncMirroredPatterns(master);
 
@@ -278,6 +283,54 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
         }
 
         return changed;
+    }
+
+    private boolean syncMirroredOrientationFields(PatternProviderBlockEntity master) {
+        boolean changed = false;
+        changed |= copyDirectionField(master, this, "forward");
+        changed |= copyDirectionField(master, this, "up");
+        changed |= copyBooleanField(master, this, "omniDirectional");
+        changed |= copyBooleanField(master, this, "omnidirectional");
+        return changed;
+    }
+
+    private boolean syncMirroredDirection(PatternProviderBlockEntity master) {
+        var level = this.getLevel();
+        if (level == null || level.isClientSide) {
+            return false;
+        }
+
+        var masterState = master.getBlockState();
+        var mirrorState = this.getBlockState();
+        var updatedState = mirrorState;
+
+        for (var masterProperty : masterState.getProperties()) {
+            if (masterProperty.getValueClass() != Direction.class) {
+                continue;
+            }
+
+            var mirrorProperty = findDirectionProperty(updatedState, masterProperty.getName());
+            if (mirrorProperty == null) {
+                continue;
+            }
+
+            var masterDirection = getDirectionValue(masterState, masterProperty);
+            if (masterDirection == null || !mirrorProperty.getPossibleValues().contains(masterDirection)) {
+                continue;
+            }
+
+            var currentDirection = getDirectionValue(updatedState, mirrorProperty);
+            if (currentDirection != masterDirection) {
+                updatedState = setDirectionValue(updatedState, mirrorProperty, masterDirection);
+            }
+        }
+
+        if (updatedState == mirrorState) {
+            return false;
+        }
+
+        level.setBlock(this.getBlockPos(), updatedState, 3);
+        return true;
     }
 
     private boolean syncMirroredSettings(PatternProviderBlockEntity master) {
@@ -440,6 +493,91 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
 
     private static AppEngInternalInventory asPatternInventory(Object inventory) {
         return (AppEngInternalInventory) inventory;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Nullable
+    private static Property<Direction> findDirectionProperty(BlockState state, String propertyName) {
+        for (var property : state.getProperties()) {
+            if (property.getValueClass() == Direction.class && property.getName().equals(propertyName)) {
+                return (Property<Direction>) property;
+            }
+        }
+        return null;
+    }
+
+    @SuppressWarnings("unchecked")
+    @Nullable
+    private static Direction getDirectionValue(BlockState state, Property<?> property) {
+        if (property.getValueClass() != Direction.class) {
+            return null;
+        }
+        return state.getValue((Property<Direction>) property);
+    }
+
+    private static BlockState setDirectionValue(BlockState state, Property<Direction> property, Direction direction) {
+        return state.setValue(property, direction);
+    }
+
+    private static boolean copyDirectionField(Object source, Object target, String fieldName) {
+        try {
+            Field sourceField = findField(source.getClass(), fieldName);
+            Field targetField = findField(target.getClass(), fieldName);
+            if (sourceField == null || targetField == null || sourceField.getType() != Direction.class
+                    || targetField.getType() != Direction.class) {
+                return false;
+            }
+
+            sourceField.setAccessible(true);
+            targetField.setAccessible(true);
+            Direction sourceValue = (Direction) sourceField.get(source);
+            Direction targetValue = (Direction) targetField.get(target);
+            if (sourceValue == targetValue) {
+                return false;
+            }
+
+            targetField.set(target, sourceValue);
+            return true;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    private static boolean copyBooleanField(Object source, Object target, String fieldName) {
+        try {
+            Field sourceField = findField(source.getClass(), fieldName);
+            Field targetField = findField(target.getClass(), fieldName);
+            if (sourceField == null || targetField == null || sourceField.getType() != boolean.class
+                    || targetField.getType() != boolean.class) {
+                return false;
+            }
+
+            sourceField.setAccessible(true);
+            targetField.setAccessible(true);
+            boolean sourceValue = sourceField.getBoolean(source);
+            boolean targetValue = targetField.getBoolean(target);
+            if (sourceValue == targetValue) {
+                return false;
+            }
+
+            targetField.setBoolean(target, sourceValue);
+            return true;
+        } catch (Throwable ignored) {
+            return false;
+        }
+    }
+
+    @Nullable
+    private static Field findField(Class<?> owner, String fieldName) {
+        Class<?> current = owner;
+        while (current != null) {
+            try {
+                return current.getDeclaredField(fieldName);
+            } catch (NoSuchFieldException ignored) {
+                current = current.getSuperclass();
+            }
+        }
+        return null;
     }
 
     private static int getMirrorPatternSlotCapacity() {
