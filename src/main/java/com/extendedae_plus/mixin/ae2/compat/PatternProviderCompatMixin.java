@@ -23,6 +23,9 @@ import static com.extendedae_plus.util.Logger.EAP$LOGGER;
 @Mixin(value = PatternProviderMenu.class, priority = 500, remap = false)
 public abstract class PatternProviderCompatMixin extends AEBaseMenu {
 
+    @Unique
+    private boolean eap$compatUpgradesInitialized;
+
     public PatternProviderCompatMixin(MenuType<?> menuType, int id, Inventory playerInventory, Object host) {
         super(menuType, id, playerInventory, host);
     }
@@ -41,11 +44,16 @@ public abstract class PatternProviderCompatMixin extends AEBaseMenu {
 
     @Unique
     private void eap$setupCompatUpgrades(PatternProviderLogicHost host) {
+        if (this.eap$compatUpgradesInitialized) {
+            return;
+        }
+
         try {
             if (UpgradeSlotCompat.shouldManageLocalUpgradeInventory()) {
                 if (host.getLogic() instanceof IUpgradeableObject upgradeableLogic) {
                     IUpgradeInventory upgrades = upgradeableLogic.getUpgrades();
                     this.setupUpgrades(upgrades);
+                    this.eap$compatUpgradesInitialized = true;
                 }
             }
         } catch (Exception e) {
