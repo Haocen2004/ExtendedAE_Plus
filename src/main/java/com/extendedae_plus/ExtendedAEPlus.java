@@ -21,6 +21,7 @@ import net.minecraftforge.event.RegisterCommandsEvent;
 import net.minecraftforge.event.TickEvent;
 import net.minecraftforge.eventbus.api.IEventBus;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
+import net.minecraftforge.fml.DistExecutor;
 import net.minecraftforge.fml.common.Mod;
 import net.minecraftforge.fml.event.config.ModConfigEvent;
 import net.minecraftforge.fml.event.lifecycle.FMLClientSetupEvent;
@@ -40,7 +41,8 @@ public class ExtendedAEPlus {
     public ExtendedAEPlus() {
         IEventBus modEventBus = FMLJavaModLoadingContext.get().getModEventBus();
 
-        // 客户端的内置模型注册将在客户端事件阶段执行（见 ClientModEvents），不要在构造器中提前执行
+        // AE2 PartModels 必须在更早阶段注册，不能等到 FMLClientSetupEvent。
+        DistExecutor.unsafeRunWhenOn(Dist.CLIENT, () -> ModItems::registerPartModels);
 
         // 注册mod初始化事件
         modEventBus.addListener(this::commonSetup);
@@ -114,9 +116,6 @@ public class ExtendedAEPlus {
             // 直接在此处执行客户端一次性注册（UI/屏幕/渲染器绑定）
             // 注册客户端配置界面
 //            ClientRegistrar.registerConfigScreen();
-
-            // AE2 PartModels 必须在预初始化阶段注册，不能放在资源重载会再次触发的模型事件里。
-            ModItems.registerPartModels();
 
             // 将 InitScreens 的注册委托给 ClientRegistrar，便于集中管理客户端注册逻辑
             ClientRegistrar.registerInitScreens();

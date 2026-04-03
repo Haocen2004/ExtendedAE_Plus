@@ -4,6 +4,7 @@ import appeng.api.parts.IPart;
 import appeng.api.parts.PartModels;
 import appeng.items.parts.PartModelsHelper;
 import com.extendedae_plus.ExtendedAEPlus;
+import com.extendedae_plus.ae.parts.EntitySpeedTickerPart;
 import com.extendedae_plus.items.BasicCoreItem;
 import com.extendedae_plus.items.EntitySpeedTickerPartItem;
 import com.extendedae_plus.items.InfinityBigIntegerCellItem;
@@ -159,7 +160,7 @@ public final class ModItems {
         PART_MODELS_REGISTERED = true;
         PartModels.registerModels(
                 PartModelsHelper.createModels(
-                        ENTITY_TICKER_PART_ITEM.get().getPartClass().asSubclass(IPart.class)
+                                                EntitySpeedTickerPart.class.asSubclass(IPart.class)
                 )
         );
     }

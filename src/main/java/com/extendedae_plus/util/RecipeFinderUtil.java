@@ -28,6 +28,7 @@ import org.slf4j.LoggerFactory;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 /**
  * 配方查找工具类
@@ -95,7 +96,11 @@ public class RecipeFinderUtil {
 
         // 查找其他所有配方类型（排除工作台配方）
         try {
-            jeiHelpers.getAllRecipeTypes().forEach(recipeType -> {
+            recipeManager.createRecipeCategoryLookup().get()
+                .map(IRecipeCategory::getRecipeType)
+                .distinct()
+                .collect(Collectors.toList())
+                .forEach(recipeType -> {
                 // 跳过工作台配方（已经处理过）
                 if (recipeType.equals(RecipeTypes.CRAFTING)) {
                     return;
