@@ -3,33 +3,15 @@
 >
 > 原版 README.md（上游说明）请查看：
 > <https://github.com/GaLicn/ExtendedAE_Plus/blob/main/README.md>
+> 
 
-# ExtendedAE Plus
+# ExtendedAE Plus 1.19.2 Backport
+本仓库为 ExtendedAE Plus 的 1.19.2 Backport 版本，旨在将原版（主分支）功能增强模组适配至 Minecraft 1.19.2 环境。
 
-ExtendedAE Plus 是一个面向 Applied Energistics 2 与 ExtendedAE 的功能增强附属模组，专注于样板（Pattern）相关的效率与易用性提升。
-
-## 功能简介
-
-- **处理样板数量缩放**
-  - 一键倍增/除法
-  - 仅作用于处理样板；自动跳过合成样板
-
-- **样板终端界面增强**
-  - 在样板供应器/访问终端界面增加倍增、切换等按钮与交互
-  - 支持快速隐藏/显示样板槽位
-
-- **样板上传到供应器**
-  - 在终端内直接将样板上传至指定样板供应器
-
-- **无线终端兼容**
-  - 兼容 ExtendedAE 的无线样板访问终端 [ 1.19.2 ExtendedAE 暂无该终端 ]；
-  - 兼容 AE2WTLib 提供的通用无线终端
----
-如需更详细的开发/构建与排错说明，可在仓库提交 Issue 讨论。
----
-
-
-
+## 注意事项
+- 本版本为非官方 Backport，可能存在与原版功能或性能上的差异。
+- 因为部分 AE2 拓展模组（如 AE2 Things）尚未发布 1.19.2 版本，本模组可能会缺少一些功能或存在兼容性问题。
+- 本模组的主要目的为方便个人游玩 CIT 整合包，可能存在一些针对个人需求的特定改动，并可能不会持续更新以跟进原版功能。
 
 ## 许可证
 
