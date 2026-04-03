@@ -72,7 +72,7 @@ public class CraftingRecipes extends RecipeProvider {
                 .save(consumer);
 
         // 实体加速器
-/*        NBTShapedRecipeBuilder.shaped(ModItems.ENTITY_TICKER_PART_ITEM.get())
+        NBTShapedRecipeBuilder.shaped(ModItems.ENTITY_TICKER_PART_ITEM.get())
                 .pattern("SZS")
                 .pattern("QXQ")
                 .pattern("SIS")
@@ -80,10 +80,10 @@ public class CraftingRecipes extends RecipeProvider {
                 .define('Z', AEBlocks.DENSE_ENERGY_CELL)
                 .define('Q', AEItems.SINGULARITY)
                 .define('X', Items.NETHER_STAR)
-                .define('I', EPPItemAndBlock.EX_IO_PORT)
+                .define('I', EPPItemAndBlock.EX_INTERFACE)
                 .unlockedBy("has_entity_speed_card_x2", has(EntitySpeedCardItem.withMultiplier(2).getItem()))
                 .unlockedBy("has_singularity", has(AEItems.SINGULARITY))
-                .save(consumer);*/
+                .save(consumer);
 
         //镜像样板供应器
         ShapedRecipeBuilder.shaped(ModItems.MIRROR_PATTERN_PROVIDER.get())
