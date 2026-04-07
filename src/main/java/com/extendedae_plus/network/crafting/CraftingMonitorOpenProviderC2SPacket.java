@@ -10,6 +10,7 @@ import appeng.menu.AEBaseMenu;
 import appeng.menu.locator.MenuLocators;
 import appeng.menu.me.crafting.CraftingCPUMenu;
 import appeng.parts.AEBasePart;
+import com.extendedae_plus.content.ae2.MirrorPatternProviderBlockEntity;
 import com.extendedae_plus.init.ModNetwork;
 import com.extendedae_plus.mixin.ae2.accessor.PatternProviderLogicAccessor;
 import com.extendedae_plus.network.SetBlockHighlightS2CPacket;
@@ -122,6 +123,7 @@ public class CraftingMonitorOpenProviderC2SPacket {
                 if (provider instanceof PatternProviderLogic ppl) {
                     var host = ((PatternProviderLogicAccessor) ppl).eap$host();
                     if (host == null || host.getBlockEntity() == null) continue;
+                    if (host.getBlockEntity() instanceof MirrorPatternProviderBlockEntity) continue;
                     if (!PatternProviderDataUtil.isProviderAvailable(ppl, grid)) continue;
                     return ppl;
                 }
