@@ -581,7 +581,7 @@ public class ProviderSelectScreen extends Screen {
         }
         int removed = RecipeTypeNameConfig.removeMappingsByCnValue(val);
         if (removed > 0) {
-            sendPlayerMessage(Component.translatable("extendedae_plus.screen.upload.mapping_deleted", removed, val));
+            sendPlayerMessage(Component.translatable("extendedae_plus.screen.upload.mapping_deleted",val,removed));
             applyFilter();
             page = 0;
             refreshButtons();
