@@ -215,6 +215,31 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
         return Component.translatable("extendedae_plus.message.mirror_pattern_provider.missing_master");
     }
 
+    public boolean hasMasterBinding() {
+        return this.masterDimension != null && this.masterPos != null;
+    }
+
+    public boolean unbindFromMaster() {
+        if (!(this.getLevel() instanceof ServerLevel)) {
+            return false;
+        }
+
+        if (!this.hasMasterBinding()) {
+            return false;
+        }
+
+        var changed = this.clearMasterBinding(true);
+        if (changed) {
+            this.flushStateChanges();
+        }
+        this.scheduleImmediateSync();
+        return true;
+    }
+
+    public Component createUnboundMessage() {
+        return Component.translatable("extendedae_plus.message.mirror_pattern_provider.unbound");
+    }
+
     private int syncBoundMaster() {
         if (this.masterDimension == null || this.masterPos == null) {
             if (this.needsUnboundPatternCleanup) {
@@ -270,6 +295,7 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
         var changed = hadBinding;
         if (clearMirroredPatterns) {
             changed |= this.clearMirroredPatterns();
+            changed |= this.resetMirroredSettingsToInitialState();
         }
 
         return changed;
@@ -325,6 +351,12 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
         }
 
         return true;
+    }
+
+    private boolean resetMirroredSettingsToInitialState() {
+        var defaultState = this.getBlockState().getBlock().defaultBlockState();
+        var defaultMirror = new MirrorPatternProviderBlockEntity(this.getBlockPos(), defaultState);
+        return this.syncMirroredSettings(defaultMirror);
     }
 
     private boolean hasDifferentMirroredSettings(PatternProviderBlockEntity master) {
