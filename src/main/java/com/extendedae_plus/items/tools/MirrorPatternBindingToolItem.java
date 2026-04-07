@@ -33,11 +33,19 @@ public class MirrorPatternBindingToolItem extends Item {
     }
 
     @Override
+    public InteractionResult onItemUseFirst(ItemStack stack, UseOnContext context) {
+        return this.handleBlockUse(context, stack);
+    }
+
+    @Override
     public InteractionResult useOn(UseOnContext context) {
+        return this.handleBlockUse(context, context.getItemInHand());
+    }
+
+    public InteractionResult handleBlockUse(UseOnContext context,ItemStack stack) {
         var level = context.getLevel();
         var player = context.getPlayer();
         var blockEntity = level.getBlockEntity(context.getClickedPos());
-        var stack = context.getItemInHand();
 
         if (blockEntity instanceof PatternProviderBlockEntity
                 && !(blockEntity instanceof MirrorPatternProviderBlockEntity)) {
