@@ -3,20 +3,20 @@ package com.extendedae_plus.network.crafting;
 import appeng.api.networking.IGrid;
 import appeng.api.stacks.AEKey;
 import appeng.api.stacks.GenericStack;
-import appeng.client.gui.me.common.MEStorageScreen;
+
 import appeng.items.tools.powered.WirelessTerminalItem;
 import appeng.menu.locator.MenuLocators;
 import appeng.menu.me.crafting.CraftAmountMenu;
+import com.extendedae_plus.init.ModNetwork;
 import com.extendedae_plus.menu.locator.CuriosItemLocator;
-import com.extendedae_plus.mixin.ae2.accessor.MEStorageScreenAccessor;
-import com.extendedae_plus.mixin.extendedae.accessor.GuiExPatternTerminalAccessor;
 import com.extendedae_plus.util.wireless.WirelessTerminalLocator;
-import com.glodblock.github.extendedae.client.gui.GuiExPatternTerminal;
+
 import de.mari_023.ae2wtlib.wut.WUTHandler;
-import net.minecraft.client.Minecraft;
+
 import net.minecraft.network.FriendlyByteBuf;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraftforge.network.NetworkEvent;
+import net.minecraftforge.network.NetworkDirection;  
 
 import java.util.function.Supplier;
 
@@ -74,21 +74,12 @@ public class OpenCraftFromJeiC2SPacket {
                     String name = what.getDisplayName().getString();
                     if (name == null || name.isEmpty()) return;
 
-                    var screen = Minecraft.getInstance().screen;
-                    if (screen instanceof MEStorageScreen<?> me) {
-                        try {
-                            MEStorageScreenAccessor acc = (MEStorageScreenAccessor) me;
-                            acc.eap$getSearchField().setValue(name);
-                            acc.eap$setSearchText(name);
-                        } catch (Throwable ignored) {
-                        }
-                    } else if (screen instanceof GuiExPatternTerminal<?> gpt) {
-                        try {
-                            GuiExPatternTerminalAccessor acc = (GuiExPatternTerminalAccessor) gpt;
-                            acc.getSearchOutField().setValue(name);
-                        } catch (Throwable ignored) {
-                        }
-                    }
+                    // 发送 S2C 包让客户端更新搜索框
+                    ModNetwork.CHANNEL.sendTo(  
+                        new SetSearchTextS2CPacket(name),
+                        player.connection.connection,
+                        NetworkDirection.PLAY_TO_CLIENT
+                    );
                     return;
                 }
 
@@ -111,21 +102,12 @@ public class OpenCraftFromJeiC2SPacket {
                 String name=what.getDisplayName().getString();
                 if (name == null || name.isEmpty()) return;
 
-                // 写入 AE2 终端的搜索框
-                var screen = Minecraft.getInstance().screen;
-                if (screen instanceof MEStorageScreen<?> me) {
-                    try {
-                        MEStorageScreenAccessor acc = (MEStorageScreenAccessor) me;
-                        acc.eap$getSearchField().setValue(name);
-                        acc.eap$setSearchText(name); // 同步到 Repo 并刷新
-                    } catch (Throwable ignored) {
-                    }
-                }else if (screen instanceof GuiExPatternTerminal<?> gpt) {
-                    try {
-                        GuiExPatternTerminalAccessor acc = (GuiExPatternTerminalAccessor) gpt;
-                        acc.getSearchOutField().setValue(name);
-                    }catch (Throwable ignored) {}
-                }
+                // 发送 S2C 包让客户端更新搜索框
+                ModNetwork.CHANNEL.sendTo(  
+                    new SetSearchTextS2CPacket(name),
+                    player.connection.connection,
+                    NetworkDirection.PLAY_TO_CLIENT
+                );
                 return;
             }
 
