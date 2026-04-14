@@ -64,7 +64,7 @@ public final class MatrixUploadUtil {
         return false;
     }
 
-    private static boolean isDuplicateInGrid(appeng.api.crafting.IPatternDetails newPattern, IGrid grid, net.minecraft.world.level.Level level) {
+    public static boolean isDuplicateInGrid(appeng.api.crafting.IPatternDetails newPattern, IGrid grid, net.minecraft.world.level.Level level) {
         for (var clazz : grid.getMachineClasses()) {
             if (AssemblerMatrixPatternEntity.class.isAssignableFrom(clazz)) {
                 for (var node : grid.getMachineNodes(clazz)) {
@@ -152,7 +152,7 @@ public final class MatrixUploadUtil {
     }
 
     @Nullable
-    private static IGrid getGridFromMenu(PatternEncodingTermMenu menu) {
+    public static IGrid getGridFromMenu(PatternEncodingTermMenu menu) {
         try {
             var node = menu.getNetworkNode();
             if (node != null) {

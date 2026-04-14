@@ -8,6 +8,7 @@ import com.extendedae_plus.api.upload.IPatternEncodingShiftUploadSync;
 import com.extendedae_plus.util.uploadPattern.MatrixUploadUtil;
 // import com.glodblock.github.glodium.network.packet.sync.IActionHolder; // Glodium not available in 1.19.2
 // import com.glodblock.github.glodium.network.packet.sync.Paras; // Glodium not available in 1.19.2
+import net.minecraft.network.chat.Component;
 import net.minecraft.server.level.ServerPlayer;
 import net.minecraft.world.entity.player.Player;
 import net.minecraft.world.item.ItemStack;
@@ -41,6 +42,9 @@ public abstract class ContainerPatternEncodingTermMenuMixin implements IPatternE
 
     @Shadow(remap = false)
     private RestrictedInputSlot encodedPatternSlot;
+
+    @Shadow(remap = false)
+    public abstract ItemStack encodePattern();
 
     @Unique
     private void eap$scheduleUploadWithRetry(ServerPlayer sp, PatternEncodingTermMenu menu, int attemptsLeft) {
@@ -97,7 +101,50 @@ public abstract class ContainerPatternEncodingTermMenuMixin implements IPatternE
     // public Map<String, Consumer<Paras>> getActionMap() {
     //     return this.eap$actions;
     // }
+    // 服务器端：在 encode() 执行之前，检测重复样板，如果已存在则阻止编码
+    @Inject(method = "encode", at = @At("HEAD"), remap = false, cancellable = true)
+    private void eap$checkDuplicateBeforeEncode(CallbackInfo ci) {
+        try {
+            if (!(this.epp$player instanceof ServerPlayer sp)) {
+                return;
+            }
+            // 仅在没有按shift时检查重复
+            if (this.eap$pendingShiftUpload) {
+                return; // shift=跳过检测，直接放行
+            }
 
+            var menu = (PatternEncodingTermMenu) (Object) this;
+            if (menu.getMode() != EncodingMode.CRAFTING
+                    && menu.getMode() != EncodingMode.SMITHING_TABLE
+                    && menu.getMode() != EncodingMode.STONECUTTING) {
+                return; // 只检查合成/锻造台/切石机样板
+            }
+
+            // 预先生成样板（不修改任何槽位）来检测重复
+            ItemStack testPattern = this.encodePattern();
+            if (testPattern == null || testPattern.isEmpty()) {
+                return;
+            }
+
+            var grid = MatrixUploadUtil.getGridFromMenu(menu);
+            if (grid == null) {
+                return; // 没有连接到网格，无需检测
+            }
+
+            var decoded = PatternDetailsHelper.decodePattern(testPattern, sp.level);
+            if (decoded == null) {
+                return;
+            }
+
+            if (MatrixUploadUtil.isDuplicateInGrid(decoded, grid, sp.level)) {
+                sp.displayClientMessage(
+                        Component.translatable("gui.extendedae_plus.assembler_matrix.duplicate_blocked"),
+                        false);
+                ci.cancel(); // 阻止 AE2 创建样板
+            }
+        } catch (Throwable ignored) {
+        }
+    }
     // 服务器端：在 encode() 执行完毕后，如果已编码槽位存在样板且当前为“合成模式”，则上传到装配矩阵
     @Inject(method = "encode", at = @At("TAIL"), remap = false)
     private void eap$serverUploadAfterEncode(CallbackInfo ci) {
@@ -123,9 +170,8 @@ public abstract class ContainerPatternEncodingTermMenuMixin implements IPatternE
                 return; // 不是编码样板
             }
             // 为避免与 AE2 后续同步竞争，切到下一 tick 执行
-            // shiftDown=true → 跳过重复检测直接上传
-            // shiftDown=false → 正常上传（含重复检测，重复时阻止并发送聊天提示）
-            final boolean skipDupCheck = shiftDown;
+            // 重复检测已经在 HEAD 阶段完成，此处始终跳过
+            final boolean skipDupCheck = true;
             sp.server.execute(() -> {
                 try {
                     MatrixUploadUtil.uploadFromEncodingMenuToMatrix(sp, menu, skipDupCheck);
