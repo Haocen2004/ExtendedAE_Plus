@@ -1,0 +1,374 @@
+package com.extendedae_plus.content.matrix.me;
+
+import appeng.api.config.Actionable;
+import appeng.api.config.PowerMultiplier;
+import appeng.api.crafting.IPatternDetails;
+import appeng.api.crafting.PatternDetailsHelper;
+import appeng.api.inventories.InternalInventory;
+import appeng.api.networking.ticking.TickRateModulation;
+import appeng.api.stacks.AEItemKey;
+import appeng.api.stacks.KeyCounter;
+import appeng.blockentity.AEBaseBlockEntity;
+import appeng.blockentity.crafting.IMolecularAssemblerSupportedPattern;
+import appeng.core.AELog;
+import appeng.me.helpers.IGridConnectedBlockEntity;
+import appeng.util.inv.AppEngInternalInventory;
+import appeng.util.inv.FilteredInternalInventory;
+import appeng.util.inv.InternalInventoryHost;
+import appeng.util.inv.filter.IAEItemFilter;
+import net.minecraft.core.Direction;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.world.entity.player.Inventory;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.inventory.AbstractContainerMenu;
+import net.minecraft.world.inventory.CraftingContainer;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import org.jetbrains.annotations.NotNull;
+import org.jetbrains.annotations.Nullable;
+
+public class CraftingThread {
+
+    @NotNull
+    private final AEBaseBlockEntity host;
+    protected final IGridConnectedBlockEntity gridHost;
+    protected final AppEngInternalInventory gridInv;
+    private final InternalInventory gridInvExt;
+    private final CraftingContainer craftingInv;
+    private Direction pushDirection = null;
+    private ItemStack myPattern = ItemStack.EMPTY;
+    protected IMolecularAssemblerSupportedPattern myPlan = null;
+    private double progress = 0;
+    private boolean isAwake = false;
+    protected boolean forcePlan = false;
+    private boolean reboot = true;
+    private ItemStack output = ItemStack.EMPTY;
+    private final SignalAccepter accepter;
+
+    public CraftingThread(@NotNull AEBaseBlockEntity host, SignalAccepter accepter) {
+        if (!(host instanceof InternalInventoryHost)) {
+            throw new IllegalArgumentException("Host isn't InternalInventoryHost.");
+        }
+        if (!(host instanceof IGridConnectedBlockEntity)) {
+            throw new IllegalArgumentException("Host isn't IGridConnectedBlockEntity.");
+        }
+        this.host = host;
+        this.gridHost = (IGridConnectedBlockEntity) host;
+        this.gridInv = new AppEngInternalInventory((InternalInventoryHost) this.host, 10, 1);
+        this.gridInvExt = new FilteredInternalInventory(this.gridInv, new CraftingGridFilter());
+        this.craftingInv = new CraftingContainer(new DummyMenu(), 3, 3);
+        this.accepter = accepter;
+    }
+
+    public boolean isAwake() {
+        return this.isAwake;
+    }
+
+    public boolean acceptJob(IPatternDetails patternDetails, KeyCounter[] table, Direction where) {
+        if (this.myPattern.isEmpty()) {
+            if (this.gridInv.isEmpty() && patternDetails instanceof IMolecularAssemblerSupportedPattern pattern) {
+                this.forcePlan = true;
+                this.myPlan = pattern;
+                this.pushDirection = where;
+                this.fillGrid(table, pattern);
+                this.updateSleepiness();
+                this.saveChanges();
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public void stop() {
+        this.myPlan = null;
+        this.myPattern = ItemStack.EMPTY;
+        this.progress = 0;
+        this.ejectHeldItems();
+        this.updateSleepiness();
+    }
+
+    public CompoundTag writeNBT() {
+        var data = new CompoundTag();
+        var pattern = this.myPlan != null ? this.myPlan.getDefinition().toStack() : this.myPattern;
+        if (!pattern.isEmpty()) {
+            data.put("myPlan", pattern.save(new CompoundTag()));
+            data.putInt("pushDirection", this.pushDirection.ordinal());
+        }
+        return data;
+    }
+
+    public void readNBT(CompoundTag data) {
+        this.forcePlan = false;
+        this.myPattern = ItemStack.EMPTY;
+        this.myPlan = null;
+        if (data.contains("myPlan")) {
+            var pattern = ItemStack.of(data.getCompound("myPlan"));
+            if (!pattern.isEmpty()) {
+                this.forcePlan = true;
+                this.myPattern = pattern;
+                this.pushDirection = Direction.values()[data.getInt("pushDirection")];
+            }
+        }
+        this.recalculatePlan();
+    }
+
+    public InternalInventory getInternalInventory() {
+        return this.gridInv;
+    }
+
+    public InternalInventory getExposedInventoryForSide() {
+        return this.gridInvExt;
+    }
+
+    public int getCraftingProgress() {
+        return (int) this.progress;
+    }
+
+    public TickRateModulation tick(int cards, int ticksSinceLastCall) {
+        if (!this.gridInv.getStackInSlot(9).isEmpty()) {
+            this.pushOut(this.gridInv.getStackInSlot(9));
+            if (this.gridInv.getStackInSlot(9).isEmpty()) {
+                this.saveChanges();
+            }
+            this.ejectHeldItems();
+            this.updateSleepiness();
+            this.progress = 0;
+            return this.isAwake ? TickRateModulation.IDLE : TickRateModulation.SLEEP;
+        }
+
+        if (this.myPlan == null) {
+            this.ejectHeldItems();
+            this.updateSleepiness();
+            return TickRateModulation.SLEEP;
+        }
+
+        if (this.reboot) {
+            ticksSinceLastCall = 1;
+        }
+
+        if (!this.isAwake) {
+            return TickRateModulation.SLEEP;
+        }
+
+        this.reboot = false;
+        switch (cards) {
+            case 0 -> this.progress += this.userPower(ticksSinceLastCall, 20, 1.0);
+            case 1 -> this.progress += this.userPower(ticksSinceLastCall, 26, 1.3);
+            case 2 -> this.progress += this.userPower(ticksSinceLastCall, 34, 1.7);
+            case 3 -> this.progress += this.userPower(ticksSinceLastCall, 40, 2.0);
+            case 4 -> this.progress += this.userPower(ticksSinceLastCall, 50, 2.5);
+            case 5 -> this.progress += this.userPower(ticksSinceLastCall, 100, 5.0);
+        }
+
+        if (this.progress >= 100) {
+            for (int x = 0; x < this.craftingInv.getContainerSize(); x++) {
+                this.craftingInv.setItem(x, this.gridInv.getStackInSlot(x));
+            }
+
+            this.progress = 0;
+            this.output = this.assemblePattern(this.craftingInv);
+            if (!this.output.isEmpty() && this.host.getLevel() != null) {
+
+                var craftingRemainders = this.myPlan.getRemainingItems(this.craftingInv);
+
+                this.pushOut(this.output.copy());
+
+                for (int x = 0; x < 9; x++) {
+                    this.gridInv.setItemDirect(x, craftingRemainders.get(x));
+                }
+
+                this.forcePlan = false;
+                this.myPlan = null;
+                this.pushDirection = null;
+                this.ejectHeldItems();
+                this.saveChanges();
+                this.updateSleepiness();
+                return this.isAwake ? TickRateModulation.IDLE : TickRateModulation.SLEEP;
+            } else {
+                this.forcePlan = false;
+                this.myPlan = null;
+                this.pushDirection = null;
+                this.ejectHeldItems();
+                this.saveChanges();
+                this.updateSleepiness();
+            }
+        }
+        return TickRateModulation.FASTER;
+    }
+
+    protected ItemStack assemblePattern(CraftingContainer container) {
+        return this.myPlan.assemble(container, this.host.getLevel());
+    }
+
+    public void recalculatePlan() {
+        this.reboot = true;
+        if (this.forcePlan) {
+            if (this.host.getLevel() != null && myPlan == null) {
+                if (!myPattern.isEmpty()) {
+                    if (PatternDetailsHelper.decodePattern(myPattern, this.host.getLevel()) instanceof IMolecularAssemblerSupportedPattern supportedPlan) {
+                        this.myPlan = supportedPlan;
+                    }
+                }
+                this.myPattern = ItemStack.EMPTY;
+                if (myPlan == null) {
+                    AELog.warn("Unable to restore auto-crafting pattern after load: %s", myPattern);
+                    this.forcePlan = false;
+                }
+            }
+            return;
+        }
+
+        this.progress = 0;
+        this.myPlan = null;
+        this.myPattern = ItemStack.EMPTY;
+        this.pushDirection = null;
+        this.updateSleepiness();
+    }
+
+    @Nullable
+    public IMolecularAssemblerSupportedPattern getCurrentPattern() {
+        if (this.host.isClientSide()) {
+            return null;
+        } else {
+            return myPlan;
+        }
+    }
+
+    private int userPower(int ticksPassed, int bonusValue, double acceleratorTax) {
+        var grid = this.gridHost.getMainNode().getGrid();
+        if (grid != null) {
+            var safePower = Math.min(ticksPassed * bonusValue * acceleratorTax, 5000);
+            return (int) (grid.getEnergyService().extractAEPower(safePower, Actionable.MODULATE, PowerMultiplier.CONFIG) / acceleratorTax);
+        } else {
+            return 0;
+        }
+    }
+
+    protected void ejectHeldItems() {
+        if (this.gridInv.getStackInSlot(9).isEmpty()) {
+            for (int x = 0; x < 9; x++) {
+                final ItemStack is = this.gridInv.getStackInSlot(x);
+                if (!is.isEmpty() && (this.myPlan == null || !this.myPlan.isItemValid(x, AEItemKey.of(is), this.host.getLevel()))) {
+                    this.gridInv.setItemDirect(9, is);
+                    this.gridInv.setItemDirect(x, ItemStack.EMPTY);
+                    this.saveChanges();
+                    return;
+                }
+            }
+        }
+    }
+
+    protected void pushOut(ItemStack output) {
+        if (this.pushDirection == null) {
+            for (Direction d : Direction.values()) {
+                output = this.pushTo(output, d);
+            }
+        } else {
+            output = this.pushTo(output, this.pushDirection);
+        }
+        if (output.isEmpty() && this.forcePlan) {
+            this.forcePlan = false;
+            this.recalculatePlan();
+        }
+        this.gridInv.setItemDirect(9, output);
+    }
+
+    protected final void saveChanges() {
+        this.host.saveChanges();
+    }
+
+    private ItemStack pushTo(ItemStack output, Direction d) {
+        if (output.isEmpty() || this.host.getLevel() == null) {
+            return output;
+        }
+        final BlockEntity te = this.host.getLevel().getBlockEntity(this.host.getBlockPos().relative(d));
+        if (te == null) {
+            return output;
+        }
+        var adaptor = InternalInventory.wrapExternal(this.host.getLevel(), te.getBlockPos(), d.getOpposite());
+        if (adaptor == null) {
+            return output;
+        }
+        final int size = output.getCount();
+        output = adaptor.addItems(output);
+        final int newSize = output.isEmpty() ? 0 : output.getCount();
+        if (size != newSize) {
+            this.saveChanges();
+        }
+        return output;
+    }
+
+    private void fillGrid(KeyCounter[] table, IMolecularAssemblerSupportedPattern adapter) {
+        adapter.fillCraftingGrid(table, this.gridInv::setItemDirect);
+        for (var list : table) {
+            list.removeZeros();
+            if (!list.isEmpty()) {
+                throw new RuntimeException("Could not fill grid with some items, including " + list.iterator().next());
+            }
+        }
+    }
+
+    public void updateSleepiness() {
+        final boolean wasEnabled = this.isAwake;
+        this.isAwake = this.myPlan != null && this.hasMats() || this.canPush();
+        if (wasEnabled != this.isAwake) {
+            this.accepter.send(this.isAwake);
+        }
+    }
+
+    protected boolean hasMats() {
+        if (this.myPlan == null) {
+            return false;
+        }
+        for (int x = 0; x < this.craftingInv.getContainerSize(); x++) {
+            this.craftingInv.setItem(x, this.gridInv.getStackInSlot(x));
+        }
+        return !this.myPlan.assemble(this.craftingInv, this.host.getLevel()).isEmpty();
+    }
+
+    private boolean canPush() {
+        return !this.gridInv.getStackInSlot(9).isEmpty();
+    }
+
+    public ItemStack getOutput() {
+        return this.output;
+    }
+
+    private static class CraftingGridFilter implements IAEItemFilter {
+        @Override
+        public boolean allowExtract(InternalInventory inv, int slot, int amount) {
+            return slot == 9;
+        }
+
+        @Override
+        public boolean allowInsert(InternalInventory inv, int slot, ItemStack stack) {
+            return false;
+        }
+    }
+
+    private static class DummyMenu extends AbstractContainerMenu {
+        protected DummyMenu() {
+            super(null, -1);
+        }
+
+        @Override
+        public @NotNull ItemStack quickMoveStack(@NotNull Player player, int slot) {
+            return ItemStack.EMPTY;
+        }
+
+        @Override
+        public boolean stillValid(@NotNull Player player) {
+            return false;
+        }
+
+        @Override
+        public void slotsChanged(@NotNull net.minecraft.world.Container container) {
+            // NO-OP
+        }
+    }
+
+    public interface SignalAccepter {
+        void send(boolean signal);
+    }
+}

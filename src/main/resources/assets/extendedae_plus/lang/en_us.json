@@ -63,7 +63,7 @@
   "block.extendedae_plus.1024x_crafting_accelerator": "1024x Crafting Accelerator",
   "block.extendedae_plus.network_pattern_controller": "Pattern Supplier State Controller",
   "block.extendedae_plus.mirror_pattern_provider": "Mirror Pattern Provider",
-  "gui.extendedae_plus.assembler_matrix.pattern": "Assembler Matrix Pattern Core Plus",
+  "gui.extendedae_plus.assembler_matrix.pattern_core": "Assembler Matrix Pattern Core Plus",
 
   "extendedae_plus.upload_to_matrix": "Upload to Assembly Matrix",
   "extendedae_plus.upload_to_matrix.success": "Pattern uploaded to the assembly matrix",
@@ -249,5 +249,18 @@
 
   "key.extendedae_plus.create_pattern": "Create Pattern from JEI",
   "key.extendedae_plus.fill_search": "Fill Search Field from JEI",
-  "key.categories.extendedae_plus": "ExtendedAE Plus"
+  "key.categories.extendedae_plus": "ExtendedAE Plus",
+
+  "block.extendedae_plus.assembler_matrix_frame": "Assembler Matrix Frame",
+  "block.extendedae_plus.assembler_matrix_wall": "Assembler Matrix Wall",
+  "block.extendedae_plus.assembler_matrix_glass": "Assembler Matrix Glass",
+  "block.extendedae_plus.assembler_matrix_pattern": "Assembler Matrix Pattern Core",
+  "block.extendedae_plus.assembler_matrix_crafter": "Assembler Matrix Craft Core",
+  "block.extendedae_plus.assembler_matrix_speed": "Assembler Matrix Speed Core",
+  "gui.extendedae_plus.assembler_matrix.title": "Assembler Matrix",
+  "gui.extendedae_plus.assembler_matrix.cancel": "Cancel",
+  "gui.extendedae_plus.assembler_matrix.cancel.tooltip": "Stop all crafting jobs and return ingredients",
+  "gui.extendedae_plus.assembler_matrix.pattern": "Only accepts crafting pattern",
+  "gui.extendedae_plus.assembler_matrix.threads": "Running Jobs: %s",
+  "gui.extendedae_plus.assembler_matrix.tooltip": "Search pattern"
 }

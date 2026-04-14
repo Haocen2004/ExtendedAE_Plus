@@ -5,7 +5,7 @@ import appeng.menu.me.items.PatternEncodingTermMenu;
 import appeng.menu.slot.RestrictedInputSlot;
 import appeng.parts.encoding.EncodingMode;
 import com.extendedae_plus.api.upload.IPatternEncodingShiftUploadSync;
-// import com.extendedae_plus.util.uploadPattern.MatrixUploadUtil; // excluded: depends on ExtendedAE 1.20+
+import com.extendedae_plus.util.uploadPattern.MatrixUploadUtil;
 // import com.glodblock.github.glodium.network.packet.sync.IActionHolder; // Glodium not available in 1.19.2
 // import com.glodblock.github.glodium.network.packet.sync.Paras; // Glodium not available in 1.19.2
 import net.minecraft.server.level.ServerPlayer;
@@ -51,8 +51,7 @@ public abstract class ContainerPatternEncodingTermMenuMixin implements IPatternE
                 }
                 var stack = this.encodedPatternSlot != null ? this.encodedPatternSlot.getItem() : net.minecraft.world.item.ItemStack.EMPTY;
                 if (stack != null && !stack.isEmpty() && PatternDetailsHelper.isEncodedPattern(stack)) {
-                    // MatrixUploadUtil excluded: depends on ExtendedAE 1.20+ ClusterAssemblerMatrix
-                    // MatrixUploadUtil.uploadFromEncodingMenuToMatrix(sp, menu);
+                    MatrixUploadUtil.uploadFromEncodingMenuToMatrix(sp, menu);
                 } else {
                     // 槽位可能尚未同步到位，继续下一 tick 重试
                     if (attemptsLeft > 0) {
@@ -126,13 +125,12 @@ public abstract class ContainerPatternEncodingTermMenuMixin implements IPatternE
                 return; // 不是编码样板
             }
             // 为避免与 AE2 后续同步竞争，切到下一 tick 执行
-            // MatrixUploadUtil excluded: depends on ExtendedAE 1.20+
-            // sp.server.execute(() -> {
-            //     try {
-            //         MatrixUploadUtil.uploadFromEncodingMenuToMatrix(sp, menu);
-            //     } catch (Throwable ignored) {
-            //     }
-            // });
+            sp.server.execute(() -> {
+                try {
+                    MatrixUploadUtil.uploadFromEncodingMenuToMatrix(sp, menu);
+                } catch (Throwable ignored) {
+                }
+            });
         } catch (Throwable ignored) {
         }
     }

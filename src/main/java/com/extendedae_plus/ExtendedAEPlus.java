@@ -91,6 +91,26 @@ public class ExtendedAEPlus {
                             (MirrorPatternProviderBlockEntity) blockEntity)
             );
 
+            // Assembler Matrix block entity bindings
+            ((AEBaseEntityBlock) ModBlocks.ASSEMBLER_MATRIX_FRAME.get()).setBlockEntity(
+                    com.extendedae_plus.content.matrix.entity.AssemblerMatrixFrameEntity.class,
+                    ModBlockEntities.ASSEMBLER_MATRIX_FRAME.get(), null, null);
+            ((AEBaseEntityBlock) ModBlocks.ASSEMBLER_MATRIX_WALL.get()).setBlockEntity(
+                    com.extendedae_plus.content.matrix.entity.AssemblerMatrixWallEntity.class,
+                    ModBlockEntities.ASSEMBLER_MATRIX_WALL.get(), null, null);
+            ((AEBaseEntityBlock) ModBlocks.ASSEMBLER_MATRIX_GLASS.get()).setBlockEntity(
+                    com.extendedae_plus.content.matrix.entity.AssemblerMatrixGlassEntity.class,
+                    ModBlockEntities.ASSEMBLER_MATRIX_GLASS.get(), null, null);
+            ((AEBaseEntityBlock) ModBlocks.ASSEMBLER_MATRIX_PATTERN.get()).setBlockEntity(
+                    com.extendedae_plus.content.matrix.entity.AssemblerMatrixPatternEntity.class,
+                    ModBlockEntities.ASSEMBLER_MATRIX_PATTERN.get(), null, null);
+            ((AEBaseEntityBlock) ModBlocks.ASSEMBLER_MATRIX_CRAFTER.get()).setBlockEntity(
+                    com.extendedae_plus.content.matrix.entity.AssemblerMatrixCrafterEntity.class,
+                    ModBlockEntities.ASSEMBLER_MATRIX_CRAFTER.get(), null, null);
+            ((AEBaseEntityBlock) ModBlocks.ASSEMBLER_MATRIX_SPEED.get()).setBlockEntity(
+                    com.extendedae_plus.content.matrix.entity.AssemblerMatrixSpeedEntity.class,
+                    ModBlockEntities.ASSEMBLER_MATRIX_SPEED.get(), null, null);
+
         });
     }
 

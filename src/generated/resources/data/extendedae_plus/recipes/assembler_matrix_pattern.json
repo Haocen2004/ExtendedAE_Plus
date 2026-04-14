@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "E": {
+      "item": "ae2:engineering_processor"
+    },
+    "F": {
+      "item": "ae2:fluix_crystal"
+    },
+    "W": {
+      "item": "extendedae_plus:assembler_matrix_wall"
+    },
+    "P": {
+      "item": "ae2:pattern_provider"
+    }
+  },
+  "pattern": [
+    " E ",
+    "FWF",
+    " P "
+  ],
+  "result": {
+    "item": "extendedae_plus:assembler_matrix_pattern"
+  },
+  "show_notification": true
+}

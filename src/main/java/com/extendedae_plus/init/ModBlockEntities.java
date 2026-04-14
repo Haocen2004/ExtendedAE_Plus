@@ -36,4 +36,35 @@ public final class ModBlockEntities {
             BLOCK_ENTITY_TYPES.register("mirror_pattern_provider",
                     () -> BlockEntityType.Builder.of(MirrorPatternProviderBlockEntity::new,
                             ModBlocks.MIRROR_PATTERN_PROVIDER.get()).build(null));
+
+    // Assembler Matrix block entities
+    public static final RegistryObject<BlockEntityType<com.extendedae_plus.content.matrix.entity.AssemblerMatrixFrameEntity>> ASSEMBLER_MATRIX_FRAME =
+            BLOCK_ENTITY_TYPES.register("assembler_matrix_frame",
+                    () -> BlockEntityType.Builder.of(com.extendedae_plus.content.matrix.entity.AssemblerMatrixFrameEntity::new,
+                            ModBlocks.ASSEMBLER_MATRIX_FRAME.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<com.extendedae_plus.content.matrix.entity.AssemblerMatrixWallEntity>> ASSEMBLER_MATRIX_WALL =
+            BLOCK_ENTITY_TYPES.register("assembler_matrix_wall",
+                    () -> BlockEntityType.Builder.of(com.extendedae_plus.content.matrix.entity.AssemblerMatrixWallEntity::new,
+                            ModBlocks.ASSEMBLER_MATRIX_WALL.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<com.extendedae_plus.content.matrix.entity.AssemblerMatrixGlassEntity>> ASSEMBLER_MATRIX_GLASS =
+            BLOCK_ENTITY_TYPES.register("assembler_matrix_glass",
+                    () -> BlockEntityType.Builder.of(com.extendedae_plus.content.matrix.entity.AssemblerMatrixGlassEntity::new,
+                            ModBlocks.ASSEMBLER_MATRIX_GLASS.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<com.extendedae_plus.content.matrix.entity.AssemblerMatrixPatternEntity>> ASSEMBLER_MATRIX_PATTERN =
+            BLOCK_ENTITY_TYPES.register("assembler_matrix_pattern",
+                    () -> BlockEntityType.Builder.of(com.extendedae_plus.content.matrix.entity.AssemblerMatrixPatternEntity::new,
+                            ModBlocks.ASSEMBLER_MATRIX_PATTERN.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<com.extendedae_plus.content.matrix.entity.AssemblerMatrixCrafterEntity>> ASSEMBLER_MATRIX_CRAFTER =
+            BLOCK_ENTITY_TYPES.register("assembler_matrix_crafter",
+                    () -> BlockEntityType.Builder.of(com.extendedae_plus.content.matrix.entity.AssemblerMatrixCrafterEntity::new,
+                            ModBlocks.ASSEMBLER_MATRIX_CRAFTER.get()).build(null));
+
+    public static final RegistryObject<BlockEntityType<com.extendedae_plus.content.matrix.entity.AssemblerMatrixSpeedEntity>> ASSEMBLER_MATRIX_SPEED =
+            BLOCK_ENTITY_TYPES.register("assembler_matrix_speed",
+                    () -> BlockEntityType.Builder.of(com.extendedae_plus.content.matrix.entity.AssemblerMatrixSpeedEntity::new,
+                            ModBlocks.ASSEMBLER_MATRIX_SPEED.get()).build(null));
 }

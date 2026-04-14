@@ -1,0 +1,24 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "Q": {
+      "item": "minecraft:quartz"
+    },
+    "L": {
+      "item": "minecraft:lapis_lazuli"
+    },
+    "M": {
+      "item": "ae2:molecular_assembler"
+    }
+  },
+  "pattern": [
+    "QLQ",
+    "LML",
+    "QLQ"
+  ],
+  "result": {
+    "item": "extendedae_plus:assembler_matrix_frame"
+  },
+  "show_notification": true
+}

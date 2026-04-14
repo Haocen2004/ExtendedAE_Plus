@@ -1,0 +1,28 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "G": {
+      "item": "ae2:quartz_glass"
+    },
+    "F": {
+      "item": "ae2:fluix_crystal"
+    },
+    "C": {
+      "item": "ae2:certus_quartz_crystal"
+    },
+    "Q": {
+      "item": "ae2:quartz_block"
+    }
+  },
+  "pattern": [
+    "GFG",
+    "CQC",
+    "GFG"
+  ],
+  "result": {
+    "count": 2,
+    "item": "extendedae_plus:assembler_matrix_glass"
+  },
+  "show_notification": true
+}

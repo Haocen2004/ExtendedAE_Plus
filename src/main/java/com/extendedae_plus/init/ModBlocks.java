@@ -98,4 +98,30 @@ public final class ModBlocks {
             "mirror_pattern_provider",
             MirrorPatternProviderBlock::new
     );
+
+    // Assembler Matrix
+    public static final RegistryObject<Block> ASSEMBLER_MATRIX_FRAME = BLOCKS.register(
+            "assembler_matrix_frame",
+            () -> new com.extendedae_plus.content.matrix.block.AssemblerMatrixFrameBlock()
+    );
+    public static final RegistryObject<Block> ASSEMBLER_MATRIX_WALL = BLOCKS.register(
+            "assembler_matrix_wall",
+            () -> new com.extendedae_plus.content.matrix.block.AssemblerMatrixWallBlock()
+    );
+    public static final RegistryObject<Block> ASSEMBLER_MATRIX_GLASS = BLOCKS.register(
+            "assembler_matrix_glass",
+            () -> new com.extendedae_plus.content.matrix.block.AssemblerMatrixGlassBlock()
+    );
+    public static final RegistryObject<Block> ASSEMBLER_MATRIX_PATTERN = BLOCKS.register(
+            "assembler_matrix_pattern",
+            () -> new com.extendedae_plus.content.matrix.block.AssemblerMatrixPatternBlock()
+    );
+    public static final RegistryObject<Block> ASSEMBLER_MATRIX_CRAFTER = BLOCKS.register(
+            "assembler_matrix_crafter",
+            () -> new com.extendedae_plus.content.matrix.block.AssemblerMatrixCrafterBlock()
+    );
+    public static final RegistryObject<Block> ASSEMBLER_MATRIX_SPEED = BLOCKS.register(
+            "assembler_matrix_speed",
+            () -> new com.extendedae_plus.content.matrix.block.AssemblerMatrixSpeedBlock()
+    );
 }

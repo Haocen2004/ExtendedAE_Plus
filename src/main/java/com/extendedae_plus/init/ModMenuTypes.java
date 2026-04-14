@@ -32,4 +32,11 @@ public final class ModMenuTypes {
                     () -> MenuTypeBuilder
                             .create(EntitySpeedTickerMenu::new, EntitySpeedTickerPart.class)
                             .build("entity_speed_ticker"));
+
+    public static final RegistryObject<MenuType<com.extendedae_plus.content.matrix.menu.AssemblerMatrixMenu>> ASSEMBLER_MATRIX =
+            MENUS.register("assembler_matrix",
+                    () -> MenuTypeBuilder
+                            .create(com.extendedae_plus.content.matrix.menu.AssemblerMatrixMenu::new,
+                                    com.extendedae_plus.content.matrix.entity.AssemblerMatrixBaseEntity.class)
+                            .build("assembler_matrix"));
 }

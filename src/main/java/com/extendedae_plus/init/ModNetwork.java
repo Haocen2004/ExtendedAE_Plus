@@ -198,6 +198,19 @@ public final class ModNetwork {
                 .decoder(PatternScaleC2SPacket::decode)
                 .consumerNetworkThread(PatternScaleC2SPacket::handle)
                 .add();
+
+        // Assembler Matrix packets
+        CHANNEL.messageBuilder(com.extendedae_plus.content.matrix.network.SAssemblerMatrixUpdatePacket.class, nextId(), NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(com.extendedae_plus.content.matrix.network.SAssemblerMatrixUpdatePacket::encode)
+                .decoder(com.extendedae_plus.content.matrix.network.SAssemblerMatrixUpdatePacket::decode)
+                .consumerNetworkThread(com.extendedae_plus.content.matrix.network.SAssemblerMatrixUpdatePacket::handle)
+                .add();
+
+        CHANNEL.messageBuilder(com.extendedae_plus.content.matrix.network.CAssemblerMatrixActionPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
+                .encoder(com.extendedae_plus.content.matrix.network.CAssemblerMatrixActionPacket::encode)
+                .decoder(com.extendedae_plus.content.matrix.network.CAssemblerMatrixActionPacket::decode)
+                .consumerNetworkThread(com.extendedae_plus.content.matrix.network.CAssemblerMatrixActionPacket::handle)
+                .add();
     }
 
     private static int nextId() { return id++; }

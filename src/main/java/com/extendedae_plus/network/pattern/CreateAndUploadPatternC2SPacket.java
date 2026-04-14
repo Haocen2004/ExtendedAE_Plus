@@ -12,7 +12,7 @@ import appeng.core.definitions.AEItems;
 import appeng.items.tools.powered.WirelessCraftingTerminalItem;
 import appeng.items.tools.powered.WirelessTerminalItem;
 import appeng.me.helpers.PlayerSource;
-// import com.extendedae_plus.util.uploadPattern.MatrixUploadUtil; // excluded: depends on ExtendedAE 1.20+
+import com.extendedae_plus.util.uploadPattern.MatrixUploadUtil;
 import com.extendedae_plus.util.wireless.WirelessTerminalLocator;
 import de.mari_023.ae2wtlib.terminal.WTMenuHost;
 import de.mari_023.ae2wtlib.wut.WTDefinition;
@@ -141,9 +141,8 @@ public class CreateAndUploadPatternC2SPacket {
                 return;
             }
 
-            // 5. 上传样板到装配矩阵 (disabled: MatrixUploadUtil depends on ExtendedAE 1.20+)
-            // boolean uploaded = MatrixUploadUtil.uploadPatternToMatrix(player, pattern, grid);
-            boolean uploaded = false;
+            // 5. 上传样板到装配矩阵
+            boolean uploaded = MatrixUploadUtil.uploadPatternToMatrix(player, pattern, grid);
 
             if (!uploaded) {
                 // 上传失败，将样板塞到背包。

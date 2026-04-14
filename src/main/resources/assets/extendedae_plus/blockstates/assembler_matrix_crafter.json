@@ -1,0 +1,8 @@
+﻿{
+  "variants": {
+    "formed=false,powered=false": { "model": "extendedae_plus:block/matrix/assembler_matrix_crafter" },
+    "formed=false,powered=true": { "model": "extendedae_plus:block/matrix/assembler_matrix_crafter" },
+    "formed=true,powered=false": { "model": "extendedae_plus:block/matrix/assembler_matrix_crafter_formed" },
+    "formed=true,powered=true": { "model": "extendedae_plus:block/matrix/assembler_matrix_crafter_formed" }
+  }
+}

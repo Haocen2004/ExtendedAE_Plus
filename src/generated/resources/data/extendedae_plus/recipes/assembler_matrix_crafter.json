@@ -1,0 +1,27 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "L": {
+      "item": "ae2:logic_processor"
+    },
+    "F": {
+      "item": "ae2:fluix_crystal"
+    },
+    "W": {
+      "item": "extendedae_plus:assembler_matrix_wall"
+    },
+    "A": {
+      "item": "ae2:molecular_assembler"
+    }
+  },
+  "pattern": [
+    " L ",
+    "FWF",
+    " A "
+  ],
+  "result": {
+    "item": "extendedae_plus:assembler_matrix_crafter"
+  },
+  "show_notification": true
+}

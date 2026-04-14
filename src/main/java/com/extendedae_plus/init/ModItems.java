@@ -69,6 +69,32 @@ public final class ModItems {
             () -> new BlockItem(ModBlocks.MIRROR_PATTERN_PROVIDER.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
+    // Assembler Matrix block items
+    public static final RegistryObject<Item> ASSEMBLER_MATRIX_FRAME = ITEMS.register(
+            "assembler_matrix_frame",
+            () -> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_FRAME.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
+    );
+    public static final RegistryObject<Item> ASSEMBLER_MATRIX_WALL = ITEMS.register(
+            "assembler_matrix_wall",
+            () -> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_WALL.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
+    );
+    public static final RegistryObject<Item> ASSEMBLER_MATRIX_GLASS = ITEMS.register(
+            "assembler_matrix_glass",
+            () -> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_GLASS.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
+    );
+    public static final RegistryObject<Item> ASSEMBLER_MATRIX_PATTERN = ITEMS.register(
+            "assembler_matrix_pattern",
+            () -> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_PATTERN.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
+    );
+    public static final RegistryObject<Item> ASSEMBLER_MATRIX_CRAFTER = ITEMS.register(
+            "assembler_matrix_crafter",
+            () -> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_CRAFTER.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
+    );
+    public static final RegistryObject<Item> ASSEMBLER_MATRIX_SPEED = ITEMS.register(
+            "assembler_matrix_speed",
+            () -> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_SPEED.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
+    );
+
     public static final RegistryObject<MirrorPatternBindingToolItem> MIRROR_PATTERN_BINDING_TOOL = ITEMS.register(
             "mirror_pattern_binding_tool",
             () -> new MirrorPatternBindingToolItem(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))

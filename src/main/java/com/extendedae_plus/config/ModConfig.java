@@ -34,6 +34,8 @@ public final class ModConfig {
     private static ForgeConfigSpec.ConfigValue<List<? extends String>> ENTITY_TICKER_BLACK_LIST;
     private static ForgeConfigSpec.ConfigValue<List<? extends String>> ENTITY_TICKER_MULTIPLIERS;
 
+    private static ForgeConfigSpec.IntValue ASSEMBLER_MATRIX_MAX_SIZE;
+
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
@@ -109,6 +111,15 @@ public final class ModConfig {
                 .defineList("entityTickerMultipliers", Arrays.asList(), o -> o instanceof String);
 
         builder.pop();
+
+        builder.comment("装配矩阵相关配置").push("assemblerMatrix");
+
+        ASSEMBLER_MATRIX_MAX_SIZE = builder
+                .comment("装配矩阵多方块结构的最大边长",
+                        "每条边的方块数不超过该值（含边框），最小值为3")
+                .defineInRange("assemblerMatrixMaxSize", 6, 3, 16);
+
+        builder.pop();
         SPEC = builder.build();
     }
 
@@ -126,6 +137,8 @@ public final class ModConfig {
     public boolean prioritizeDiskEnergy = true;
     public String[] entityTickerBlackList = {};
     public String[] entityTickerMultipliers = {};
+
+    public int assemblerMatrixMaxSize = 6;
 
     public static void init() {
         ModLoadingContext.get().registerConfig(Type.COMMON, SPEC);
@@ -155,6 +168,8 @@ public final class ModConfig {
 
         List<? extends String> ml = ENTITY_TICKER_MULTIPLIERS.get();
         INSTANCE.entityTickerMultipliers = ml.toArray(new String[0]);
+
+        INSTANCE.assemblerMatrixMaxSize = ASSEMBLER_MATRIX_MAX_SIZE.get();
 
         // 触发缓存刷新
         if (oldCost != INSTANCE.entityTickerCost) {

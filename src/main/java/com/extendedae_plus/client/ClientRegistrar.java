@@ -5,6 +5,7 @@ import appeng.init.client.InitScreens;
 import com.extendedae_plus.ExtendedAEPlus;
 import com.extendedae_plus.ae.menu.EntitySpeedTickerMenu;
 import com.extendedae_plus.ae.screen.EntitySpeedTickerScreen;
+import com.extendedae_plus.client.model.AssemblerGlassModel;
 import com.extendedae_plus.client.render.crafting.EPlusCraftingCubeModelProvider;
 import com.extendedae_plus.client.screen.GlobalProviderModesScreen;
 import com.extendedae_plus.client.screen.LabeledWirelessTransceiverScreen;
@@ -52,6 +53,9 @@ public final class ClientRegistrar {
         InitScreens.register(ModMenuTypes.ENTITY_TICKER_MENU.get(),
                 EntitySpeedTickerScreen<EntitySpeedTickerMenu>::new,
                 "/screens/entity_speed_ticker.json");
+        InitScreens.register(ModMenuTypes.ASSEMBLER_MATRIX.get(),
+                com.extendedae_plus.content.matrix.gui.AssemblerMatrixScreen::new,
+                "/screens/assembler_matrix.json");
     }
 
     /**
@@ -77,6 +81,7 @@ public final class ClientRegistrar {
         registerFormedLoader(evt, "block/crafting/64x_accelerator_formed_v2", EPlusCraftingUnitType.ACCELERATOR_64x);
         registerFormedLoader(evt, "block/crafting/256x_accelerator_formed_v2", EPlusCraftingUnitType.ACCELERATOR_256x);
         registerFormedLoader(evt, "block/crafting/1024x_accelerator_formed_v2", EPlusCraftingUnitType.ACCELERATOR_1024x);
+        evt.register("assembler_matrix_glass", new AssemblerGlassModel.Loader());
     }
 
     private static void registerFormedLoader(ModelEvent.RegisterGeometryLoaders evt, String name, EPlusCraftingUnitType type) {
