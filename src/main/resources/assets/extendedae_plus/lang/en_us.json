@@ -262,5 +262,6 @@
   "gui.extendedae_plus.assembler_matrix.cancel.tooltip": "Stop all crafting jobs and return ingredients",
   "gui.extendedae_plus.assembler_matrix.pattern": "Only accepts crafting pattern",
   "gui.extendedae_plus.assembler_matrix.threads": "Running Jobs: %s",
+  "gui.extendedae_plus.assembler_matrix.duplicate_blocked": "§c[Assembler Matrix] Duplicate pattern detected, upload blocked. Hold Shift to force.",
   "gui.extendedae_plus.assembler_matrix.tooltip": "Search pattern"
 }

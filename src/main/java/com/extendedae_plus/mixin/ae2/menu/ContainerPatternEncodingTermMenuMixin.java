@@ -105,9 +105,7 @@ public abstract class ContainerPatternEncodingTermMenuMixin implements IPatternE
             if (!(this.epp$player instanceof ServerPlayer sp)) {
                 return; // 仅服务器执行
             }
-            if (this.eap$consumeShiftUploadFlag()) {
-                return; // 按下 Shift，不自动上传
-            }
+            boolean shiftDown = this.eap$consumeShiftUploadFlag();
             var menu = (PatternEncodingTermMenu) (Object) this;
             if (menu.getMode() != EncodingMode.CRAFTING
                     && menu.getMode() != EncodingMode.SMITHING_TABLE
@@ -125,9 +123,12 @@ public abstract class ContainerPatternEncodingTermMenuMixin implements IPatternE
                 return; // 不是编码样板
             }
             // 为避免与 AE2 后续同步竞争，切到下一 tick 执行
+            // shiftDown=true → 跳过重复检测直接上传
+            // shiftDown=false → 正常上传（含重复检测，重复时阻止并发送聊天提示）
+            final boolean skipDupCheck = shiftDown;
             sp.server.execute(() -> {
                 try {
-                    MatrixUploadUtil.uploadFromEncodingMenuToMatrix(sp, menu);
+                    MatrixUploadUtil.uploadFromEncodingMenuToMatrix(sp, menu, skipDupCheck);
                 } catch (Throwable ignored) {
                 }
             });

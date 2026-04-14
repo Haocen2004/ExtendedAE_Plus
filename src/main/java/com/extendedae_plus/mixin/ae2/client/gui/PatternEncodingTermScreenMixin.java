@@ -13,6 +13,7 @@ import com.extendedae_plus.mixin.minecraft.accessor.AbstractContainerScreenAcces
 import com.extendedae_plus.mixin.minecraft.accessor.ScreenAccessor;
 import com.extendedae_plus.network.provider.RequestProvidersListC2SPacket;
 import com.extendedae_plus.network.upload.EncodeWithShiftFlagC2SPacket;
+import com.extendedae_plus.util.uploadPattern.RecipeTypeNameConfig;
 import com.mojang.blaze3d.systems.RenderSystem;
 import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.GuiComponent;
@@ -62,8 +63,10 @@ public abstract class PatternEncodingTermScreenMixin {
 
     @Unique
     private IconButton createUploadButton() {
-        IconButton btn = new IconButton(button ->
-                ModNetwork.CHANNEL.sendToServer(new RequestProvidersListC2SPacket())
+        IconButton btn = new IconButton(button -> {
+                RecipeTypeNameConfig.lastProcessingName = null;
+                ModNetwork.CHANNEL.sendToServer(new RequestProvidersListC2SPacket());
+            }
         ) {
             private final float eap$scale = 0.75f;
 

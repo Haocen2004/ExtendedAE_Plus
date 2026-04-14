@@ -2,6 +2,7 @@ package com.extendedae_plus.content.matrix.gui;
 
 import appeng.api.crafting.IPatternDetails;
 import appeng.api.crafting.PatternDetailsHelper;
+import appeng.api.stacks.AEItemKey;
 import appeng.client.gui.AEBaseScreen;
 import appeng.client.gui.style.PaletteColor;
 import appeng.client.gui.style.ScreenStyle;
@@ -117,7 +118,8 @@ public class AssemblerMatrixScreen extends AEBaseScreen<AssemblerMatrixMenu> {
             }
         }
         String countSuffix = " (" + usedSlots + "/" + totalSlots + ")";
-        int titleWidth = this.font.width(this.title);
+        Component titleText = Component.translatable("gui.extendedae_plus.assembler_matrix.title");
+        int titleWidth = this.font.width(titleText);
         this.font.draw(poseStack, countSuffix, 8 + titleWidth, 6, textColor);
 
         // Row 0: Running Jobs text
@@ -135,8 +137,10 @@ public class AssemblerMatrixScreen extends AEBaseScreen<AssemblerMatrixMenu> {
                 int flatIdx = dataRow * COLUMNS + col;
                 if (flatIdx < this.filteredSlots.size()) {
                     var entry = this.filteredSlots.get(flatIdx);
+                    // Default to showing pattern result items (decoded output)
+                    ItemStack displayStack = getPatternDisplayStack(entry.stack);
                     var dispInv = new AppEngInternalInventory(1);
-                    dispInv.setItemDirect(0, entry.stack);
+                    dispInv.setItemDirect(0, displayStack);
                     var slot = new MatrixPatternSlot(
                             dispInv, 0,
                             col * SLOT_SIZE + GUI_PADDING_X,
@@ -301,6 +305,21 @@ public class AssemblerMatrixScreen extends AEBaseScreen<AssemblerMatrixMenu> {
             }
         }
         return null;
+    }
+
+    private ItemStack getPatternDisplayStack(ItemStack stack) {
+        if (stack.isEmpty()) return stack;
+        if (!(stack.getItem() instanceof EncodedPatternItem)) return stack;
+        var details = PatternDetailsHelper.decodePattern(stack, this.minecraft.level);
+        if (details == null) return stack;
+        var outputs = details.getOutputs();
+        if (outputs.length > 0 && outputs[0] != null) {
+            var what = outputs[0].what();
+            if (what instanceof AEItemKey itemKey) {
+                return itemKey.toStack();
+            }
+        }
+        return stack;
     }
 
     private boolean matchesPattern(ItemStack stack, String[] tokens) {

@@ -22,6 +22,15 @@ public final class MatrixUploadUtil {
      * @return true if the pattern was inserted successfully
      */
     public static boolean uploadPatternToMatrix(ServerPlayer player, ItemStack pattern, IGrid grid) {
+        return uploadPatternToMatrix(player, pattern, grid, false);
+    }
+
+    /**
+     * Upload a pattern ItemStack into any available Assembler Matrix pattern entity on the grid.
+     * @param skipDuplicateCheck if true, skip duplicate detection (when shift is held)
+     * @return true if the pattern was inserted successfully
+     */
+    public static boolean uploadPatternToMatrix(ServerPlayer player, ItemStack pattern, IGrid grid, boolean skipDuplicateCheck) {
         if (pattern.isEmpty()) return false;
         // Only accept crafting-type patterns (IMolecularAssemblerSupportedPattern)
         var level = player.level;
@@ -31,7 +40,10 @@ public final class MatrixUploadUtil {
         }
 
         // Check duplicate across all pattern entities on the grid
-        if (isDuplicateInGrid(decoded, grid, level)) {
+        if (!skipDuplicateCheck && isDuplicateInGrid(decoded, grid, level)) {
+            player.displayClientMessage(
+                    net.minecraft.network.chat.Component.translatable("gui.extendedae_plus.assembler_matrix.duplicate_blocked"),
+                    false);
             return false;
         }
 
@@ -77,6 +89,14 @@ public final class MatrixUploadUtil {
      * Upload the currently encoded pattern from the PatternEncodingTermMenu into the Assembler Matrix.
      */
     public static void uploadFromEncodingMenuToMatrix(ServerPlayer player, PatternEncodingTermMenu menu) {
+        uploadFromEncodingMenuToMatrix(player, menu, false);
+    }
+
+    /**
+     * Upload the currently encoded pattern from the PatternEncodingTermMenu into the Assembler Matrix.
+     * @param skipDuplicateCheck if true, skip duplicate detection (shift held)
+     */
+    public static void uploadFromEncodingMenuToMatrix(ServerPlayer player, PatternEncodingTermMenu menu, boolean skipDuplicateCheck) {
         try {
             // Get the encoded pattern slot via reflection-free approach:
             // The encodedPatternSlot field is accessible through the menu's slots
@@ -96,7 +116,7 @@ public final class MatrixUploadUtil {
             var grid = getGridFromMenu(menu);
             if (grid == null) return;
 
-            if (uploadPatternToMatrix(player, encodedPattern, grid)) {
+            if (uploadPatternToMatrix(player, encodedPattern, grid, skipDuplicateCheck)) {
                 // Clear the encoded pattern slot on success
                 for (var slot : menu.slots) {
                     if (slot instanceof RestrictedInputSlot ris) {

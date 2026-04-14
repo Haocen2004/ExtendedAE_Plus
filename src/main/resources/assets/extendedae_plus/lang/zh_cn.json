@@ -252,5 +252,6 @@
   "gui.extendedae_plus.assembler_matrix.cancel.tooltip": "停止所有合成工作并归还原料",
   "gui.extendedae_plus.assembler_matrix.pattern": "仅接受合成样板",
   "gui.extendedae_plus.assembler_matrix.threads": "正在运行的工作：%s",
+  "gui.extendedae_plus.assembler_matrix.duplicate_blocked": "§c[装配矩阵] 检测到重复样板，已阻止写入。按住Shift可强制写入。",
   "gui.extendedae_plus.assembler_matrix.tooltip": "搜索样板"
 }
