@@ -1,6 +1,5 @@
 package com.extendedae_plus.client.event;
 
-import com.extendedae_plus.ExtendedAEPlus;
 import com.extendedae_plus.client.ModKeybindings;
 import com.extendedae_plus.init.ModNetwork;
 import com.extendedae_plus.integration.jei.JeiRuntimeProxy;
@@ -19,11 +18,8 @@ import net.minecraft.network.chat.Component;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Recipe;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
-import net.minecraftforge.fml.common.Mod;
-import org.lwjgl.glfw.GLFW;
 
 import java.sql.SQLOutput;
 import java.util.HashMap;
@@ -37,7 +33,6 @@ import java.util.concurrent.atomic.AtomicInteger;
  *
  * <p>应用 JEI 书签优先级选择材料，优先选择工作台配方</p>
  */
-@Mod.EventBusSubscriber(modid = ExtendedAEPlus.MODID, value = Dist.CLIENT)
 public class CtrlQPatternKeyHandler {
 
     @SubscribeEvent
@@ -282,6 +277,7 @@ public class CtrlQPatternKeyHandler {
             
             // 10. 获取输出材料
             List<ItemStack> selectedOutputs = convertOutputsToItemStacks(matchingRecipeInfo);
+            RecipeTypeNameConfig.presetCraftingProviderSearchKey();
             
             // 11. 发送网络包创建样板并上传到装配矩阵
             ModNetwork.CHANNEL.sendToServer(new CreateAndUploadPatternC2SPacket(

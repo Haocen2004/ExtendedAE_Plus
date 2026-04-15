@@ -5,6 +5,7 @@ import com.extendedae_plus.network.*;
 import com.extendedae_plus.network.crafting.CraftingMonitorJumpC2SPacket;
 import com.extendedae_plus.network.crafting.CraftingMonitorOpenProviderC2SPacket;
 // import com.extendedae_plus.network.crafting.OpenCraftFromJeiC2SPacket; // excluded: ExtendedAE 1.20+
+import com.extendedae_plus.network.crafting.SetSearchTextS2CPacket;
 import com.extendedae_plus.network.meInterface.InterfaceAdjustConfigAmountC2SPacket;
 import com.extendedae_plus.network.pattern.CancelPendingPatternC2SPacket;
 import com.extendedae_plus.network.pattern.CreateCtrlQPatternC2SPacket;
@@ -48,6 +49,12 @@ public final class ModNetwork {
         //         .consumerNetworkThread(OpenCraftFromJeiC2SPacket::handle)
         //         .add();
 
+        CHANNEL.messageBuilder(SetSearchTextS2CPacket.class, nextId(), NetworkDirection.PLAY_TO_CLIENT)
+                .encoder(SetSearchTextS2CPacket::encode)
+                .decoder(SetSearchTextS2CPacket::decode)
+                .consumerNetworkThread(SetSearchTextS2CPacket::handle)
+                .add();
+
         CHANNEL.messageBuilder(PullFromJeiOrCraftC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
                 .encoder(PullFromJeiOrCraftC2SPacket::encode)
                 .decoder(PullFromJeiOrCraftC2SPacket::decode)
@@ -58,6 +65,12 @@ public final class ModNetwork {
                 .encoder(EncodeWithShiftFlagC2SPacket::encode)
                 .decoder(EncodeWithShiftFlagC2SPacket::decode)
                 .consumerNetworkThread(EncodeWithShiftFlagC2SPacket::handle)
+                .add();
+
+        CHANNEL.messageBuilder(ScaleEncodingPatternC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)
+                .encoder(ScaleEncodingPatternC2SPacket::encode)
+                .decoder(ScaleEncodingPatternC2SPacket::decode)
+                .consumerNetworkThread(ScaleEncodingPatternC2SPacket::handle)
                 .add();
 
         CHANNEL.messageBuilder(UploadEncodedPatternToProviderC2SPacket.class, nextId(), NetworkDirection.PLAY_TO_SERVER)

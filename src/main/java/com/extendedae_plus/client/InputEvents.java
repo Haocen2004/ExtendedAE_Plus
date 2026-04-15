@@ -3,7 +3,6 @@ package com.extendedae_plus.client;
 import appeng.api.stacks.GenericStack;
 import appeng.client.gui.me.common.MEStorageScreen;
 import appeng.integration.modules.jei.GenericEntryStackHelper;
-import com.extendedae_plus.ExtendedAEPlus;
 import com.extendedae_plus.init.ModNetwork;
 import com.extendedae_plus.integration.jei.JeiRuntimeProxy;
 import com.extendedae_plus.mixin.ae2.accessor.MEStorageScreenAccessor;
@@ -12,16 +11,13 @@ import com.extendedae_plus.network.PullFromJeiOrCraftC2SPacket;
 import mezz.jei.api.ingredients.ITypedIngredient;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.gui.screens.Screen;
-import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ScreenEvent;
 import net.minecraftforge.eventbus.api.SubscribeEvent;
 import net.minecraftforge.fml.ModList;
-import net.minecraftforge.fml.common.Mod;
 import org.lwjgl.glfw.GLFW;
 
 import java.util.Optional;
 
-@Mod.EventBusSubscriber(modid = ExtendedAEPlus.MODID, value = Dist.CLIENT, bus = Mod.EventBusSubscriber.Bus.FORGE)
 public final class InputEvents {
     private InputEvents() {}
 

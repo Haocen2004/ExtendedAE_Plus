@@ -35,6 +35,7 @@ public class CraftConfirmMenuGoBackMixin {
                 shiftDown = Screen.hasShiftDown();
             } catch (Throwable ignored) {}
             if (!shiftDown) return;
+            if (!ModList.get().isLoaded("jei")) return;
 
             // 获取合成计划摘要
             CraftingPlanSummary plan = self.getPlan();

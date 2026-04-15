@@ -51,6 +51,8 @@
   "tooltip.extendedae_plus.infinity_biginteger_cell": "§7——§b絕對儲存的現實投影，§e\"有限\"§6已被定義為§c非法\n§b其存在本身，即是對§d熵增§b的終極否定",
   "tooltip.extendedae_plus.entity_speed_card.multiplier": "乘數: %s",
   "tooltip.extendedae_plus.entity_speed_card.max": "最大生效: %s 倍",
+  "extendedae_plus.tooltip.swap_processing_outputs": "主副切換",
+  "extendedae_plus.tooltip.restore_processing_ratio": "恢復比例",
 
   "block.extendedae_plus.wireless_transceiver": "無線收發器",
   "block.extendedae_plus.4x_crafting_accelerator": "4x並行處理單元",

@@ -30,8 +30,10 @@ public abstract class EncodePatternTransferHandlerMixin {
         if (!doTransfer) return;
         String name = null;
         if (recipeBase instanceof Recipe<?> recipe) {
-            // 仅记录处理配方（非 3x3 合成）
-            if (EncodingHelper.isSupportedCraftingRecipe(recipe)) return;
+            if (EncodingHelper.isSupportedCraftingRecipe(recipe)) {
+                RecipeTypeNameConfig.presetCraftingProviderSearchKey();
+                return;
+            }
             name = RecipeTypeNameConfig.mapRecipeTypeToSearchKey(recipe);
         } else if (recipeBase != null &&
                    "com.gregtechceu.gtceu.api.recipe.GTRecipe".equals(recipeBase.getClass().getName())) {

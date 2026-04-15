@@ -39,6 +39,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
+import java.util.Map;
 import java.util.List;
 import java.util.UUID;
 
@@ -151,7 +152,7 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
                     if (job instanceof ExecutingCraftingJobAccessor accessor) {
                         var tasks = accessor.extendedae_plus$getTasks();
                         var progress = tasks.get(patternDetails);
-                        if (progress != null && progress.extendedae_plus$getValue() <= 1) {
+                        if (eap$compatShouldFinishWholeJob(tasks, progress)) {
                             cluster.updateOutput(null);
                             try {
                                 logicAccessor.extendedae_plus$invokeFinishJob(true);
@@ -352,6 +353,33 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
     @Override
     public IManagedGridNode eap$compatGetMainNode() {
         return this.mainNode;
+    }
+
+    @Unique
+    private boolean eap$compatShouldFinishWholeJob(
+            Map<IPatternDetails, com.extendedae_plus.mixin.ae2.accessor.ExecutingCraftingJobTaskProgressAccessor> tasks,
+            com.extendedae_plus.mixin.ae2.accessor.ExecutingCraftingJobTaskProgressAccessor matchedProgress) {
+        if (matchedProgress == null || matchedProgress.extendedae_plus$getValue() > 1) {
+            return false;
+        }
+
+        for (var entry : tasks.entrySet()) {
+            var taskProgress = entry.getValue();
+            if (taskProgress == null) {
+                continue;
+            }
+
+            long remaining = taskProgress.extendedae_plus$getValue();
+            if (taskProgress == matchedProgress) {
+                remaining -= 1;
+            }
+
+            if (remaining > 0) {
+                return false;
+            }
+        }
+
+        return true;
     }
 
     @Inject(method = "pushPattern", at = @At("HEAD"))
