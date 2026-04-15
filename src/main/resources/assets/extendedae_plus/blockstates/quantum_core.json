@@ -4,13 +4,13 @@
                                                      "model":  "extendedae_plus:block/crafting/quantum_core_formed"
                                                   },
                      "formed=false,powered=true":  {
-                                                       "model":  "extendedae_plus:block/crafting/quantum_core"
+                                                       "model":  "extendedae_plus:block/quantum_core_formed_on"
                                                    },
                      "formed=true,powered=false":  {
                                                        "model":  "extendedae_plus:block/crafting/quantum_core_formed"
                                                    },
                      "formed=false,powered=false":  {
-                                                        "model":  "extendedae_plus:block/crafting/quantum_core"
+                                                        "model":  "extendedae_plus:block/quantum_core"
                                                     }
                  }
 }

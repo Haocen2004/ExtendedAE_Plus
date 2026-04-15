@@ -13,6 +13,7 @@ import com.extendedae_plus.content.quantum.cluster.QuantumCPUCluster;
 import com.extendedae_plus.content.quantum.cluster.QuantumCraftingCPU;
 import com.extendedae_plus.content.quantum.entity.QuantumCraftingBlockEntity;
 import com.extendedae_plus.init.ModMenuTypes;
+import com.extendedae_plus.util.Logger;
 
 import appeng.api.config.CpuSelectionMode;
 import appeng.api.networking.crafting.ICraftingCPU;
@@ -62,6 +63,11 @@ public class QuantumComputerMenu extends CraftingCPUMenu {
         QuantumCPUCluster cluster = te.getCluster();
         if (cluster != null) {
             selectionMode = cluster.getSelectionMode();
+        }
+
+        if (isServerSide()) {
+            Logger.EAP$LOGGER.debug("QuantumComputerMenu opened (id={}, pos={}, hasCluster={})",
+                    id, te.getBlockPos(), cluster != null);
         }
 
         this.registerClientAction(ACTION_SELECT_CPU, Integer.class, this::selectCpu);

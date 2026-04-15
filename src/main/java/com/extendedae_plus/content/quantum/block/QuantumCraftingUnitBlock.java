@@ -3,6 +3,7 @@ package com.extendedae_plus.content.quantum.block;
 import com.extendedae_plus.content.quantum.QuantumCraftingUnitType;
 import com.extendedae_plus.content.quantum.entity.QuantumCraftingBlockEntity;
 import com.extendedae_plus.init.ModMenuTypes;
+import com.extendedae_plus.util.Logger;
 
 import appeng.menu.MenuOpener;
 import appeng.menu.locator.MenuLocators;
@@ -112,9 +113,12 @@ public class QuantumCraftingUnitBlock extends AEBaseEntityBlock<QuantumCraftingB
             @Nullable ItemStack heldItem, BlockHitResult hit) {
         final QuantumCraftingBlockEntity te = this.getBlockEntity(level, pos);
         
-        // Check if cluster exists (not using isFormed() since it now only returns true for large multiblocks)
-        if (te != null && te.getCluster() != null && te.isActive()) {
+        // Always allow opening the menu if a valid quantum block entity exists.
+        // This avoids GUI being blocked by transient cluster/active state mismatches.
+        if (te != null) {
             if (!level.isClientSide()) {
+                Logger.EAP$LOGGER.debug("Quantum GUI open requested at {} by {} (type={})",
+                        pos, player.getGameProfile().getName(), this.type);
                 // Open Quantum Computer GUI
                 MenuOpener.open(ModMenuTypes.QUANTUM_COMPUTER.get(), player, MenuLocators.forBlockEntity(te));
             }

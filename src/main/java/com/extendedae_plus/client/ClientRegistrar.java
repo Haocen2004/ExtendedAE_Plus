@@ -58,10 +58,10 @@ public final class ClientRegistrar {
         InitScreens.register(ModMenuTypes.ASSEMBLER_MATRIX.get(),
                 com.extendedae_plus.content.matrix.gui.AssemblerMatrixScreen::new,
                 "/screens/assembler_matrix.json");
-        // Quantum Computer uses AE2's crafting_cpu.json since it extends CraftingCPUScreen
+        // Match backport screen style chain to provide cpuList widget assets.
         InitScreens.register(ModMenuTypes.QUANTUM_COMPUTER.get(),
                 com.extendedae_plus.content.quantum.screen.QuantumComputerScreen::new,
-                "/screens/crafting_cpu.json");
+            "/screens/quantum_computer.json");
     }
 
     /**
