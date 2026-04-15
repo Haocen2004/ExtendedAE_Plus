@@ -6,6 +6,7 @@ import appeng.datagen.providers.tags.ConventionTags;
 import appeng.recipes.transform.TransformCircumstance;
 import appeng.recipes.transform.TransformRecipeBuilder;
 import com.extendedae_plus.ExtendedAEPlus;
+import com.extendedae_plus.init.ModBlocks;
 import com.extendedae_plus.init.ModItems;
 import com.extendedae_plus.items.BasicCoreItem;
 import com.extendedae_plus.items.materials.EntitySpeedCardItem;
@@ -106,6 +107,17 @@ public class CraftingRecipes extends RecipeProvider {
                 .define('C', Items.REDSTONE)
                 .define('D', AEItems.CALCULATION_PROCESSOR)
                 .save(consumer);
+
+        // 128M 量子计算存储器
+        ShapedRecipeBuilder.shaped(ModBlocks.QUANTUM_STORAGE_128M.get())
+                .pattern("ECE")
+                .pattern("CUC")
+                .pattern("ECE")
+                .define('E', ModItems.OBLIVION_SINGULARITY.get())
+                .define('C', ModItems.STORAGE_CORE.get())
+                .define('U', ModBlocks.QUANTUM_UNIT.get())
+                .unlockedBy("has_storage_core", has(ModItems.STORAGE_CORE.get()))
+                .save(consumer, ExtendedAEPlus.id("quantum_storage_128m"));
     }
 
     private void addCraftingAccelerators(Consumer<FinishedRecipe> consumer) {

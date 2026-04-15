@@ -151,7 +151,8 @@ public class QuantumCraftingBlockEntity extends AENetworkBlockEntity
         if (current.getBlock() instanceof QuantumCraftingUnitBlock) {
             final BlockState newState = current
                     .setValue(QuantumCraftingUnitBlock.POWERED, power)
-                    .setValue(QuantumCraftingUnitBlock.FORMED, formed);
+                    .setValue(QuantumCraftingUnitBlock.FORMED, formed)
+                    .setValue(QuantumCraftingUnitBlock.LARGE, isLargeMultiblock());
 
             if (current != newState) {
                 this.level.setBlock(this.worldPosition, newState, Block.UPDATE_CLIENTS);
@@ -177,16 +178,13 @@ public class QuantumCraftingBlockEntity extends AENetworkBlockEntity
         if (isClientSide()) {
             return getBlockState().getValue(QuantumCraftingUnitBlock.FORMED);
         }
-        // Server side: check cluster exists AND multiblock edge length > 3
-        // (small multiblocks use individual block rendering)
-        if (this.cluster == null) {
-            return false;
-        }
-        return isLargeMultiblock();
+        // Server side: any valid cluster counts as formed.
+        // Large-multiblock checks are only for rendering/model behavior, not GUI validity.
+        return this.cluster != null;
     }
 
     /**
-     * Check if the multiblock has any dimension greater than 3.
+     * Check if the multiblock has any dimension greater than or equal to 3.
      * Used to determine if integrated rendering should be used.
      */
     private boolean isLargeMultiblock() {
@@ -198,8 +196,8 @@ public class QuantumCraftingBlockEntity extends AENetworkBlockEntity
         int sizeX = max.getX() - min.getX() + 1;
         int sizeY = max.getY() - min.getY() + 1;
         int sizeZ = max.getZ() - min.getZ() + 1;
-        // Any dimension > 3 means large multiblock
-        return Math.max(Math.max(sizeX, sizeY), sizeZ) > 3;
+        // Any dimension >= 3 means large multiblock
+        return Math.max(Math.max(sizeX, sizeY), sizeZ) >= 3;
     }
 
     @Override

@@ -39,6 +39,8 @@ public class QuantumCraftingUnitBlock extends AEBaseEntityBlock<QuantumCraftingB
 
     public static final BooleanProperty FORMED = BooleanProperty.create("formed");
     public static final BooleanProperty POWERED = BooleanProperty.create("powered");
+    /** True only when the multiblock has at least one dimension >= 3 (enables connected-texture rendering). */
+    public static final BooleanProperty LARGE = BooleanProperty.create("large");
 
     public final QuantumCraftingUnitType type;
 
@@ -47,7 +49,8 @@ public class QuantumCraftingUnitBlock extends AEBaseEntityBlock<QuantumCraftingB
         this.type = type;
         this.registerDefaultState(defaultBlockState()
                 .setValue(FORMED, false)
-                .setValue(POWERED, false));
+                .setValue(POWERED, false)
+                .setValue(LARGE, false));
     }
 
     private static Properties buildProperties(QuantumCraftingUnitType type) {
@@ -72,6 +75,7 @@ public class QuantumCraftingUnitBlock extends AEBaseEntityBlock<QuantumCraftingB
         super.createBlockStateDefinition(builder);
         builder.add(POWERED);
         builder.add(FORMED);
+        builder.add(LARGE);
     }
 
     @Override
@@ -112,19 +116,17 @@ public class QuantumCraftingUnitBlock extends AEBaseEntityBlock<QuantumCraftingB
     public InteractionResult onActivated(Level level, BlockPos pos, Player player, InteractionHand hand,
             @Nullable ItemStack heldItem, BlockHitResult hit) {
         final QuantumCraftingBlockEntity te = this.getBlockEntity(level, pos);
-        
-        // Always allow opening the menu if a valid quantum block entity exists.
-        // This avoids GUI being blocked by transient cluster/active state mismatches.
-        if (te != null) {
+
+        // Any quantum multiblock part may open the GUI as long as the structure is valid.
+        if (te != null && te.isFormed()) {
             if (!level.isClientSide()) {
                 Logger.EAP$LOGGER.debug("Quantum GUI open requested at {} by {} (type={})",
                         pos, player.getGameProfile().getName(), this.type);
-                // Open Quantum Computer GUI
                 MenuOpener.open(ModMenuTypes.QUANTUM_COMPUTER.get(), player, MenuLocators.forBlockEntity(te));
             }
             return InteractionResult.sidedSuccess(level.isClientSide());
         }
-        
+
         return InteractionResult.PASS;
     }
 
