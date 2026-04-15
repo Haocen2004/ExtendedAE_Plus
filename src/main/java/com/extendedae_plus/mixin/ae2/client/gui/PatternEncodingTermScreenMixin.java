@@ -20,6 +20,7 @@ import net.minecraft.client.gui.GuiComponent;
 import net.minecraft.client.gui.screens.Screen;
 import net.minecraft.client.renderer.Rect2i;
 import net.minecraft.network.chat.Component;
+import appeng.parts.encoding.EncodingMode;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -39,8 +40,9 @@ public abstract class PatternEncodingTermScreenMixin {
     @ModifyVariable(method = "<init>", at = @At(value = "STORE"), name = "encodeBtn")
     private ActionButton eap$wrapEncodeButton(ActionButton original) {
         return new ActionButton(ActionItems.ENCODE, act -> {
-            ModNetwork.CHANNEL.sendToServer(new EncodeWithShiftFlagC2SPacket(Screen.hasShiftDown()));
             var screen = (PatternEncodingTermScreen<?>) (Object) this;
+            eap$presetProviderSearchKeyByMode(screen.getMenu().getMode());
+            ModNetwork.CHANNEL.sendToServer(new EncodeWithShiftFlagC2SPacket(Screen.hasShiftDown()));
             screen.getMenu().encode();
         });
     }
@@ -64,7 +66,8 @@ public abstract class PatternEncodingTermScreenMixin {
     @Unique
     private IconButton createUploadButton() {
         IconButton btn = new IconButton(button -> {
-                RecipeTypeNameConfig.setLastProcessingName(null);
+                var screen = (PatternEncodingTermScreen<?>) (Object) this;
+                eap$presetProviderSearchKeyByMode(screen.getMenu().getMode());
                 ModNetwork.CHANNEL.sendToServer(new RequestProvidersListC2SPacket());
             }
         ) {
@@ -115,6 +118,16 @@ public abstract class PatternEncodingTermScreenMixin {
         };
         btn.setMessage(Component.translatable("extendedae_plus.button.choose_provider"));
         return btn;
+    }
+
+    @Unique
+    private static void eap$presetProviderSearchKeyByMode(EncodingMode mode) {
+        if (mode == EncodingMode.CRAFTING
+                || mode == EncodingMode.SMITHING_TABLE
+                || mode == EncodingMode.STONECUTTING) {
+            // Use configurable alias mapping for crafting default keyword.
+            RecipeTypeNameConfig.presetCraftingProviderSearchKey();
+        }
     }
 
     @Unique

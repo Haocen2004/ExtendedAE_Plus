@@ -153,6 +153,10 @@ public abstract class ContainerPatternEncodingTermMenuMixin implements IPatternE
                 return; // 仅服务器执行
             }
             boolean shiftDown = this.eap$consumeShiftUploadFlag();
+            if (shiftDown) {
+                // Shift: skip matrix upload and keep vanilla AE encode-only behavior.
+                return;
+            }
             var menu = (PatternEncodingTermMenu) (Object) this;
             if (menu.getMode() != EncodingMode.CRAFTING
                     && menu.getMode() != EncodingMode.SMITHING_TABLE

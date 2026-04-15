@@ -58,6 +58,17 @@ public class ProviderSelectScreen extends Screen {
         }
     }
 
+            private static boolean isAssemblerMatrixPatternCoreName(String name) {
+                if (name == null) {
+                    return false;
+                }
+                String n = name.trim().toLowerCase(Locale.ROOT);
+                return n.contains("装配矩阵样板核心")
+                        || n.contains("裝配矩陣樣板核心")
+                        || n.contains("assembler matrix pattern core");
+            }
+
+
     // 搜索框
     private EditBox searchBox;
     // 中文名输入框（用于添加映射）
@@ -333,6 +344,9 @@ public class ProviderSelectScreen extends Screen {
 
         for (int i = 0; i < gIds.size(); i++) {
             String name = gNames.get(i);
+            if (isAssemblerMatrixPatternCoreName(name)) {
+                continue;
+            }
             if (q.isEmpty() || nameMatches(name, q, qLower)) {
                 fIds.add(gIds.get(i));
                 fNames.add(name);
@@ -345,6 +359,9 @@ public class ProviderSelectScreen extends Screen {
         if (!q.isEmpty() && fIds.isEmpty()) {
             lastFilterUsedFallback = true;
             for (int i = 0; i < gIds.size(); i++) {
+                if (isAssemblerMatrixPatternCoreName(gNames.get(i))) {
+                    continue;
+                }
                 fIds.add(gIds.get(i));
                 fNames.add(gNames.get(i));
                 fTotalSlots.add(gTotalSlots.get(i));
