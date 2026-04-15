@@ -1,0 +1,28 @@
+﻿{
+    "key":  {
+                "C":  {
+                          "item":  "extendedae_plus:quantum_core"
+                      },
+                "S":  {
+                          "item":  "extendedae_plus:oblivion_singularity"
+                      },
+                "Q":  {
+                          "item":  "extendedae_plus:quantum_storage_256m"
+                      },
+                "U":  {
+                          "item":  "extendedae_plus:quantum_unit"
+                      }
+            },
+    "pattern":  [
+                    "QQQ",
+                    "SUS",
+                    "SCS"
+                ],
+    "result":  {
+                   "count":  1,
+                   "item":  "extendedae_plus:quantum_data_entangler"
+               },
+    "type":  "minecraft:crafting_shaped",
+    "show_notification":  true
+}
+

@@ -1,0 +1,16 @@
+﻿{
+    "variants":  {
+                     "formed=true,powered=true":  {
+                                                     "model":  "extendedae_plus:block/crafting/quantum_storage_128m_formed"
+                                                  },
+                     "formed=false,powered=true":  {
+                                                       "model":  "extendedae_plus:block/crafting/quantum_storage_128m"
+                                                   },
+                     "formed=true,powered=false":  {
+                                                       "model":  "extendedae_plus:block/crafting/quantum_storage_128m_formed"
+                                                   },
+                     "formed=false,powered=false":  {
+                                                        "model":  "extendedae_plus:block/crafting/quantum_storage_128m"
+                                                    }
+                 }
+}

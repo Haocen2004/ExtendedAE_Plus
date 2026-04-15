@@ -3,9 +3,12 @@ package com.extendedae_plus.mixin.ae2.accessor;
 import appeng.api.crafting.IPatternDetails;
 import appeng.api.stacks.GenericStack;
 import appeng.crafting.CraftingLink;
+import appeng.crafting.execution.ElapsedTimeTracker;
 import appeng.crafting.execution.ExecutingCraftingJob;
+import appeng.crafting.inv.ListCraftingInventory;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.gen.Accessor;
+import org.spongepowered.asm.mixin.gen.Invoker;
 
 import java.util.Map;
 
@@ -21,9 +24,24 @@ public interface ExecutingCraftingJobAccessor {
     @Accessor("finalOutput")
     GenericStack extendedae_plus$getFinalOutput();
 
+    @Accessor("finalOutput")
+    void extendedae_plus$setFinalOutput(GenericStack output);
+
     @Accessor("remainingAmount")
     long extendedae_plus$getRemainingAmount();
 
+    @Accessor("remainingAmount")
+    void extendedae_plus$setRemainingAmount(long amount);
+
     @Accessor("link")
     CraftingLink extendedae_plus$getLink();
+
+    @Accessor("waitingFor")
+    ListCraftingInventory extendedae_plus$getWaitingFor();
+
+    @Accessor("timeTracker")
+    ElapsedTimeTracker extendedae_plus$getTimeTracker();
+
+    @Invoker("writeToNBT")
+    net.minecraft.nbt.CompoundTag extendedae_plus$invokeWriteToNBT();
 }

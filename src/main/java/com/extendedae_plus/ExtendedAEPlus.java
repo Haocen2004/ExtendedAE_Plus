@@ -15,6 +15,8 @@ import com.extendedae_plus.util.storage.InfinityStorageManager;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraftforge.api.distmarker.Dist;
 import net.minecraftforge.client.event.ModelEvent;
+import net.minecraft.client.renderer.ItemBlockRenderTypes;
+import net.minecraft.client.renderer.RenderType;
 import net.minecraftforge.client.event.RegisterKeyMappingsEvent;
 import net.minecraftforge.common.MinecraftForge;
 import net.minecraftforge.event.RegisterCommandsEvent;
@@ -111,6 +113,17 @@ public class ExtendedAEPlus {
                     com.extendedae_plus.content.matrix.entity.AssemblerMatrixSpeedEntity.class,
                     ModBlockEntities.ASSEMBLER_MATRIX_SPEED.get(), null, null);
 
+            // Quantum Computer block entity bindings (all 8 types share one BE)
+            for (var qBlock : new net.minecraftforge.registries.RegistryObject[]{
+                    ModBlocks.QUANTUM_UNIT, ModBlocks.QUANTUM_CORE,
+                    ModBlocks.QUANTUM_STORAGE_128M, ModBlocks.QUANTUM_STORAGE_256M,
+                    ModBlocks.QUANTUM_DATA_ENTANGLER, ModBlocks.QUANTUM_ACCELERATOR,
+                    ModBlocks.QUANTUM_MULTI_THREADER, ModBlocks.QUANTUM_STRUCTURE}) {
+                ((AEBaseEntityBlock) qBlock.get()).setBlockEntity(
+                        com.extendedae_plus.content.quantum.entity.QuantumCraftingBlockEntity.class,
+                        ModBlockEntities.QUANTUM_CRAFTING_UNIT.get(), null, null);
+            }
+
         });
     }
 
@@ -133,6 +146,10 @@ public class ExtendedAEPlus {
     public static class ClientModEvents {
         @SubscribeEvent
         public static void onClientSetup(final FMLClientSetupEvent event) {
+            event.enqueueWork(() -> {
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.QUANTUM_STRUCTURE.get(), RenderType.translucent());
+            });
+
             // 直接在此处执行客户端一次性注册（UI/屏幕/渲染器绑定）
             // 注册客户端配置界面
 //            ClientRegistrar.registerConfigScreen();

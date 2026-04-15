@@ -1,0 +1,16 @@
+﻿{
+    "variants":  {
+                     "formed=true,powered=true":  {
+                                                     "model":  "extendedae_plus:block/crafting/quantum_data_entangler_formed"
+                                                  },
+                     "formed=false,powered=true":  {
+                                                       "model":  "extendedae_plus:block/crafting/quantum_data_entangler"
+                                                   },
+                     "formed=true,powered=false":  {
+                                                       "model":  "extendedae_plus:block/crafting/quantum_data_entangler_formed"
+                                                   },
+                     "formed=false,powered=false":  {
+                                                        "model":  "extendedae_plus:block/crafting/quantum_data_entangler"
+                                                    }
+                 }
+}

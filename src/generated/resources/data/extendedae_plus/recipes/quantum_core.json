@@ -1,0 +1,31 @@
+﻿{
+    "key":  {
+                "T":  {
+                          "item":  "extendedae_plus:quantum_storage_256m"
+                      },
+                "E":  {
+                          "item":  "extendedae_plus:oblivion_singularity"
+                      },
+                "S":  {
+                          "item":  "ae2:singularity"
+                      },
+                "A":  {
+                          "item":  "extendedae_plus:quantum_accelerator"
+                      },
+                "U":  {
+                          "item":  "extendedae_plus:quantum_unit"
+                      }
+            },
+    "pattern":  [
+                    "SES",
+                    "AUT",
+                    "SES"
+                ],
+    "result":  {
+                   "count":  1,
+                   "item":  "extendedae_plus:quantum_core"
+               },
+    "type":  "minecraft:crafting_shaped",
+    "show_notification":  true
+}
+

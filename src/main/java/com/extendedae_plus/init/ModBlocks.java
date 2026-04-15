@@ -6,6 +6,8 @@ import appeng.core.definitions.AEBlockEntities;
 import com.extendedae_plus.ExtendedAEPlus;
 import com.extendedae_plus.content.ae2.MirrorPatternProviderBlock;
 import com.extendedae_plus.content.crafting.EPlusCraftingUnitType;
+import com.extendedae_plus.content.quantum.QuantumCraftingUnitType;
+import com.extendedae_plus.content.quantum.block.QuantumCraftingUnitBlock;
 import com.extendedae_plus.content.wireless.LabeledWirelessTransceiverBlock;
 import com.extendedae_plus.content.wireless.WirelessTransceiverBlock;
 import net.minecraft.world.level.block.Block;
@@ -124,4 +126,22 @@ public final class ModBlocks {
             "assembler_matrix_speed",
             () -> new com.extendedae_plus.content.matrix.block.AssemblerMatrixSpeedBlock()
     );
+
+    // Quantum Computer
+    public static final RegistryObject<Block> QUANTUM_UNIT = BLOCKS.register(
+            "quantum_unit", () -> new QuantumCraftingUnitBlock(QuantumCraftingUnitType.QUANTUM_UNIT));
+    public static final RegistryObject<Block> QUANTUM_CORE = BLOCKS.register(
+            "quantum_core", () -> new QuantumCraftingUnitBlock(QuantumCraftingUnitType.QUANTUM_CORE));
+    public static final RegistryObject<Block> QUANTUM_STORAGE_128M = BLOCKS.register(
+            "quantum_storage_128m", () -> new QuantumCraftingUnitBlock(QuantumCraftingUnitType.STORAGE_128M));
+    public static final RegistryObject<Block> QUANTUM_STORAGE_256M = BLOCKS.register(
+            "quantum_storage_256m", () -> new QuantumCraftingUnitBlock(QuantumCraftingUnitType.STORAGE_256M));
+    public static final RegistryObject<Block> QUANTUM_DATA_ENTANGLER = BLOCKS.register(
+            "quantum_data_entangler", () -> new QuantumCraftingUnitBlock(QuantumCraftingUnitType.DATA_ENTANGLER));
+    public static final RegistryObject<Block> QUANTUM_ACCELERATOR = BLOCKS.register(
+            "quantum_accelerator", () -> new QuantumCraftingUnitBlock(QuantumCraftingUnitType.QUANTUM_ACCELERATOR));
+    public static final RegistryObject<Block> QUANTUM_MULTI_THREADER = BLOCKS.register(
+            "quantum_multi_threader", () -> new QuantumCraftingUnitBlock(QuantumCraftingUnitType.MULTI_THREADER));
+    public static final RegistryObject<Block> QUANTUM_STRUCTURE = BLOCKS.register(
+            "quantum_structure", () -> new QuantumCraftingUnitBlock(QuantumCraftingUnitType.STRUCTURE));
 }

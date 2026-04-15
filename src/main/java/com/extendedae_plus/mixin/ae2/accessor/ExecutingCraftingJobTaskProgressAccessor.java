@@ -8,4 +8,7 @@ public interface ExecutingCraftingJobTaskProgressAccessor {
 
     @Accessor("value")
     long extendedae_plus$getValue();
+
+    @Accessor("value")
+    void extendedae_plus$setValue(long value);
 }

@@ -35,6 +35,8 @@ import java.util.function.Function;
 
 public class AssemblerGlassBakedModel implements IDynamicBakedModel {
 
+    private static final ChunkRenderTypeSet CUTOUT = ChunkRenderTypeSet.of(RenderType.cutout());
+
     private static final Object2ReferenceMap<FaceCorner, List<Vector3f>> V_MAP = createVertexMap();
     private static final EnumMap<Direction, List<Vector3f>> F_MAP = createFaceMap();
     public static final ModelProperty<Connect> CONNECT_STATE = new ModelProperty<>();
@@ -77,7 +79,8 @@ public class AssemblerGlassBakedModel implements IDynamicBakedModel {
             for (int y = -1; y <= 1; y++) {
                 for (int z = -1; z <= 1; z++) {
                     var offset = pos.offset(x, y, z);
-                    if (world.getBlockState(offset).getBlock() instanceof AssemblerMatrixGlassBlock) {
+                    if (world.getBlockState(offset).getAppearance(world, offset, Direction.NORTH, state, pos)
+                            .getBlock() instanceof AssemblerMatrixGlassBlock) {
                         connect.set(x, y, z);
                     }
                 }
@@ -88,22 +91,30 @@ public class AssemblerGlassBakedModel implements IDynamicBakedModel {
 
     @Override
     public @NotNull List<BakedQuad> getQuads(@Nullable BlockState blockState, @Nullable Direction side, @NotNull RandomSource randomSource, @NotNull ModelData modelData, @Nullable RenderType renderType) {
-        if (side == null) {
-            return Collections.emptyList();
-        }
-        var connect = modelData.get(CONNECT_STATE);
+        Connect connect = modelData.get(CONNECT_STATE);
         if (connect == null) {
-            return Collections.emptyList();
+            connect = new Connect();
+            connect.init(BlockPos.ZERO);
         }
         List<BakedQuad> quads = new ArrayList<>();
-        if (renderType == null || renderType == RenderType.cutout()) {
-            this.addQuad(quads, side, connect.getIndex(side, LU), LU);
-            this.addQuad(quads, side, connect.getIndex(side, RU), RU);
-            this.addQuad(quads, side, connect.getIndex(side, LD), LD);
-            this.addQuad(quads, side, connect.getIndex(side, RD), RD);
-            this.addQuad(quads, side, connect.getFace(side));
+        if (renderType == null || renderType == RenderType.cutout() || renderType == RenderType.cutoutMipped()) {
+            if (side == null) {
+                for (Direction direction : Direction.values()) {
+                    this.addFaceQuads(quads, direction, connect);
+                }
+            } else {
+                this.addFaceQuads(quads, side, connect);
+            }
         }
         return quads;
+    }
+
+    private void addFaceQuads(List<BakedQuad> quads, Direction side, Connect connect) {
+        this.addQuad(quads, side, connect.getIndex(side, LU), LU);
+        this.addQuad(quads, side, connect.getIndex(side, RU), RU);
+        this.addQuad(quads, side, connect.getIndex(side, LD), LD);
+        this.addQuad(quads, side, connect.getIndex(side, RD), RD);
+        this.addQuad(quads, side, connect.getFace(side));
     }
 
     private List<Vector3f> calculateCorners(Direction face, int corner) {
@@ -285,7 +296,7 @@ public class AssemblerGlassBakedModel implements IDynamicBakedModel {
 
     @Override
     public @NotNull ChunkRenderTypeSet getRenderTypes(@NotNull BlockState state, @NotNull RandomSource rand, @NotNull ModelData data) {
-        return ChunkRenderTypeSet.all();
+        return CUTOUT;
     }
 
     public static class Connect {

@@ -36,6 +36,14 @@ public final class ModConfig {
 
     private static ForgeConfigSpec.IntValue ASSEMBLER_MATRIX_MAX_SIZE;
 
+    // Quantum Computer
+    private static ForgeConfigSpec.IntValue QUANTUM_COMPUTER_MAX_SIZE;
+    private static ForgeConfigSpec.IntValue QUANTUM_ACCELERATOR_THREADS;
+    private static ForgeConfigSpec.IntValue QUANTUM_MULTI_THREADER_MULTIPLICATION;
+    private static ForgeConfigSpec.IntValue QUANTUM_DATA_ENTANGLER_MULTIPLICATION;
+    private static ForgeConfigSpec.IntValue QUANTUM_MAX_DATA_ENTANGLERS;
+    private static ForgeConfigSpec.IntValue QUANTUM_MAX_MULTI_THREADERS;
+
     static {
         ForgeConfigSpec.Builder builder = new ForgeConfigSpec.Builder();
 
@@ -120,6 +128,35 @@ public final class ModConfig {
                 .defineInRange("assemblerMatrixMaxSize", 6, 3, 16);
 
         builder.pop();
+
+        builder.comment("量子计算机相关配置").push("quantumComputer");
+
+        QUANTUM_COMPUTER_MAX_SIZE = builder
+                .comment("量子计算机多方块结构的最大边长",
+                        "每条边的方块数不超过该值（含边框），最小值为3")
+                .defineInRange("quantumComputerMaxSize", 7, 3, 16);
+
+        QUANTUM_ACCELERATOR_THREADS = builder
+                .comment("每个量子加速器提供的并行线程数")
+                .defineInRange("quantumAcceleratorThreads", 4, 1, 256);
+
+        QUANTUM_MULTI_THREADER_MULTIPLICATION = builder
+                .comment("多线程倍增器的倍增系数")
+                .defineInRange("quantumMultiThreaderMultiplication", 4, 1, 256);
+
+        QUANTUM_DATA_ENTANGLER_MULTIPLICATION = builder
+                .comment("数据纠缠器的存储倍增系数")
+                .defineInRange("quantumDataEntanglerMultiplication", 4, 1, 256);
+
+        QUANTUM_MAX_DATA_ENTANGLERS = builder
+                .comment("量子计算机内允许的最大数据纠缠器数量")
+                .defineInRange("quantumMaxDataEntanglers", 3, 0, 64);
+
+        QUANTUM_MAX_MULTI_THREADERS = builder
+                .comment("量子计算机内允许的最大多线程倍增器数量")
+                .defineInRange("quantumMaxMultiThreaders", 3, 0, 64);
+
+        builder.pop();
         SPEC = builder.build();
     }
 
@@ -139,6 +176,14 @@ public final class ModConfig {
     public String[] entityTickerMultipliers = {};
 
     public int assemblerMatrixMaxSize = 6;
+
+    // Quantum Computer
+    public int quantumComputerMaxSize = 7;
+    public int quantumAcceleratorThreads = 4;
+    public int quantumMultiThreaderMultiplication = 4;
+    public int quantumDataEntanglerMultiplication = 4;
+    public int quantumMaxDataEntanglers = 3;
+    public int quantumMaxMultiThreaders = 3;
 
     public static void init() {
         ModLoadingContext.get().registerConfig(Type.COMMON, SPEC);
@@ -171,6 +216,14 @@ public final class ModConfig {
 
         INSTANCE.assemblerMatrixMaxSize = ASSEMBLER_MATRIX_MAX_SIZE.get();
 
+        // Quantum Computer
+        INSTANCE.quantumComputerMaxSize = QUANTUM_COMPUTER_MAX_SIZE.get();
+        INSTANCE.quantumAcceleratorThreads = QUANTUM_ACCELERATOR_THREADS.get();
+        INSTANCE.quantumMultiThreaderMultiplication = QUANTUM_MULTI_THREADER_MULTIPLICATION.get();
+        INSTANCE.quantumDataEntanglerMultiplication = QUANTUM_DATA_ENTANGLER_MULTIPLICATION.get();
+        INSTANCE.quantumMaxDataEntanglers = QUANTUM_MAX_DATA_ENTANGLERS.get();
+        INSTANCE.quantumMaxMultiThreaders = QUANTUM_MAX_MULTI_THREADERS.get();
+
         // 触发缓存刷新
         if (oldCost != INSTANCE.entityTickerCost) {
             synchronized (PowerUtils.class) {
@@ -182,5 +235,30 @@ public final class ModConfig {
         }
 
         LOGGER.debug("[ExtendedAE_Plus] Config refreshed.");
+    }
+
+    // --- Static accessors for Quantum Computer config ---
+    public static int getQuantumComputerMaxSize() {
+        return INSTANCE != null ? INSTANCE.quantumComputerMaxSize : 7;
+    }
+
+    public static int getQuantumAcceleratorThreads() {
+        return INSTANCE != null ? INSTANCE.quantumAcceleratorThreads : 4;
+    }
+
+    public static int getQuantumMultiThreaderMultiplication() {
+        return INSTANCE != null ? INSTANCE.quantumMultiThreaderMultiplication : 4;
+    }
+
+    public static int getQuantumDataEntanglerMultiplication() {
+        return INSTANCE != null ? INSTANCE.quantumDataEntanglerMultiplication : 4;
+    }
+
+    public static int getQuantumMaxDataEntanglers() {
+        return INSTANCE != null ? INSTANCE.quantumMaxDataEntanglers : 3;
+    }
+
+    public static int getQuantumMaxMultiThreaders() {
+        return INSTANCE != null ? INSTANCE.quantumMaxMultiThreaders : 3;
     }
 }

@@ -36,6 +36,7 @@
     "ae2.accessor.PatternEncodingTermMenuAccessor",
     "ae2.accessor.PatternProviderLogicAccessor",
     "ae2.accessor.CraftingCpuLogicAccessor",
+    "ae2.accessor.ElapsedTimeTrackerAccessor",
     "ae2.accessor.ExecutingCraftingJobAccessor",
     "ae2.accessor.ExecutingCraftingJobTaskProgressAccessor",
     "ae2.accessor.PatternProviderMenuAccessor",

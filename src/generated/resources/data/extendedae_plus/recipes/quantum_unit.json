@@ -1,0 +1,23 @@
+﻿{
+    "ingredients":  [
+                        {
+                            "item":  "ae2:crafting_unit"
+                        },
+                        {
+                            "item":  "ae2:singularity"
+                        },
+                        {
+                            "item":  "extendedae_plus:oblivion_singularity"
+                        },
+                        {
+                            "item":  "extendedae_plus:oblivion_singularity"
+                        }
+                    ],
+    "result":  {
+                   "count":  1,
+                   "item":  "extendedae_plus:quantum_unit"
+               },
+    "type":  "minecraft:crafting_shapeless",
+    "show_notification":  true
+}
+

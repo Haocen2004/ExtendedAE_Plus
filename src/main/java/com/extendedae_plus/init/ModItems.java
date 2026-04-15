@@ -95,6 +95,24 @@ public final class ModItems {
             () -> new BlockItem(ModBlocks.ASSEMBLER_MATRIX_SPEED.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))
     );
 
+    // Quantum Computer block items
+    public static final RegistryObject<Item> QUANTUM_UNIT = ITEMS.register(
+            "quantum_unit", () -> new BlockItem(ModBlocks.QUANTUM_UNIT.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB)));
+    public static final RegistryObject<Item> QUANTUM_CORE = ITEMS.register(
+            "quantum_core", () -> new BlockItem(ModBlocks.QUANTUM_CORE.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB)));
+    public static final RegistryObject<Item> QUANTUM_STORAGE_128M = ITEMS.register(
+            "quantum_storage_128m", () -> new BlockItem(ModBlocks.QUANTUM_STORAGE_128M.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB)));
+    public static final RegistryObject<Item> QUANTUM_STORAGE_256M = ITEMS.register(
+            "quantum_storage_256m", () -> new BlockItem(ModBlocks.QUANTUM_STORAGE_256M.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB)));
+    public static final RegistryObject<Item> QUANTUM_DATA_ENTANGLER = ITEMS.register(
+            "quantum_data_entangler", () -> new BlockItem(ModBlocks.QUANTUM_DATA_ENTANGLER.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB)));
+    public static final RegistryObject<Item> QUANTUM_ACCELERATOR = ITEMS.register(
+            "quantum_accelerator", () -> new BlockItem(ModBlocks.QUANTUM_ACCELERATOR.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB)));
+    public static final RegistryObject<Item> QUANTUM_MULTI_THREADER = ITEMS.register(
+            "quantum_multi_threader", () -> new BlockItem(ModBlocks.QUANTUM_MULTI_THREADER.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB)));
+    public static final RegistryObject<Item> QUANTUM_STRUCTURE = ITEMS.register(
+            "quantum_structure", () -> new BlockItem(ModBlocks.QUANTUM_STRUCTURE.get(), new Item.Properties().tab(ModCreativeTabs.MAIN_TAB)));
+
     public static final RegistryObject<MirrorPatternBindingToolItem> MIRROR_PATTERN_BINDING_TOOL = ITEMS.register(
             "mirror_pattern_binding_tool",
             () -> new MirrorPatternBindingToolItem(new Item.Properties().tab(ModCreativeTabs.MAIN_TAB))

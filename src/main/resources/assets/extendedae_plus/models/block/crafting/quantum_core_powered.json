@@ -1,0 +1,6 @@
+﻿{
+    "textures":  {
+                     "all":  "extendedae_plus:block/crafting/quantum_core_nucleus"
+                 },
+    "parent":  "minecraft:block/cube_all"
+}

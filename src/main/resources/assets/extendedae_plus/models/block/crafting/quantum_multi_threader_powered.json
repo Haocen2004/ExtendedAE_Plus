@@ -1,0 +1,8 @@
+﻿{
+    "textures":  {
+                     "bottom":  "extendedae_plus:block/crafting/quantum_internal_powered_animation_tb",
+                     "top":  "extendedae_plus:block/crafting/quantum_internal_powered_animation_tb",
+                     "side":  "extendedae_plus:block/crafting/quantum_internal_powered_sides"
+                 },
+    "parent":  "minecraft:block/cube_bottom_top"
+}

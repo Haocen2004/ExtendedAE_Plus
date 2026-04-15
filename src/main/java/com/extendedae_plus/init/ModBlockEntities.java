@@ -67,4 +67,17 @@ public final class ModBlockEntities {
             BLOCK_ENTITY_TYPES.register("assembler_matrix_speed",
                     () -> BlockEntityType.Builder.of(com.extendedae_plus.content.matrix.entity.AssemblerMatrixSpeedEntity::new,
                             ModBlocks.ASSEMBLER_MATRIX_SPEED.get()).build(null));
+
+    // Quantum Computer block entity (shared by all 8 quantum block types)
+    public static final RegistryObject<BlockEntityType<com.extendedae_plus.content.quantum.entity.QuantumCraftingBlockEntity>> QUANTUM_CRAFTING_UNIT =
+            BLOCK_ENTITY_TYPES.register("quantum_crafting_unit",
+                    () -> BlockEntityType.Builder.of(com.extendedae_plus.content.quantum.entity.QuantumCraftingBlockEntity::new,
+                            ModBlocks.QUANTUM_UNIT.get(),
+                            ModBlocks.QUANTUM_CORE.get(),
+                            ModBlocks.QUANTUM_STORAGE_128M.get(),
+                            ModBlocks.QUANTUM_STORAGE_256M.get(),
+                            ModBlocks.QUANTUM_DATA_ENTANGLER.get(),
+                            ModBlocks.QUANTUM_ACCELERATOR.get(),
+                            ModBlocks.QUANTUM_MULTI_THREADER.get(),
+                            ModBlocks.QUANTUM_STRUCTURE.get()).build(null));
 }

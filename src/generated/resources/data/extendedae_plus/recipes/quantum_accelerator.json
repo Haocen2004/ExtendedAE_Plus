@@ -1,0 +1,25 @@
+﻿{
+    "key":  {
+                "E":  {
+                          "item":  "extendedae_plus:oblivion_singularity"
+                      },
+                "S":  {
+                          "item":  "ae2:singularity"
+                      },
+                "U":  {
+                          "item":  "extendedae_plus:quantum_unit"
+                      }
+            },
+    "pattern":  [
+                    "ESE",
+                    "SUS",
+                    "ESE"
+                ],
+    "result":  {
+                   "count":  1,
+                   "item":  "extendedae_plus:quantum_accelerator"
+               },
+    "type":  "minecraft:crafting_shaped",
+    "show_notification":  true
+}
+

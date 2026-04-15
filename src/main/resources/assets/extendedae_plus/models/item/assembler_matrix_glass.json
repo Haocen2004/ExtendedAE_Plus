@@ -1,3 +1,6 @@
 ﻿{
-  "parent": "extendedae_plus:block/matrix/assembler_matrix_glass"
+  "parent": "minecraft:block/cube_all",
+  "textures": {
+    "all": "extendedae_plus:block/matrix/assembler_matrix_glass_formed"
+  }
 }

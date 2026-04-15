@@ -1,0 +1,23 @@
+﻿{
+    "ingredients":  [
+                        {
+                            "item":  "extendedae_plus:oblivion_singularity"
+                        },
+                        {
+                            "item":  "extendedae_plus:quantum_storage_128m"
+                        },
+                        {
+                            "item":  "extendedae_plus:quantum_storage_128m"
+                        },
+                        {
+                            "item":  "extendedae_plus:quantum_unit"
+                        }
+                    ],
+    "result":  {
+                   "count":  1,
+                   "item":  "extendedae_plus:quantum_storage_256m"
+               },
+    "type":  "minecraft:crafting_shapeless",
+    "show_notification":  true
+}
+

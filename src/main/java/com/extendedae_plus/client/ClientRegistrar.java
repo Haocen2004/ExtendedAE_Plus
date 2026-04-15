@@ -7,9 +7,11 @@ import com.extendedae_plus.ae.menu.EntitySpeedTickerMenu;
 import com.extendedae_plus.ae.screen.EntitySpeedTickerScreen;
 import com.extendedae_plus.client.model.AssemblerGlassModel;
 import com.extendedae_plus.client.render.crafting.EPlusCraftingCubeModelProvider;
+import com.extendedae_plus.client.render.crafting.QuantumCraftingCubeModelProvider;
 import com.extendedae_plus.client.screen.GlobalProviderModesScreen;
 import com.extendedae_plus.client.screen.LabeledWirelessTransceiverScreen;
 import com.extendedae_plus.content.crafting.EPlusCraftingUnitType;
+import com.extendedae_plus.content.quantum.QuantumCraftingUnitType;
 import com.extendedae_plus.init.ModItems;
 import com.extendedae_plus.init.ModMenuTypes;
 import com.extendedae_plus.items.materials.EntitySpeedCardItem;
@@ -81,11 +83,27 @@ public final class ClientRegistrar {
         registerFormedLoader(evt, "block/crafting/64x_accelerator_formed_v2", EPlusCraftingUnitType.ACCELERATOR_64x);
         registerFormedLoader(evt, "block/crafting/256x_accelerator_formed_v2", EPlusCraftingUnitType.ACCELERATOR_256x);
         registerFormedLoader(evt, "block/crafting/1024x_accelerator_formed_v2", EPlusCraftingUnitType.ACCELERATOR_1024x);
+
+        registerQuantumFormedLoader(evt, QuantumCraftingUnitType.QUANTUM_UNIT);
+        registerQuantumFormedLoader(evt, QuantumCraftingUnitType.STORAGE_128M);
+        registerQuantumFormedLoader(evt, QuantumCraftingUnitType.STORAGE_256M);
+        registerQuantumFormedLoader(evt, QuantumCraftingUnitType.DATA_ENTANGLER);
+        registerQuantumFormedLoader(evt, QuantumCraftingUnitType.QUANTUM_ACCELERATOR);
+        registerQuantumFormedLoader(evt, QuantumCraftingUnitType.MULTI_THREADER);
+        registerQuantumFormedLoader(evt, QuantumCraftingUnitType.STRUCTURE);
+
         evt.register("assembler_matrix_glass", new AssemblerGlassModel.Loader());
     }
 
     private static void registerFormedLoader(ModelEvent.RegisterGeometryLoaders evt, String name, EPlusCraftingUnitType type) {
         IGeometryLoader<CraftingCubeModel> loader = (json, ctx) -> new CraftingCubeModel(new EPlusCraftingCubeModelProvider(type));
+        evt.register(name, loader);
+    }
+
+    private static void registerQuantumFormedLoader(ModelEvent.RegisterGeometryLoaders evt, QuantumCraftingUnitType type) {
+        var name = "block/crafting/" + type.getRegistryName() + "_formed";
+        IGeometryLoader<CraftingCubeModel> loader =
+                (json, ctx) -> new CraftingCubeModel(new QuantumCraftingCubeModelProvider(type));
         evt.register(name, loader);
     }
 }

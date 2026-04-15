@@ -2,7 +2,7 @@
   "variants": {
     "formed=false,powered=false": { "model": "extendedae_plus:block/matrix/assembler_matrix_glass" },
     "formed=false,powered=true": { "model": "extendedae_plus:block/matrix/assembler_matrix_glass" },
-    "formed=true,powered=false": { "model": "extendedae_plus:block/matrix/assembler_matrix_glass_formed" },
-    "formed=true,powered=true": { "model": "extendedae_plus:block/matrix/assembler_matrix_glass_formed" }
+    "formed=true,powered=false": { "model": "extendedae_plus:block/matrix/assembler_matrix_glass" },
+    "formed=true,powered=true": { "model": "extendedae_plus:block/matrix/assembler_matrix_glass" }
   }
 }
