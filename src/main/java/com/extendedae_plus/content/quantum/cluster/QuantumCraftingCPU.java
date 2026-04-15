@@ -92,6 +92,10 @@ public class QuantumCraftingCPU implements ICraftingCPU {
         return cluster.getSelectionMode();
     }
 
+    public QuantumCPUCluster getCluster() {
+        return this.cluster;
+    }
+
     public void markDirty() {
         cluster.markDirty();
     }

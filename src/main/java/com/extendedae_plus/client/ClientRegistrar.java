@@ -58,6 +58,10 @@ public final class ClientRegistrar {
         InitScreens.register(ModMenuTypes.ASSEMBLER_MATRIX.get(),
                 com.extendedae_plus.content.matrix.gui.AssemblerMatrixScreen::new,
                 "/screens/assembler_matrix.json");
+        // Quantum Computer uses AE2's crafting_cpu.json since it extends CraftingCPUScreen
+        InitScreens.register(ModMenuTypes.QUANTUM_COMPUTER.get(),
+                com.extendedae_plus.content.quantum.screen.QuantumComputerScreen::new,
+                "/screens/crafting_cpu.json");
     }
 
     /**
@@ -85,6 +89,7 @@ public final class ClientRegistrar {
         registerFormedLoader(evt, "block/crafting/1024x_accelerator_formed_v2", EPlusCraftingUnitType.ACCELERATOR_1024x);
 
         registerQuantumFormedLoader(evt, QuantumCraftingUnitType.QUANTUM_UNIT);
+        registerQuantumFormedLoader(evt, QuantumCraftingUnitType.QUANTUM_CORE);
         registerQuantumFormedLoader(evt, QuantumCraftingUnitType.STORAGE_128M);
         registerQuantumFormedLoader(evt, QuantumCraftingUnitType.STORAGE_256M);
         registerQuantumFormedLoader(evt, QuantumCraftingUnitType.DATA_ENTANGLER);

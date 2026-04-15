@@ -31,6 +31,8 @@ import org.jetbrains.annotations.Nullable;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import appeng.hooks.ticking.TickHandler;
+
 import java.lang.reflect.Constructor;
 import java.util.*;
 import java.util.function.Consumer;
@@ -49,6 +51,8 @@ public class QuantumCraftingCPULogic {
     private final int[] usedOps = new int[3];
     private boolean cantStoreItems;
     private final List<Consumer<AEKey>> listeners = new ArrayList<>();
+    private long lastModifiedOnTick = TickHandler.instance().getCurrentTick();
+    private boolean markedForDeletion = false;
 
     // Reflection cache for constructors
     private static Constructor<?> jobNewCtor;
@@ -147,6 +151,10 @@ public class QuantumCraftingCPULogic {
             this.storeItems();
             if (!this.inventory.list.isEmpty()) {
                 cantStoreItems = true;
+            } else {
+                if (markedForDeletion) {
+                    cpu.deactivate();
+                }
             }
             return;
         }
@@ -350,9 +358,22 @@ public class QuantumCraftingCPULogic {
     }
 
     private void postChange(AEKey what) {
+        lastModifiedOnTick = TickHandler.instance().getCurrentTick();
         for (var listener : listeners) {
             listener.accept(what);
         }
+    }
+
+    public long getLastModifiedOnTick() {
+        return lastModifiedOnTick;
+    }
+
+    public void markForDeletion() {
+        this.markedForDeletion = true;
+    }
+
+    public boolean isMarkedForDeletion() {
+        return this.markedForDeletion;
     }
 
     public boolean hasJob() {

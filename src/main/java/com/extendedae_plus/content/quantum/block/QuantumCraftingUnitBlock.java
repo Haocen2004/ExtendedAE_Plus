@@ -2,6 +2,10 @@ package com.extendedae_plus.content.quantum.block;
 
 import com.extendedae_plus.content.quantum.QuantumCraftingUnitType;
 import com.extendedae_plus.content.quantum.entity.QuantumCraftingBlockEntity;
+import com.extendedae_plus.init.ModMenuTypes;
+
+import appeng.menu.MenuOpener;
+import appeng.menu.locator.MenuLocators;
 import net.minecraft.core.BlockPos;
 import net.minecraft.core.Direction;
 import net.minecraft.world.InteractionHand;
@@ -106,7 +110,17 @@ public class QuantumCraftingUnitBlock extends AEBaseEntityBlock<QuantumCraftingB
     @Override
     public InteractionResult onActivated(Level level, BlockPos pos, Player player, InteractionHand hand,
             @Nullable ItemStack heldItem, BlockHitResult hit) {
-        // TODO: Open quantum computer menu when GUI is implemented
+        final QuantumCraftingBlockEntity te = this.getBlockEntity(level, pos);
+        
+        // Check if cluster exists (not using isFormed() since it now only returns true for large multiblocks)
+        if (te != null && te.getCluster() != null && te.isActive()) {
+            if (!level.isClientSide()) {
+                // Open Quantum Computer GUI
+                MenuOpener.open(ModMenuTypes.QUANTUM_COMPUTER.get(), player, MenuLocators.forBlockEntity(te));
+            }
+            return InteractionResult.sidedSuccess(level.isClientSide());
+        }
+        
         return InteractionResult.PASS;
     }
 

@@ -9,6 +9,8 @@ import com.extendedae_plus.init.ModBlocks;
 import appeng.api.implementations.IPowerChannelState;
 import appeng.api.networking.GridFlags;
 import appeng.api.networking.IGridMultiblock;
+import appeng.api.util.IConfigurableObject;
+import appeng.me.helpers.IGridConnectedBlockEntity;
 import appeng.api.networking.IGridNode;
 import appeng.api.networking.IGridNodeListener;
 import appeng.api.util.IConfigManager;
@@ -42,7 +44,7 @@ import java.util.Set;
  * Backported from AdvancedAE's AdvCraftingBlockEntity.
  */
 public class QuantumCraftingBlockEntity extends AENetworkBlockEntity
-        implements IAEMultiBlock<QuantumCPUCluster>, IPowerChannelState {
+        implements IAEMultiBlock<QuantumCPUCluster>, IPowerChannelState, IConfigurableObject, IGridConnectedBlockEntity {
 
     private final QuantumCPUCalculator calc = new QuantumCPUCalculator(this);
     private CompoundTag previousState = null;
@@ -104,7 +106,12 @@ public class QuantumCraftingBlockEntity extends AENetworkBlockEntity
         super.onReady();
         this.getMainNode().setVisualRepresentation(this.getItemFromBlockEntity());
         if (level instanceof ServerLevel serverLevel) {
-            this.calc.calculateMultiblock(serverLevel, worldPosition);
+            // Use GridHelper.onFirstTick to ensure grid is ready before calculating multiblock
+            appeng.api.networking.GridHelper.onFirstTick(this, be -> {
+                if (be.level instanceof ServerLevel sl) {
+                    be.calc.calculateMultiblock(sl, be.worldPosition);
+                }
+            });
         }
     }
 
@@ -120,6 +127,15 @@ public class QuantumCraftingBlockEntity extends AENetworkBlockEntity
         }
         this.cluster = c;
         this.updateSubType(true);
+        
+        // Notify CraftingService that CPU list has changed
+        var node = this.getMainNode().getNode();
+        if (node != null && node.isActive()) {
+            var grid = node.getGrid();
+            if (grid != null) {
+                grid.postEvent(new appeng.api.networking.events.GridCraftingCpuChange(node));
+            }
+        }
     }
 
     public void updateSubType(boolean updateFormed) {
@@ -148,7 +164,9 @@ public class QuantumCraftingBlockEntity extends AENetworkBlockEntity
     }
 
     private void updateExposedSides() {
-        if (isFormed()) {
+        // Expose sides when cluster exists (regardless of size)
+        // This ensures network connectivity for both small and large multiblocks
+        if (this.cluster != null) {
             this.getMainNode().setExposedOnSides(EnumSet.allOf(Direction.class));
         } else {
             this.getMainNode().setExposedOnSides(EnumSet.noneOf(Direction.class));
@@ -159,7 +177,29 @@ public class QuantumCraftingBlockEntity extends AENetworkBlockEntity
         if (isClientSide()) {
             return getBlockState().getValue(QuantumCraftingUnitBlock.FORMED);
         }
-        return this.cluster != null;
+        // Server side: check cluster exists AND multiblock edge length > 3
+        // (small multiblocks use individual block rendering)
+        if (this.cluster == null) {
+            return false;
+        }
+        return isLargeMultiblock();
+    }
+
+    /**
+     * Check if the multiblock has any dimension greater than 3.
+     * Used to determine if integrated rendering should be used.
+     */
+    private boolean isLargeMultiblock() {
+        if (this.cluster == null) {
+            return false;
+        }
+        BlockPos min = this.cluster.getBoundsMin();
+        BlockPos max = this.cluster.getBoundsMax();
+        int sizeX = max.getX() - min.getX() + 1;
+        int sizeY = max.getY() - min.getY() + 1;
+        int sizeZ = max.getZ() - min.getZ() + 1;
+        // Any dimension > 3 means large multiblock
+        return Math.max(Math.max(sizeX, sizeY), sizeZ) > 3;
     }
 
     @Override
@@ -262,7 +302,9 @@ public class QuantumCraftingBlockEntity extends AENetworkBlockEntity
         if (!isClientSide()) {
             return this.getMainNode().isActive();
         }
-        return this.isPowered() && this.isFormed();
+        // Client side: use POWERED state which indicates grid node is online
+        // (not using isFormed() since it now only returns true for large multiblocks)
+        return this.isPowered();
     }
 
     public boolean isCoreBlock() {
@@ -320,6 +362,7 @@ public class QuantumCraftingBlockEntity extends AENetworkBlockEntity
         return nodes.iterator();
     }
 
+    @Override
     public IConfigManager getConfigManager() {
         var cluster = this.getCluster();
         if (cluster != null) {
@@ -327,5 +370,13 @@ public class QuantumCraftingBlockEntity extends AENetworkBlockEntity
         } else {
             return NullConfigManager.INSTANCE;
         }
+    }
+
+    /**
+     * Called when the cluster data changes and needs to be persisted.
+     */
+    @Override
+    public void saveChanges() {
+        this.setChanged();
     }
 }

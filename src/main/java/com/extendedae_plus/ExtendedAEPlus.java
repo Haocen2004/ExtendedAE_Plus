@@ -147,7 +147,16 @@ public class ExtendedAEPlus {
         @SubscribeEvent
         public static void onClientSetup(final FMLClientSetupEvent event) {
             event.enqueueWork(() -> {
+                // Set RenderType for all quantum blocks
                 ItemBlockRenderTypes.setRenderLayer(ModBlocks.QUANTUM_STRUCTURE.get(), RenderType.translucent());
+                // Use cutout for non-structure quantum blocks to properly render textures
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.QUANTUM_UNIT.get(), RenderType.cutout());
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.QUANTUM_CORE.get(), RenderType.cutout());
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.QUANTUM_STORAGE_128M.get(), RenderType.cutout());
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.QUANTUM_STORAGE_256M.get(), RenderType.cutout());
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.QUANTUM_DATA_ENTANGLER.get(), RenderType.cutout());
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.QUANTUM_ACCELERATOR.get(), RenderType.cutout());
+                ItemBlockRenderTypes.setRenderLayer(ModBlocks.QUANTUM_MULTI_THREADER.get(), RenderType.cutout());
             });
 
             // 直接在此处执行客户端一次性注册（UI/屏幕/渲染器绑定）

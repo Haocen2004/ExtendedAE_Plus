@@ -39,4 +39,12 @@ public final class ModMenuTypes {
                             .create(com.extendedae_plus.content.matrix.menu.AssemblerMatrixMenu::new,
                                     com.extendedae_plus.content.matrix.entity.AssemblerMatrixBaseEntity.class)
                             .build("assembler_matrix"));
+
+    public static final RegistryObject<MenuType<com.extendedae_plus.content.quantum.menu.QuantumComputerMenu>> QUANTUM_COMPUTER =
+            MENUS.register("quantum_computer",
+                    () -> MenuTypeBuilder
+                            .<com.extendedae_plus.content.quantum.menu.QuantumComputerMenu, com.extendedae_plus.content.quantum.entity.QuantumCraftingBlockEntity>create(
+                                    (id, inv, host) -> new com.extendedae_plus.content.quantum.menu.QuantumComputerMenu(id, inv, host),
+                                    com.extendedae_plus.content.quantum.entity.QuantumCraftingBlockEntity.class)
+                            .build("quantum_computer"));
 }

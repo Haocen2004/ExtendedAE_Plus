@@ -1,6 +1,3 @@
 ﻿{
-    "textures":  {
-                     "all":  "extendedae_plus:block/crafting/quantum_core_out"
-                 },
-    "parent":  "minecraft:block/cube_all"
+    "loader": "extendedae_plus:block/crafting/quantum_core_formed"
 }

@@ -64,6 +64,8 @@
     "ae2.parts.automation.IOBusPartTickerChannelCardMixin",
     "ae2.parts.storagebus.StorageBusPartChannelCardMixin",
     "ae2.parts.storagebus.StorageBusPartTickerChannelCardMixin",
+    "ae2.quantum.CraftingCPUMenuQuantumMixin",
+    "ae2.quantum.CraftingServiceQuantumMixin",
     "extendedae.common.TileExPatternProviderMixin",
     "extendedae.common.PartExPatternProviderMixin",
     "extendedae.container.ContainerExPatternProviderMixin"

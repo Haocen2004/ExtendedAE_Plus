@@ -232,7 +232,7 @@ public class QuantumCPUCluster implements IAECluster {
         var cpu = this.activeCpus.get(id);
         if (cpu == null) return;
         cpu.craftingLogic.cancel();
-        cpu.markForDeletion();
+        cpu.craftingLogic.markForDeletion();
         recalculateRemainingStorage();
         if (updateGrid) {
             updateGridForChangedCpu(this);
@@ -254,7 +254,7 @@ public class QuantumCPUCluster implements IAECluster {
         var killList = new ArrayList<UUID>();
         for (var cpuEntry : activeCpus.entrySet()) {
             var cpu = cpuEntry.getValue();
-            if (cpu.craftingLogic.hasJob() || cpu.isMarkedForDeletion()) {
+            if (cpu.craftingLogic.hasJob() || cpu.craftingLogic.isMarkedForDeletion()) {
                 list.add(cpu);
             } else {
                 killList.add(cpuEntry.getKey());
