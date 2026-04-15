@@ -224,13 +224,13 @@ public abstract class PatternProviderLogicCompatMixin implements IUpgradeableObj
                 var hostItemId = ForgeRegistries.ITEMS.getKey(upgradeHostItem);
                 int channelMax = Upgrades.getMaxInstallable(ModItems.CHANNEL_CARD.get(), upgradeHostItem);
                 int virtualMax = Upgrades.getMaxInstallable(ModItems.VIRTUAL_CRAFTING_CARD.get(), upgradeHostItem);
-                Logger.EAP$LOGGER.info(
-                        "PatternProvider upgrades init: hostClass={}, hostItem={}, channelMax={}, virtualMax={}",
-                        host.getClass().getName(),
-                        hostItemId,
-                        channelMax,
-                        virtualMax
-                );
+                // Logger.EAP$LOGGER.info(
+                //         "PatternProvider upgrades init: hostClass={}, hostItem={}, channelMax={}, virtualMax={}",
+                //         host.getClass().getName(),
+                //         hostItemId,
+                //         channelMax,
+                //         virtualMax
+                // );
             } else if (!channelCard) {
                 this.eap$compatUpgrades = UpgradeInventories.empty();
             } else {

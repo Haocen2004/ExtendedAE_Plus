@@ -64,7 +64,7 @@ public abstract class PatternEncodingTermScreenMixin {
     @Unique
     private IconButton createUploadButton() {
         IconButton btn = new IconButton(button -> {
-                RecipeTypeNameConfig.lastProcessingName = null;
+                RecipeTypeNameConfig.setLastProcessingName(null);
                 ModNetwork.CHANNEL.sendToServer(new RequestProvidersListC2SPacket());
             }
         ) {

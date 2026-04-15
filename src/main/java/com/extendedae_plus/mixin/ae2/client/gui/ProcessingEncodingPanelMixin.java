@@ -214,7 +214,7 @@ public abstract class ProcessingEncodingPanelMixin extends EncodingModePanel {
         int leftPos = ((AbstractContainerScreenAccessor<?>) (Object) this.screen).eap$getLeftPos();
         int topPos = ((AbstractContainerScreenAccessor<?>) (Object) this.screen).eap$getTopPos();
         int imageHeight = ((AbstractContainerScreenAccessor<?>) (Object) this.screen).eap$getImageHeight();
-        button.setX(leftPos + left + 1);
-        button.setY(topPos + imageHeight - bottom);
+        button.x = leftPos + left + 1;
+        button.y = topPos + imageHeight - bottom;
     }
 }

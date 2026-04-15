@@ -2,8 +2,6 @@ package com.extendedae_plus.network.crafting;
   
 import appeng.client.gui.me.common.MEStorageScreen;  
 import com.extendedae_plus.mixin.ae2.accessor.MEStorageScreenAccessor;  
-import com.extendedae_plus.mixin.extendedae.accessor.GuiExPatternTerminalAccessor;  
-import com.glodblock.github.extendedae.client.gui.GuiExPatternTerminal;  
 import net.minecraft.client.Minecraft;  
 import net.minecraft.network.FriendlyByteBuf;  
 import net.minecraftforge.api.distmarker.Dist;  
@@ -40,12 +38,6 @@ public class SetSearchTextS2CPacket {
                 MEStorageScreenAccessor acc = (MEStorageScreenAccessor) me;  
                 acc.eap$getSearchField().setValue(msg.text);  
                 acc.eap$setSearchText(msg.text);  
-            } catch (Throwable ignored) {  
-            }  
-        } else if (screen instanceof GuiExPatternTerminal<?> gpt) {  
-            try {  
-                GuiExPatternTerminalAccessor acc = (GuiExPatternTerminalAccessor) gpt;  
-                acc.getSearchOutField().setValue(msg.text);  
             } catch (Throwable ignored) {  
             }  
         }  

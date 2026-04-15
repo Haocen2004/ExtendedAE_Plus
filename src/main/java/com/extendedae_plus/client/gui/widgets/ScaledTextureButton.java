@@ -1,10 +1,10 @@
 package com.extendedae_plus.client.gui.widgets;
 
 import appeng.client.gui.Icon;
+import appeng.client.gui.style.Blitter;
 import com.mojang.blaze3d.systems.RenderSystem;
-import net.minecraft.client.gui.GuiGraphics;
+import com.mojang.blaze3d.vertex.PoseStack;
 import net.minecraft.client.gui.components.Button;
-import net.minecraft.client.gui.components.Tooltip;
 import net.minecraft.network.chat.Component;
 import net.minecraft.resources.ResourceLocation;
 
@@ -23,8 +23,7 @@ public class ScaledTextureButton extends Button {
             int srcX, int srcY, int srcWidth, int srcHeight, float scale,
             Component tooltipText, OnPress onPress) {
         super(0, 0, Math.round(srcWidth * scale), Math.round(srcHeight * scale),
-                Component.empty(), btn -> {
-                }, DEFAULT_NARRATION);
+                Component.empty(), btn -> {});
         this.delegateOnPress = onPress;
         this.texture = texture;
         this.textureWidth = textureWidth;
@@ -34,9 +33,7 @@ public class ScaledTextureButton extends Button {
         this.srcWidth = srcWidth;
         this.srcHeight = srcHeight;
         this.scale = scale;
-        if (tooltipText != null) {
-            this.setTooltip(Tooltip.create(tooltipText));
-        }
+        // Tooltip.create() requires 1.20+; tooltip display not supported in 1.19.2
     }
 
     public void setVisibility(boolean visible) {
@@ -63,7 +60,7 @@ public class ScaledTextureButton extends Button {
     }
 
     @Override
-    public void renderWidget(GuiGraphics guiGraphics, int mouseX, int mouseY, float partialTick) {
+    public void renderButton(PoseStack poseStack, int mouseX, int mouseY, float partialTick) {
         if (!this.visible) {
             return;
         }
@@ -71,28 +68,29 @@ public class ScaledTextureButton extends Button {
         this.width = Math.round(this.srcWidth * this.scale);
         this.height = Math.round(this.srcHeight * this.scale);
 
-        int yOffset = this.isHovered() ? 1 : 0;
+        int yOffset = this.isHovered ? 1 : 0;
 
         RenderSystem.disableDepthTest();
         RenderSystem.enableBlend();
 
-        var pose = guiGraphics.pose();
-        pose.pushPose();
-        pose.translate(getX(), getY() + yOffset, 0.0F);
-        pose.scale(scale, scale, 1.0F);
+        poseStack.pushPose();
+        poseStack.translate(this.x, this.y + yOffset, 0.0F);
+        poseStack.scale(scale, scale, 1.0F);
 
-        Icon.TOOLBAR_BUTTON_BACKGROUND.getBlitter().dest(0, 0).blit(guiGraphics);
+        Icon.TOOLBAR_BUTTON_BACKGROUND.getBlitter().dest(0, 0).blit(poseStack, 0);
 
         if (!this.active) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 0.5F);
         }
-        guiGraphics.blit(this.texture, 0, 0, this.srcX, this.srcY, this.srcWidth, this.srcHeight,
-                this.textureWidth, this.textureHeight);
+        Blitter.texture(this.texture, this.textureWidth, this.textureHeight)
+                .src(this.srcX, this.srcY, this.srcWidth, this.srcHeight)
+                .dest(0, 0)
+                .blit(poseStack, 0);
         if (!this.active) {
             RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         }
 
-        pose.popPose();
+        poseStack.popPose();
         RenderSystem.enableDepthTest();
     }
 }
