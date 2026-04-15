@@ -42,7 +42,7 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
     // 存储的物品种类数量
     private int totalAEKeyType;
     // 存储的物品总数
-    private BigInteger totalAEKey2Amounts = BI_ZERO;
+    private final MutableBigCounter totalAEKey2Amounts = new MutableBigCounter();
     // 标记是否已持久化到 SavedData
     private boolean isPersisted = true;
 
@@ -98,14 +98,16 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
         if (hasUUID()) {
             InfinityDataStorage storage = getCellStorage();
             this.totalAEKeyType = storage.amounts.size();
-            this.totalAEKey2Amounts = storage.itemCount.equals(BI_ZERO) ?
-                    BI_ZERO :
-                    storage.itemCount;
+            if (storage.itemCount.equals(BI_ZERO)) {
+                this.totalAEKey2Amounts.setZero();
+            } else {
+                this.totalAEKey2Amounts.set(storage.itemCount);
+            }
 
         } else {
             // 否则初始化为空
             this.totalAEKeyType = 0;
-            this.totalAEKey2Amounts = BI_ZERO;
+            this.totalAEKey2Amounts.setZero();
             // 加载物品数据
             getCellStoredMap();
         }
@@ -115,7 +117,7 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
     @Override
     public CellState getStatus() {
         // 如果没有存储任何物品，返回空状态
-        if (this.getTotalAEKey2Amounts().equals(BI_ZERO)) {
+        if (this.totalAEKey2Amounts.isZero()) {
             return CellState.EMPTY;
         }
         // 否则返回满状态
@@ -134,7 +136,7 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
         if (this.isPersisted)
             return;
 
-        if (totalAEKey2Amounts.equals(BI_ZERO)) {
+        if (totalAEKey2Amounts.isZero()) {
             if (hasUUID()) {
                 getStorageManagerInstance().removeCell(getUUID());
                 if (self.hasTag()) {
@@ -155,8 +157,8 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
         ListTag keys = new ListTag();
         // 创建物品数量列表
         ListTag amounts = new ListTag();
-        // 初始化物品总数
-        BigInteger itemCount = BI_ZERO;
+        // 直接使用缓存总量，避免在持久化阶段再次全量 BigInteger.add
+        BigInteger itemCount = this.totalAEKey2Amounts.toBigInteger();
 
         for (var entry : this.AEKey2AmountsMap.object2ObjectEntrySet()) {
             BigInteger amount = entry.getValue();
@@ -166,8 +168,6 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
                 CompoundTag amountTag = new CompoundTag();
                 amountTag.putByteArray("value", amount.toByteArray());
                 amounts.add(amountTag);
-
-                itemCount = itemCount.add(amount);
             }
         }
 
@@ -179,8 +179,8 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
 
         // 更新存储的物品种类数量
         this.totalAEKeyType = this.AEKey2AmountsMap.size();
-        // 更新存储的物品总数
-        this.totalAEKey2Amounts = itemCount;
+        // 重新写入缓存总量，保证与最终持久化值一致
+        this.totalAEKey2Amounts.set(itemCount);
         // 将物品总数与种类数量存入物品堆栈的 NBT（用于快捷查看／tooltip），同时保留旧字段以兼容历史版本
         var tag = self.getOrCreateTag();
         tag.putByteArray(InfinityConstants.INFINITY_ITEM_TOTAL, itemCount.toByteArray());
@@ -212,7 +212,7 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
 
     // 获取存储的物品总数
     public BigInteger getTotalAEKey2Amounts() {
-        return this.totalAEKey2Amounts;
+        return this.totalAEKey2Amounts.toBigInteger();
     }
 
     // 获取存储的物品种类数量
@@ -302,7 +302,7 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
             }
         }
         if (dataCorruption) {
-            this.saveChanges();
+            this.saveChangesWithRecount();
         }
     }
 
@@ -312,15 +312,7 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
     }
 
     // 标记数据需要保存，并通知容器或直接持久化
-    private void saveChanges() {
-        // 更新存储的物品种类数量
-        this.totalAEKeyType = this.AEKey2AmountsMap.size();
-        // 重置物品总数
-        this.totalAEKey2Amounts = BI_ZERO;
-        // 计算物品总数
-        for (BigInteger AEKey2Amounts : this.AEKey2AmountsMap.values()) {
-            this.totalAEKey2Amounts = this.totalAEKey2Amounts.add(AEKey2Amounts);
-        }
+    private void markDirty() {
         // 标记数据未持久化
         this.isPersisted = false;
         // 如果有保存提供者，通知保存
@@ -330,6 +322,55 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
             // 否则立即持久化
             this.persist();
         }
+    }
+
+    // 全量重算总量（仅用于数据修复等低频路径）
+    private void saveChangesWithRecount() {
+        // 更新存储的物品种类数量
+        this.totalAEKeyType = this.AEKey2AmountsMap.size();
+        // 重置物品总数
+        this.totalAEKey2Amounts.setZero();
+        // 计算物品总数
+        for (BigInteger AEKey2Amounts : this.AEKey2AmountsMap.values()) {
+            this.totalAEKey2Amounts.add(AEKey2Amounts);
+        }
+        markDirty();
+    }
+
+    // 增量更新总量（高频插入/提取路径）
+    private void saveChangesWithDelta(BigInteger amountDelta, int typeDelta) {
+        this.totalAEKey2Amounts.add(amountDelta);
+        this.totalAEKey2Amounts.clampToZero();
+
+        if (typeDelta != 0) {
+            this.totalAEKeyType = Math.max(0, this.totalAEKeyType + typeDelta);
+        }
+
+        markDirty();
+    }
+
+    // 使用减法可避免 amount.negate() 产生中间对象
+    private void saveChangesWithSubtract(BigInteger amount, int typeDelta) {
+        this.totalAEKey2Amounts.subtract(amount);
+        this.totalAEKey2Amounts.clampToZero();
+
+        if (typeDelta != 0) {
+            this.totalAEKeyType = Math.max(0, this.totalAEKeyType + typeDelta);
+        }
+
+        markDirty();
+    }
+
+    // long 快路径，减少高频 BigInteger.valueOf 创建
+    private void saveChangesWithDelta(long amountDelta, int typeDelta) {
+        this.totalAEKey2Amounts.add(amountDelta);
+        this.totalAEKey2Amounts.clampToZero();
+
+        if (typeDelta != 0) {
+            this.totalAEKeyType = Math.max(0, this.totalAEKeyType + typeDelta);
+        }
+
+        markDirty();
     }
 
     // 插入物品到存储单元
@@ -357,10 +398,11 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
         BigInteger currentAmount = this.getCellStoredMap().getOrDefault(what, BI_ZERO);
 
         if (mode == Actionable.MODULATE) {
-            // 实际插入，更新数量并保存
-            BigInteger newAmount = currentAmount.add(BigInteger.valueOf(amount));
+            // 实际插入，优先走 long 快路径避免高频大数加法开销
+            BigInteger newAmount = addLongFast(currentAmount, amount);
             getCellStoredMap().put(what, newAmount);
-            this.saveChanges();
+            int typeDelta = currentAmount.signum() == 0 ? 1 : 0;
+            this.saveChangesWithDelta(amount, typeDelta);
         }
         return amount;
     }
@@ -371,31 +413,165 @@ public class InfinityBigIntegerCellInventory implements StorageCell {
         BigInteger currentAmount = this.getCellStoredMap().getOrDefault(what, BI_ZERO);
         // 如果有物品可提取
         if (currentAmount.compareTo(BI_ZERO) > 0) {
-
-            BigInteger requested = BigInteger.valueOf(amount);
-
             // 如果提取数量大于等于当前数量
-            if (requested.compareTo(currentAmount) >= 0) {
+            boolean drainAll;
+            if (currentAmount.bitLength() <= 63) {
+                drainAll = amount >= currentAmount.longValue();
+            } else {
+                // currentAmount > Long.MAX_VALUE，requested(long) 不可能覆盖全部
+                drainAll = false;
+            }
+
+            if (drainAll) {
                 if (mode == Actionable.MODULATE) {
                     getCellStoredMap().remove(what);
-                    this.saveChanges();
+                    this.saveChangesWithSubtract(currentAmount, -1);
                 }
                 return currentAmount.compareTo(BI_LONG_MAX) > 0 ? Long.MAX_VALUE : currentAmount.longValue();
             } else {
                 // 提取部分数量
                 if (mode == Actionable.MODULATE) {
-                    getCellStoredMap().put(what, currentAmount.subtract(requested));
-                    this.saveChanges();
+                    getCellStoredMap().put(what, addLongFast(currentAmount, -amount));
+                    this.saveChangesWithDelta(-amount, 0);
                 }
-                return requested.longValue();
+                return amount;
             }
         }
         return 0;
     }
 
+    private static BigInteger addLongFast(BigInteger base, long delta) {
+        if (delta == 0L) {
+            return base;
+        }
+
+        if (base.bitLength() <= 63) {
+            long v = base.longValue();
+            if (!willOverflow(v, delta)) {
+                return BigInteger.valueOf(v + delta);
+            }
+        }
+
+        return base.add(BigInteger.valueOf(delta));
+    }
+
+    private static boolean willOverflow(long a, long b) {
+        long r = a + b;
+        return ((a ^ r) & (b ^ r)) < 0;
+    }
+
     // 获取存储单元内所有物品的总数量（格式化字符串）
     public String getTotalStorage() {
         // 使用缓存的 totalStored，避免每次全表扫描
-        return formatBigInteger(totalAEKey2Amounts);
+        return formatBigInteger(totalAEKey2Amounts.toBigInteger());
+    }
+
+    /**
+     * 内部可变计数器：对外仍暴露 BigInteger，内部优先走 long 快路径。
+     */
+    private static final class MutableBigCounter {
+        private long fastValue;
+        private BigInteger bigValue;
+
+        void setZero() {
+            this.fastValue = 0L;
+            this.bigValue = null;
+        }
+
+        void set(BigInteger value) {
+            if (value == null || value.signum() == 0) {
+                setZero();
+                return;
+            }
+
+            if (value.bitLength() <= 63) {
+                this.fastValue = value.longValue();
+                this.bigValue = null;
+            } else {
+                this.fastValue = 0L;
+                this.bigValue = value;
+            }
+        }
+
+        boolean isZero() {
+            return this.bigValue == null ? this.fastValue == 0L : this.bigValue.signum() == 0;
+        }
+
+        void add(long delta) {
+            if (delta == 0L) {
+                return;
+            }
+
+            if (this.bigValue == null) {
+                if (willOverflow(this.fastValue, delta)) {
+                    this.bigValue = BigInteger.valueOf(this.fastValue).add(BigInteger.valueOf(delta));
+                    this.fastValue = 0L;
+                } else {
+                    this.fastValue += delta;
+                }
+            } else {
+                this.bigValue = this.bigValue.add(BigInteger.valueOf(delta));
+            }
+        }
+
+        void add(BigInteger delta) {
+            if (delta == null || delta.signum() == 0) {
+                return;
+            }
+
+            if (this.bigValue == null) {
+                this.bigValue = BigInteger.valueOf(this.fastValue).add(delta);
+                this.fastValue = 0L;
+            } else {
+                this.bigValue = this.bigValue.add(delta);
+            }
+
+            if (this.bigValue.bitLength() <= 63) {
+                this.fastValue = this.bigValue.longValue();
+                this.bigValue = null;
+            }
+        }
+
+        void subtract(BigInteger amount) {
+            if (amount == null || amount.signum() == 0) {
+                return;
+            }
+
+            if (this.bigValue == null) {
+                if (amount.bitLength() <= 63) {
+                    this.fastValue -= amount.longValue();
+                } else {
+                    this.bigValue = BigInteger.valueOf(this.fastValue).subtract(amount);
+                    this.fastValue = 0L;
+                }
+            } else {
+                this.bigValue = this.bigValue.subtract(amount);
+            }
+        }
+
+        void clampToZero() {
+            if (this.bigValue == null) {
+                if (this.fastValue < 0L) {
+                    this.fastValue = 0L;
+                }
+                return;
+            }
+
+            if (this.bigValue.signum() < 0) {
+                setZero();
+            } else if (this.bigValue.bitLength() <= 63) {
+                this.fastValue = this.bigValue.longValue();
+                this.bigValue = null;
+            }
+        }
+
+        BigInteger toBigInteger() {
+            return this.bigValue == null ? BigInteger.valueOf(this.fastValue) : this.bigValue;
+        }
+
+        private static boolean willOverflow(long a, long b) {
+            long r = a + b;
+            return ((a ^ r) & (b ^ r)) < 0;
+        }
     }
 }

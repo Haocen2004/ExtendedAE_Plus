@@ -42,6 +42,7 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
     private static final int FAST_SYNC_INTERVAL = 2;
     private static final int STABLE_SYNC_INTERVAL = 20;
     private static final int UNLOADED_MASTER_RETRY_INTERVAL = 40;
+    private static final int UNKNOWN_VERSION_PATTERN_COMPARE_INTERVAL = 100;
     private static final int AE2_PATTERN_SLOTS = 9;
     private static final int EXTENDED_PATTERN_PROVIDER_BASE_SLOTS = 36;
     private static final InternalInventory DISABLED_PATTERN_INVENTORY = new AppEngInternalInventory(0);
@@ -54,6 +55,7 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
     private BlockPos masterPos;
 
     private long nextSyncTick = Long.MIN_VALUE;
+    private long nextUnknownVersionPatternCompareTick = Long.MIN_VALUE;
     private long lastSyncedPatternVersion = UNKNOWN_PATTERN_SYNC_VERSION;
     private boolean needsUnboundPatternCleanup;
 
@@ -459,6 +461,18 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
 
     private boolean syncMirroredPatterns(PatternProviderBlockEntity master, boolean forceSync) {
         var masterPatternVersion = getPatternSyncVersion(master);
+
+        // Providers without version tracking require fallback compare; throttle this path to
+        // avoid frequent deep NBT equals on every stable sync cycle.
+        if (!forceSync && masterPatternVersion == UNKNOWN_PATTERN_SYNC_VERSION
+                && this.getLevel() instanceof ServerLevel serverLevel) {
+            if (serverLevel.getGameTime() < this.nextUnknownVersionPatternCompareTick) {
+                return false;
+            }
+            this.nextUnknownVersionPatternCompareTick =
+                    serverLevel.getGameTime() + UNKNOWN_VERSION_PATTERN_COMPARE_INTERVAL;
+        }
+
         if (!forceSync && masterPatternVersion != UNKNOWN_PATTERN_SYNC_VERSION
                 && masterPatternVersion == this.lastSyncedPatternVersion) {
             return false;
@@ -485,6 +499,7 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
 
         if (masterPatternVersion != UNKNOWN_PATTERN_SYNC_VERSION) {
             this.lastSyncedPatternVersion = masterPatternVersion;
+            this.nextUnknownVersionPatternCompareTick = Long.MIN_VALUE;
         } else if (changed) {
             this.invalidatePatternSyncState();
         }
@@ -542,10 +557,12 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
 
     private void scheduleImmediateSync() {
         this.nextSyncTick = Long.MIN_VALUE;
+        this.nextUnknownVersionPatternCompareTick = Long.MIN_VALUE;
     }
 
     private void invalidatePatternSyncState() {
         this.lastSyncedPatternVersion = UNKNOWN_PATTERN_SYNC_VERSION;
+        this.nextUnknownVersionPatternCompareTick = Long.MIN_VALUE;
     }
 
     @Nullable
@@ -656,11 +673,27 @@ public class MirrorPatternProviderBlockEntity extends PatternProviderBlockEntity
     }
 
     private static boolean sameStack(ItemStack left, ItemStack right) {
+        if (left == right) {
+            return true;
+        }
+
         if (left.isEmpty() && right.isEmpty()) {
             return true;
         }
 
-        return ItemStack.isSameItemSameTags(left, right) && left.getCount() == right.getCount();
+        if (left.isEmpty() || right.isEmpty()) {
+            return false;
+        }
+
+        if (left.getItem() != right.getItem()) {
+            return false;
+        }
+
+        if (left.getCount() != right.getCount()) {
+            return false;
+        }
+
+        return ItemStack.tagMatches(left, right);
     }
 
     private static long getPatternSyncVersion(PatternProviderBlockEntity master) {

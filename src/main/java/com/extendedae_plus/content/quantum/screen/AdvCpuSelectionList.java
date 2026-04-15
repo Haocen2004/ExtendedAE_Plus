@@ -209,10 +209,10 @@ public class AdvCpuSelectionList implements ICompositeWidget {
             var infoBar = new InfoBar();
             var currentJob = cpu.currentJob();
             if (currentJob != null) {
-                infoBar.add(Icon.ENTER, 1f, x + 2, y + 9);
+                infoBar.add(Icon.ENTER, 1f, 2, 9);
                 var craftAmt = currentJob.what().formatAmount(currentJob.amount(), AmountFormat.SLOT);
-                infoBar.add(craftAmt, textColor.toARGB(), 0.666f, x + 14, y + 13);
-                infoBar.add(currentJob.what(), 0.666f, x + 55, y + 9);
+                infoBar.add(craftAmt, textColor.toARGB(), 0.666f, 14, 13);
+                infoBar.add(currentJob.what(), 0.666f, 55, 9);
 
                 var progress = (int) (cpu.progress() * (buttonBg.getSrcWidth() - 1));
                 poseStack.pushPose();
@@ -226,26 +226,26 @@ public class AdvCpuSelectionList implements ICompositeWidget {
                         menu.getSelectedCpuSerial() == cpu.serial() ? 0xFF7da9d2 : selectedColor);
                 poseStack.popPose();
             } else {
-                infoBar.add(Icon.BACKGROUND_STORAGE_CELL, 1f, x + 32, y + 9);
+                infoBar.add(Icon.BACKGROUND_STORAGE_CELL, 1f, 32, 9);
 
                 String storageAmount = formatStorage(cpu);
-                infoBar.add(storageAmount, textColor.toARGB(), 0.666f, x + 44, y + 13);
+                infoBar.add(storageAmount, textColor.toARGB(), 0.666f, 44, 13);
 
                 if (cpu.coProcessors() > 0) {
-                    infoBar.add(Icon.LEVEL_ITEM, 1f, x + 2, y + 9);
+                    infoBar.add(Icon.LEVEL_ITEM, 1f, 2, 9);
                     String coProcessorCount = String.valueOf(cpu.coProcessors());
-                    infoBar.add(coProcessorCount, textColor.toARGB(), 0.666f, x + 14, y + 13);
+                    infoBar.add(coProcessorCount, textColor.toARGB(), 0.666f, 14, 13);
                 }
 
                 switch (cpu.mode()) {
-                    case PLAYER_ONLY -> infoBar.add(Icon.TERMINAL_STYLE_SMALL, 1f, x + 55, y + 9);
-                    case MACHINE_ONLY -> infoBar.add(Icon.WRENCH, 1f, x + 55, y + 9);
+                    case PLAYER_ONLY -> infoBar.add(Icon.TERMINAL_STYLE_SMALL, 1f, 55, 9);
+                    case MACHINE_ONLY -> infoBar.add(Icon.WRENCH, 1f, 55, 9);
                     default -> {
                     }
                 }
             }
 
-            infoBar.render(poseStack, x + 2, y + buttonBg.getSrcHeight() - 12);
+            infoBar.render(poseStack, x, y);
 
             y += buttonBg.getSrcHeight() + 1;
         }
