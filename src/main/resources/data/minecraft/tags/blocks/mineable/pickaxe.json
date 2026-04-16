@@ -9,6 +9,20 @@
     "extendedae_plus:64x_crafting_accelerator",
     "extendedae_plus:256x_crafting_accelerator",
     "extendedae_plus:1024x_crafting_accelerator",
-    "extendedae_plus:labeled_wireless_transceiver"
+    "extendedae_plus:labeled_wireless_transceiver",
+    "extendedae_plus:assembler_matrix_frame",
+    "extendedae_plus:assembler_matrix_wall",
+    "extendedae_plus:assembler_matrix_glass",
+    "extendedae_plus:assembler_matrix_pattern",
+    "extendedae_plus:assembler_matrix_crafter",
+    "extendedae_plus:assembler_matrix_speed",
+    "extendedae_plus:quantum_unit",
+    "extendedae_plus:quantum_core",
+    "extendedae_plus:quantum_storage_128m",
+    "extendedae_plus:quantum_storage_256m",
+    "extendedae_plus:quantum_data_entangler",
+    "extendedae_plus:quantum_accelerator",
+    "extendedae_plus:quantum_multi_threader",
+    "extendedae_plus:quantum_structure"
   ]
 }
